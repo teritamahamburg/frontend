@@ -1,0 +1,17 @@
+query ($id: ID!){
+    item(id: $id) {
+        histories {
+            id
+            checkedAt
+            depreciationAt
+            disposalAt
+            editUser {
+                name
+            }
+            room {
+                number
+            }
+            createdAt
+        }
+    }
+}

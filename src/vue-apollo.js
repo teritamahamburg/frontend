@@ -1,7 +1,9 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
-import { createApolloClient, restartWebsockets } from 'vue-cli-plugin-apollo/graphql-client';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { InMemoryCache } from 'apollo-cache-inmemory';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { createApolloClient, restartWebsockets } from 'vue-cli-plugin-apollo/graphql-client';
 
 // Install the vue plugin
 Vue.use(VueApollo);
@@ -10,7 +12,7 @@ Vue.use(VueApollo);
 const AUTH_TOKEN = 'apollo-token';
 
 // Http endpoint
-const httpEndpoint = `http://localhost:8081/graphql`;
+const httpEndpoint = `${window.location.protocol}//${window.location.host}/graphql`;
 
 // Config
 const defaultOptions = {
@@ -69,7 +71,10 @@ export function createProvider(options = {}) {
     },
     errorHandler(error) {
       // eslint-disable-next-line no-console
-      console.log('%cError', 'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;', error.message);
+      // console.log('%cError',
+      // 'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;',
+      // error.message);
+      if (window.gqlError) window.gqlError(error);
     },
   });
 
