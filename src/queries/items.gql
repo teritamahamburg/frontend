@@ -1,0 +1,28 @@
+query ($sort: [[String!]!]!) {
+    items(sort: $sort) {
+        id
+        schoolName
+        name
+        code
+        partId
+        amount
+        purchasedAt
+        user {
+            name
+        }
+        course {
+            name
+        }
+        checkedAt
+        room {
+            number
+        }
+        disposalAt
+        depreciationAt
+        editUser {
+            name
+        }
+        createdAt
+        deletedAt
+    }
+}

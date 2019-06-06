@@ -1,0 +1,110 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Course {
+    id: ID!
+    name: String!
+}
+
+type HistoryItem {
+    checkedAt: Date
+    createdAt: Date!
+    depreciationAt: Date
+    disposalAt: Date
+    editUser: User!
+    id: ID!
+    room: Room
+}
+
+type Item {
+    amount: Int!
+    checkedAt: Date
+    code: String!
+    course: Course!
+    createdAt: Date!
+    deletedAt: Date
+    depreciationAt: Date
+    disposalAt: Date
+    editUser: User!
+    histories: [HistoryItem!]!
+    id: ID!
+    internalId: ID!
+    name: String!
+    partId: ID!
+    purchasedAt: Date!
+    room: Room!
+    schoolName: String!
+    user: User!
+}
+
+type Mutation {
+    addItem(child: Boolean = false, data: ItemInput!, internalId: ID): Result!
+    editItem(data: EditItemInput!, id: ID!): Result!
+    removeItems(ids: [ID!]!): Result!
+}
+
+type Query {
+    item(id: ID!): Item
+    items(child: Boolean = false, sort: [[String!]!] = [["id", "asc"]]): [Item!]!
+    searchItems(text: String!): [Item!]!
+}
+
+type Result {
+    message: String
+    success: Boolean!
+}
+
+type Room {
+    id: ID!
+    number: Int!
+}
+
+type User {
+    id: ID!
+    name: String!
+}
+
+enum CacheControlScope {
+    PRIVATE
+    PUBLIC
+}
+
+input EditItemInput {
+    checkedAt: Date
+    depreciationAt: Date
+    disposalAt: Date
+    editUser: String!
+    room: Int
+}
+
+input ItemInput {
+    amount: Int = 1
+    checkedAt: Date
+    code: String!
+    course: String!
+    depreciationAt: Date
+    disposalAt: Date
+    editUser: String!
+    name: String!
+    purchasedAt: Date!
+    room: Int!
+    schoolName: String = "ss"
+    user: String!
+}
+
+
+"A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar."
+scalar Date
+
+"A time string at UTC, such as 10:15:30Z, compliant with the `full-time` format outlined in section 5.6 of the RFC 3339profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar."
+scalar Time
+
+"A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar."
+scalar DateTime
+
+"The `Upload` scalar type represents a file upload."
+scalar Upload
