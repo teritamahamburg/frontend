@@ -11,6 +11,7 @@ Vue.config.productionTip = false;
 const $state = Vue.observable({
   dark: false,
   searchText: '',
+  loading: 0,
 });
 const $broadcast = new Vue();
 

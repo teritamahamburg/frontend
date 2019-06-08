@@ -67,6 +67,8 @@ export function createProvider(options = {}) {
     defaultOptions: {
       $query: {
         // fetchPolicy: 'cache-and-network',
+        // loadingKey: 'loading',
+        // notifyOnNetworkStatusChange: true,
       },
     },
     errorHandler(error) {
@@ -75,6 +77,9 @@ export function createProvider(options = {}) {
       // 'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;',
       // error.message);
       if (window.gqlError) window.gqlError(error);
+    },
+    watchLoading(isLoading, countModifier) {
+      this.$state.loading += countModifier;
     },
   });
 

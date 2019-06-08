@@ -1,6 +1,6 @@
 <template>
   <v-app :dark="$state.dark">
-    <div class="overlay" v-show="$apollo.loading">
+    <div class="overlay" v-show="$state.loading !== 0">
       <v-progress-circular
         :size="70" :width="7" color="white" indeterminate />
     </div>
@@ -57,6 +57,7 @@ export default {
   },
   mounted() {
     window.gqlError = ({ message }) => {
+      // eslint-disable-next-line no-console
       console.log('%cError', 'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;', message);
       this.gqlError = message;
     };
@@ -82,6 +83,9 @@ export default {
     showBack() {
       return this.$route.meta.priority
         && this.$route.meta.priority > 1; // 1 is '/home' priority
+    },
+    a() {
+      return this.$apollo.loading;
     },
   },
 };
