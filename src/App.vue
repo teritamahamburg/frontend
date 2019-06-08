@@ -1,6 +1,6 @@
 <template>
   <v-app :dark="$state.dark">
-    <div class="overlay" v-show="$state.loading !== 0">
+    <div class="overlay--graphql" v-show="$state.loading !== 0">
       <v-progress-circular
         :size="70" :width="7" color="white" indeterminate />
     </div>
@@ -92,7 +92,7 @@ export default {
 </script>
 
 <style lang="scss">
-.application .overlay {
+.application .overlay--graphql {
   z-index: 9999;
   position: fixed;
   top: 0;
