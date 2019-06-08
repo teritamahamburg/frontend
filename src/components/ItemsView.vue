@@ -9,12 +9,12 @@
     <slot name="grid" v-else-if="viewType === 'grid'">
       <div class="item-card-grid">
         <item-card v-for="item in items" :key="item.id" :item="item"
-          :hide-actions="hideActions"
-          @select="(val) => {selectItem(item.id, val)}"
-          @remove="$emit('remove', item.id)"
-          @edit="$emit('edit', item)"
-          @editHistory="$emit('editHistory', item.id)"
-          @qrCode="$emit('qrCode', item.id)" />
+          :hide-actions="hideActions" :entry="showProps.map(p => p.value)"
+          @select="(val, { id }) => {selectItem(id, val)}"
+          @remove="i => $emit('remove', i)"
+          @edit="i => $emit('edit', i)"
+          @editHistory="i => $emit('editHistory', i)"
+          @qrCode="i => $emit('qrCode', i)" />
       </div>
     </slot>
     <slot name="list" v-else>
@@ -24,7 +24,7 @@
             <v-checkbox hide-details color="error" v-if="!hideActions"
                         @change="v => selectItem(item.id, v)"/>
           </td>
-          <td v-for="{ value } in tableHeader" :key="value">
+          <td v-for="{ value } in showProps" :key="value">
             {{ item[value] }}
           </td>
           <td v-if="!hideActions">
@@ -33,12 +33,12 @@
             </v-btn>
           </td>
           <td v-if="!hideActions">
-            <v-btn icon @click="$emit('editHistory', item.id)">
+            <v-btn icon @click="$emit('editHistory', item)">
               <v-icon>history</v-icon>
             </v-btn>
           </td>
           <td v-if="!hideActions">
-            <v-btn icon @click="$emit('qrCode', item.id)">
+            <v-btn icon @click="$emit('qrCode', item)">
               <v-icon>nfc</v-icon>
             </v-btn>
           </td>
@@ -59,7 +59,7 @@ export default {
       type: Array,
       default: () => [],
     },
-    tableHeader: {
+    showProps: {
       type: Array,
       default: () => [],
     },
@@ -75,7 +75,10 @@ export default {
   /*
   event: [
     select(val, id, [ids])
-    remove(id)
+    remove(item)
+    edit(item)
+    editHistory(item)
+    qrCode(item)
   ]
   */
   data() {
@@ -91,13 +94,13 @@ export default {
       );
     },
     tableHeaderWithCheck() {
-      if (this.hideActions) return this.tableHeader;
+      if (this.hideActions) return this.showProps;
       return [
         {
           value: 'select',
           sortable: false,
         },
-        ...this.tableHeader,
+        ...this.showProps,
         {
           value: 'edit',
           sortable: false,

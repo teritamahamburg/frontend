@@ -4,7 +4,6 @@ query ($text: String!){
         schoolName
         name
         code
-        partId
         amount
         purchasedAt
         user {

@@ -4,7 +4,6 @@ module.exports = {
     schoolName: '学校名',
     name: '名前',
     code: '資産コード',
-    partId: '識別番号',
     amount: '数量',
     purchasedAt: '購入日時',
     user: '購入者',
@@ -16,6 +15,7 @@ module.exports = {
     editUser: '編集者',
     createdAt: '作成日時',
     deletedAt: '削除日時',
+    parts: '小分類',
   },
   general: {
     emptyAndAdd: 'アイテムがありません。 追加してください。',

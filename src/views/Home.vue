@@ -29,12 +29,12 @@
     </v-layout>
 
     <div class="items-view-wrapper">
-      <items-view :items="items" :view-type="viewType" :table-header="tableHeader"
-        @remove="removeItem"
-        @select="(v, i, l) => removeDialog.ids = l"
-        @edit="showEditDialog"
-        @editHistory="showEditHistoryDialog"
-        @qrCode="showQRCodeDialog"/>
+      <items-view :items="items" :view-type="viewType" :show-props="showProps"
+                  @remove="removeItem"
+                  @select="(v, i, l) => removeDialog.ids = l"
+                  @edit="showEditDialog"
+                  @editHistory="showEditHistoryDialog"
+                  @qrCode="showQRCodeDialog"/>
     </div>
 
     <v-dialog v-model="removeDialog.show" persistent max-width="250">
@@ -43,7 +43,7 @@
           {{ $t('general.removeConfirmText', {n:removeDialog.ids.length}) }}
         </v-card-title>
         <v-card-actions>
-          <v-spacer />
+          <v-spacer/>
           <v-btn outline @click="closeRemoveDialog">
             {{ $t('general.cancel') }}
           </v-btn>
@@ -54,14 +54,14 @@
       </v-card>
     </v-dialog>
 
-    <item-add-dialog v-model="showAddDialog" @added="$apollo.queries.items.refetch()" />
+    <item-add-dialog v-model="showAddDialog" @added="$apollo.queries.items.refetch()"/>
 
     <item-edit-dialog v-model="editDialog.show" :item="editDialog.item"
-      @edited="$apollo.queries.items.refetch()"/>
+                      @edited="$apollo.queries.items.refetch()"/>
 
-    <item-edit-history-dialog v-model="editHistoryDialog.show" :id="editHistoryDialog.id" />
+    <item-edit-history-dialog v-model="editHistoryDialog.show" :id="editHistoryDialog.id"/>
 
-    <qr-code-dialog v-model="qrCodeDialog.show" :text="qrCodeDialog.text" />
+    <qr-code-dialog v-model="qrCodeDialog.show" :text="qrCodeDialog.text"/>
 
     <v-btn fab fixed right bottom @click="$apollo.queries.items.refetch()"
            :color="$state.dark ? 'white black--text' : 'black white--text'"
@@ -113,6 +113,11 @@ export default {
             course: item.course.name,
             room: item.room.number,
             editUser: item.editUser.name,
+            parts: item.parts.map(part => ({
+              ...part,
+              room: part.room.number,
+              editUser: part.editUser.name,
+            })),
           };
           // eslint-disable-next-line no-underscore-dangle
           delete i.__typename;
@@ -173,15 +178,17 @@ export default {
       const index = types.findIndex(({ type }) => type === this.viewType);
       return types[(index + 1) % types.length];
     },
-    tableHeader() {
+    showProps() {
       const { item } = this.$i18n.messages[this.$i18n.locale];
-      return Object.entries(item).reduce((p, [key, value]) => {
-        p.push({
-          text: value,
-          value: key,
-        });
-        return p;
-      }, []);
+      return Object.entries(item)
+        .filter(([k]) => k !== 'parts')
+        .reduce((p, [key, value]) => {
+          p.push({
+            text: value,
+            value: key,
+          });
+          return p;
+        }, []);
     },
     sortItems() {
       /**
@@ -189,7 +196,6 @@ export default {
        */
       return [
         'id',
-        'partId',
         'amount',
         'purchasedAt',
         'checkedAt',
@@ -199,7 +205,7 @@ export default {
     },
   },
   methods: {
-    removeItem(id) {
+    removeItem({ id }) {
       this.removeDialog.ids = [id];
       this.removeDialog.show = true;
     },
@@ -226,11 +232,11 @@ export default {
       this.editDialog.item = item;
       this.editDialog.show = true;
     },
-    showEditHistoryDialog(id) {
+    showEditHistoryDialog({ id }) {
       this.editHistoryDialog.id = id;
       this.editHistoryDialog.show = true;
     },
-    showQRCodeDialog(id) {
+    showQRCodeDialog({ id }) {
       this.qrCodeDialog.text = `${this.$t('qrcode.verify')}:${id}`;
       this.qrCodeDialog.show = true;
     },
@@ -246,6 +252,7 @@ export default {
     width: 100%;
     height: 100%;
     padding: 10px;
+
     .actions {
       margin: $actions-margin 0;
       height: $actions-height;

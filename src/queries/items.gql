@@ -24,5 +24,18 @@ query ($sort: [[String!]!]!) {
         }
         createdAt
         deletedAt
+
+        parts {
+            id
+            partId
+            name
+            editUser {
+                name
+            }
+            room {
+                number
+            }
+            checkedAt
+        }
     }
 }

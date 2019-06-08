@@ -8,6 +8,8 @@
         <v-form ref="form">
           <v-text-field :label="$t('item.editUser')+'*'" v-model="editItem.editUser"
                         prepend-icon="person" :placeholder="item.editUser" />
+          <v-text-field :label="$t('item.name')+'*'" v-model="editItem.name" v-if="isPart"
+                        prepend-icon="description" :placeholder="item.name" />
           <v-layout>
             <v-text-field :label="$t('item.room')" :placeholder="''+item.room"
                           type="number" class="room-input" v-model="editItem.room"
@@ -19,7 +21,7 @@
             <date-picker :label="$t('item.checkedAt')" :placeholder="item.checkedAt"
                          v-model="editItem.checkedAt"/>
           </v-layout>
-          <v-layout>
+          <v-layout v-if="!isPart">
             <date-picker :label="$t('item.disposalAt')" :placeholder="item.disposalAt"
                          v-model="editItem.disposalAt"/>
             <date-picker :label="$t('item.depreciationAt')" :placeholder="item.depreciationAt"
@@ -44,6 +46,7 @@
 import DatePicker from '@/components/DatePicker.vue';
 import validationRules from '@/ValidationRules';
 import editItemMutation from '@/mutations/editItem.gql';
+import editPartMutation from '@/mutations/editPart.gql';
 
 export default {
   name: 'ItemEditDialog',
@@ -70,6 +73,7 @@ export default {
         depreciationAt: undefined,
         disposalAt: undefined,
         room: undefined,
+        name: undefined,
       },
     };
   },
@@ -91,6 +95,9 @@ export default {
       return !Object.keys(this.editItem)
         .some(k => ((k === 'editUser') ? false
           : `${this.editedItem[k]}` !== `${this.item[k]}`));
+    },
+    isPart() {
+      return `${this.item.partId}` !== '0';
     },
   },
   methods: {
@@ -114,7 +121,7 @@ export default {
           });
         if (!data.editUser) data.editUser = this.item.editUser;
         this.$apollo.mutate({
-          mutation: editItemMutation,
+          mutation: this.isPart ? editPartMutation : editItemMutation,
           variables: {
             id: this.item.id,
             data,

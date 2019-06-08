@@ -35,6 +35,7 @@ type Item {
     internalId: ID!
     name: String!
     partId: ID!
+    parts: [PartItem!]!
     purchasedAt: Date!
     room: Room!
     schoolName: String!
@@ -42,14 +43,26 @@ type Item {
 }
 
 type Mutation {
-    addItem(child: Boolean = false, data: ItemInput!, internalId: ID): Result!
+    addItem(data: ItemInput!): Result!
+    addPart(data: PartItemInput!, internalId: ID!): Result!
     editItem(data: EditItemInput!, id: ID!): Result!
+    editPart(data: PartItemInput!, id: ID!): Result!
     removeItems(ids: [ID!]!): Result!
+}
+
+type PartItem {
+    checkedAt: Date
+    editUser: User!
+    id: ID!
+    internalId: String!
+    name: String!
+    partId: String!
+    room: Room!
 }
 
 type Query {
     item(id: ID!): Item
-    items(child: Boolean = false, sort: [[String!]!] = [["id", "asc"]]): [Item!]!
+    items(sort: [[String!]!] = [["id", "asc"]]): [Item!]!
     searchItems(text: String!): [Item!]!
 }
 
@@ -94,6 +107,13 @@ input ItemInput {
     room: Int!
     schoolName: String = "ss"
     user: String!
+}
+
+input PartItemInput {
+    checkedAt: Date
+    editUser: String!
+    name: String
+    room: Int
 }
 
 

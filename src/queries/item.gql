@@ -4,7 +4,6 @@ query ($id: ID!){
         schoolName
         name
         code
-        partId
         amount
         purchasedAt
         user {
