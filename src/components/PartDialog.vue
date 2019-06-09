@@ -2,12 +2,14 @@
   <v-dialog :value="value" persistent max-width="600">
     <v-card>
       <v-card-title>
-        <span class="headline">{{$t('general.editItem')}}</span>
+        <span class="headline">{{$t(`general.${add?'add':'edit'}${isPart?'Part':'Item'}`)}}</span>
       </v-card-title>
       <v-card-text>
         <v-form ref="form">
           <v-text-field :label="$t('item.editUser')+'*'" v-model="editItem.editUser"
                         prepend-icon="person" :placeholder="item.editUser" />
+          <v-text-field :label="$t('item.name')+'*'" v-model="editItem.name"
+                        prepend-icon="description" :placeholder="item.name" />
           <v-layout>
             <v-text-field :label="$t('item.room')" :placeholder="''+item.room"
                           type="number" class="room-input" v-model="editItem.room"
@@ -19,12 +21,6 @@
             <date-picker :label="$t('item.checkedAt')" :placeholder="item.checkedAt"
                          v-model="editItem.checkedAt"/>
           </v-layout>
-          <v-layout>
-            <date-picker :label="$t('item.disposalAt')" :placeholder="item.disposalAt"
-                         v-model="editItem.disposalAt"/>
-            <date-picker :label="$t('item.depreciationAt')" :placeholder="item.depreciationAt"
-                         v-model="editItem.depreciationAt"/>
-          </v-layout>
         </v-form>
       </v-card-text>
       <v-card-actions>
@@ -33,7 +29,7 @@
           {{ $t('general.cancel') }}
         </v-btn>
         <v-btn depressed dark color="black" @click="clickEditInDialog" :disabled="hasDiff">
-          {{ $t('general.edit') }}
+          {{ $t(`general.${add?'add':'edit'}`) }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -43,10 +39,11 @@
 <script>
 import DatePicker from '@/components/DatePicker.vue';
 import validationRules from '@/ValidationRules';
-import editItemMutation from '@/mutations/editItem.gql';
+import addPartMutation from '@/mutations/addPart.gql';
+import editPartMutation from '@/mutations/editPart.gql';
 
 export default {
-  name: 'ItemEditDialog',
+  name: 'PartDialog',
   components: { DatePicker },
   model: {
     prop: 'value',
@@ -56,6 +53,10 @@ export default {
     item: {
       type: Object,
       default: () => {},
+    },
+    add: {
+      type: Boolean,
+      default: true,
     },
     value: {
       type: Boolean,
@@ -70,6 +71,7 @@ export default {
         depreciationAt: undefined,
         disposalAt: undefined,
         room: undefined,
+        name: undefined,
       },
     };
   },
@@ -92,6 +94,9 @@ export default {
         .some(k => ((k === 'editUser') ? false
           : `${this.editedItem[k]}` !== `${this.item[k]}`));
     },
+    isPart() {
+      return `${this.item.partId}` !== '0';
+    },
   },
   methods: {
     closeDialog() {
@@ -113,14 +118,14 @@ export default {
             }
           });
         if (!data.editUser) data.editUser = this.item.editUser;
+        const variables = { data };
+        if (this.add) variables.internalId = this.item.internalId;
+        else variables.id = this.item.id;
         this.$apollo.mutate({
-          mutation: editItemMutation,
-          variables: {
-            id: this.item.id,
-            data,
-          },
+          mutation: this.add ? addPartMutation : editPartMutation,
+          variables,
         }).then((d) => {
-          this.$emit('edited', d);
+          this.$emit(this.add ? 'added' : 'edited', d);
         }).catch((error) => {
           if (window.gqlError) window.gqlError(error);
         });

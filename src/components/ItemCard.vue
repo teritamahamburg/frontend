@@ -59,7 +59,7 @@
                 </v-btn>
               </template>
               <v-list>
-                <v-list-tile v-for="m in menuItems" :key="m[0]" @click="$emit(m[0], part)">
+                <v-list-tile v-for="m in menuItems.slice(1)" :key="m[0]" @click="$emit(m[0], part)">
                   <v-list-tile-title>{{ m[1] }}</v-list-tile-title>
                 </v-list-tile>
               </v-list>
@@ -137,6 +137,7 @@ export default {
     },
     menuItems() {
       return [
+        ['addPart', this.$t('general.addPart')],
         ['qrCode', this.$t('general.qrCode')],
         ['editHistory', this.$t('general.editHistory')],
         ['edit', this.$t('general.edit')],
@@ -193,7 +194,7 @@ export default {
     }
 
     .part-cards {
-      overflow-y: scroll;
+      overflow-y: auto;
       height: 600px; // TODO: hard coding
       .v-card + .v-card {
         margin-top: 8px;

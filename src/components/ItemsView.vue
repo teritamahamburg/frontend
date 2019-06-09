@@ -14,7 +14,8 @@
           @remove="i => $emit('remove', i)"
           @edit="i => $emit('edit', i)"
           @editHistory="i => $emit('editHistory', i)"
-          @qrCode="i => $emit('qrCode', i)" />
+          @qrCode="i => $emit('qrCode', i)"
+          @addPart="i => $emit('addPart', i)"/>
       </div>
     </slot>
     <slot name="list" v-else>

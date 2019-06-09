@@ -34,7 +34,8 @@
                   @select="(v, i, l) => removeDialog.ids = l"
                   @edit="showEditDialog"
                   @editHistory="showEditHistoryDialog"
-                  @qrCode="showQRCodeDialog"/>
+                  @qrCode="showQRCodeDialog"
+                  @addPart="showAddPartDialog"/>
     </div>
 
     <v-dialog v-model="removeDialog.show" persistent max-width="250">
@@ -63,6 +64,10 @@
 
     <qr-code-dialog v-model="qrCodeDialog.show" :text="qrCodeDialog.text"/>
 
+    <part-dialog v-model="partDialog.show" :item="partDialog.item" :add="partDialog.add"
+      @added="$apollo.queries.items.refetch()"
+      @edited="$apollo.queries.items.refetch()"/>
+
     <v-btn fab fixed right bottom @click="$apollo.queries.items.refetch()"
            :color="$state.dark ? 'white black--text' : 'black white--text'"
            v-if="removeDialog.ids.length === 0">
@@ -84,10 +89,12 @@ import ItemsView, { viewTypes } from '@/components/ItemsView.vue';
 import ItemEditDialog from '@/components/ItemEditDialog.vue';
 import ItemEditHistoryDialog from '@/components/ItemEditHistoryDialog.vue';
 import QrCodeDialog from '@/components/QrCodeDialog.vue';
+import PartDialog from '@/components/PartDialog.vue';
 
 export default {
   name: 'Home',
   components: {
+    PartDialog,
     QrCodeDialog,
     ItemEditHistoryDialog,
     ItemEditDialog,
@@ -149,6 +156,11 @@ export default {
       qrCodeDialog: {
         show: false,
         text: undefined,
+      },
+      partDialog: {
+        show: false,
+        add: true,
+        item: {},
       },
     };
   },
@@ -229,8 +241,14 @@ export default {
       this.removeDialog.show = false;
     },
     showEditDialog(item) {
-      this.editDialog.item = item;
-      this.editDialog.show = true;
+      if (`${item.partId}` === '0') {
+        this.editDialog.item = item;
+        this.editDialog.show = true;
+      } else {
+        this.partDialog.item = item;
+        this.partDialog.add = false;
+        this.partDialog.show = true;
+      }
     },
     showEditHistoryDialog({ id }) {
       this.editHistoryDialog.id = id;
@@ -239,6 +257,11 @@ export default {
     showQRCodeDialog({ id }) {
       this.qrCodeDialog.text = `${this.$t('qrcode.verify')}:${id}`;
       this.qrCodeDialog.show = true;
+    },
+    showAddPartDialog(item) {
+      this.partDialog.item = item;
+      this.partDialog.add = true;
+      this.partDialog.show = true;
     },
   },
 };

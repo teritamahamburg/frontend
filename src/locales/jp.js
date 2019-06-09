@@ -40,6 +40,8 @@ module.exports = {
     enableMutationInScan: '値の更新を許可',
     apply: '許可',
     change: '変更する',
+    addPart: '小分類の追加',
+    editPart: '小分類の編集',
   },
   validation: {
     required: '必須',

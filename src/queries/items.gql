@@ -1,6 +1,7 @@
 query ($sort: [[String!]!]!) {
     items(sort: $sort) {
         id
+        internalId
         schoolName
         name
         code
