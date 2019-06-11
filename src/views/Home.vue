@@ -1,42 +1,13 @@
 <template>
   <div class="home">
-    <v-layout class="actions" align-center>
-      <v-spacer/>
-      <div class="button-group" v-show="viewType === 'grid' && items && items.length !== 0">
-        <v-menu offset-y>
-          <template v-slot:activator="{on}">
-            <v-btn flat v-on="on">
-              {{ $t(`item.${sort.type}`) }}
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-tile v-for="i in sortItems" :key="i" @click="sort.type = i">
-              <v-list-tile-title>{{$t(`item.${i}`)}}</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-menu>
-        <v-btn flat :class="sort.order"
-               @click="sort.order = sort.order === 'asc' ? 'desc' : 'asc'">
-          <v-icon>keyboard_arrow_down</v-icon>
-        </v-btn>
-      </div>
-      <v-btn-toggle v-model="viewType" mandatory v-show="items && items.length !== 0">
-        <v-btn flat v-for="type in viewTypes" :key="type.type" :value="type.type">
-          <v-icon left>{{ type.icon }}</v-icon>
-          {{ type.type }}
-        </v-btn>
-      </v-btn-toggle>
-    </v-layout>
-
-    <div class="items-view-wrapper">
-      <items-view :items="items" :view-type="viewType" :show-props="showProps"
-                  @remove="removeItem"
-                  @select="(v, i, l) => removeDialog.ids = l"
-                  @edit="showEditDialog"
-                  @editHistory="showEditHistoryDialog"
-                  @qrCode="showQRCodeDialog"
-                  @addPart="showAddPartDialog"/>
-    </div>
+    <items-view
+      :items="items" :view-type="$state.itemsView.viewType" :show-props="showProps"
+      @remove="removeItem"
+      @select="(v, i, l) => removeDialog.ids = l"
+      @edit="showEditDialog"
+      @editHistory="showEditHistoryDialog"
+      @qrCode="showQRCodeDialog"
+      @addPart="showAddPartDialog"/>
 
     <v-dialog v-model="removeDialog.show" persistent max-width="250">
       <v-card class="remove-dialog">
@@ -65,8 +36,8 @@
     <qr-code-dialog v-model="qrCodeDialog.show" :text="qrCodeDialog.text"/>
 
     <part-dialog v-model="partDialog.show" :item="partDialog.item" :add="partDialog.add"
-      @added="$apollo.queries.items.refetch()"
-      @edited="$apollo.queries.items.refetch()"/>
+                 @added="$apollo.queries.items.refetch()"
+                 @edited="$apollo.queries.items.refetch()"/>
 
     <v-btn fab fixed right bottom @click="$apollo.queries.items.refetch()"
            :color="$state.dark ? 'white black--text' : 'black white--text'"
@@ -107,12 +78,12 @@ export default {
       variables() {
         return {
           sort: [
-            [this.sort.type, this.sort.order],
+            [this.$state.itemsView.sortType, this.$state.itemsView.sortOrder],
           ],
         };
       },
       update({ items }) {
-        if (!items) return [];
+        if (!items || items.length === 0) return [];
         return items.map((item) => {
           const i = {
             ...item,
@@ -135,11 +106,7 @@ export default {
   },
   data() {
     return {
-      viewType: 'grid', // list
-      sort: {
-        type: 'id',
-        order: 'asc',
-      },
+      items: [],
       showAddDialog: false,
       removeDialog: {
         show: false,
@@ -165,31 +132,28 @@ export default {
     };
   },
   created() {
-    this.$broadcast.$on('clickAdd', () => {
+    this.$state.$on('clickAdd', () => {
       this.showAddDialog = true;
     });
   },
   mounted() {
     const { hash } = window.location;
-    if (hash.length === 0 || this.viewTypes.findIndex(v => v.type === hash.substring(1)) === -1) {
-      window.location.hash = `#${this.viewType}`;
+    if (hash.length === 0 || viewTypes.findIndex(v => v.type === hash.substring(1)) === -1) {
+      window.location.hash = `#${this.$state.itemsView.viewType}`;
     } else {
-      this.viewType = hash.substring(1);
+      this.$state.itemsView.viewType = hash.substring(1);
     }
   },
   watch: {
-    viewType(val) {
+    '$state.itemsView.viewType': function (val) {
       window.location.hash = `#${val}`;
       this.removeDialog.ids = [];
     },
+    items(val) {
+      this.$state.itemsView.showControl = val && val.length >= 1;
+    },
   },
   computed: {
-    viewTypes: () => viewTypes,
-    nextViewType() {
-      const types = this.viewTypes;
-      const index = types.findIndex(({ type }) => type === this.viewType);
-      return types[(index + 1) % types.length];
-    },
     showProps() {
       const { item } = this.$i18n.messages[this.$i18n.locale];
       return Object.entries(item)
@@ -201,19 +165,6 @@ export default {
           });
           return p;
         }, []);
-    },
-    sortItems() {
-      /**
-       * @link {backend/src/GraphQLMiddleware.js}
-       */
-      return [
-        'id',
-        'amount',
-        'purchasedAt',
-        'checkedAt',
-        'disposalAt',
-        'depreciationAt',
-      ];
     },
   },
   methods: {
@@ -268,62 +219,15 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  $actions-height: 50px;
-  $actions-margin: 8px;
+.home {
+  width: 100%;
+  height: 100%;
+  padding-top: 32px;
+}
 
-  .home {
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-
-    .actions {
-      margin: $actions-margin 0;
-      height: $actions-height;
-
-      .button-group {
-        height: 37px;
-        display: inline-flex;
-        /*border: solid black 1px;*/
-        margin: 6px 8px;
-
-        .v-btn {
-          margin: 0;
-        }
-
-        .v-btn:nth-child(1) {
-          /*border-right: solid black 1px;*/
-        }
-
-        .v-btn:nth-last-child(1) {
-          min-width: 36px;
-          width: 36px;
-          max-width: 36px;
-        }
-
-        .v-icon {
-          transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1), color 1ms !important;
-        }
-
-        .desc .v-icon {
-          transform: rotate(180deg);
-        }
-      }
-    }
-
-    .items-view-wrapper {
-      overflow-y: auto;
-      position: absolute;
-      top: $actions-height + $actions-margin * 3;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 8px 0;
-    }
+.remove-dialog {
+  .headline {
+    word-break: keep-all;
   }
-
-  .remove-dialog {
-    .headline {
-      word-break: keep-all;
-    }
-  }
+}
 </style>

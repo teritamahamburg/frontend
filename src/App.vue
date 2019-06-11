@@ -8,7 +8,7 @@
     <v-toolbar app>
       <v-btn :color="$state.dark ? 'white black--text' : 'black white--text'"
              class="create-button--add" v-if="$route.path === '/home'"
-             @click="$broadcast.$emit('clickAdd')">
+             @click="$state.$emit('clickAdd')" absolute>
         <v-icon>add</v-icon>
         {{$t('general.createItem')}}
       </v-btn>
@@ -29,6 +29,16 @@
       <v-btn icon @click="$state.dark = !$state.dark">
         <v-icon>brightness_{{$state.dark ? 7 : 3}}</v-icon>
       </v-btn>
+
+      <template v-slot:extension v-if="$route.path === '/home' && $state.itemsView.showControl">
+        <items-view-controller
+          :view-type="$state.itemsView.viewType"
+          @change:viewType="v => $state.itemsView.viewType = v"
+          :sort-type="$state.itemsView.sortType"
+          @change:sortType="v => $state.itemsView.sortType = v"
+          :sort-order="$state.itemsView.sortOrder"
+          @change:sortOrder="v => $state.itemsView.sortOrder = v" />
+      </template>
     </v-toolbar>
 
     <v-content>
@@ -46,8 +56,11 @@
 </template>
 
 <script>
+import ItemsViewController from '@/components/ItemsViewController.vue';
+
 export default {
   name: 'App',
+  components: { ItemsViewController },
   data() {
     return {
       showError: false,
@@ -84,9 +97,6 @@ export default {
       return this.$route.meta.priority
         && this.$route.meta.priority > 1; // 1 is '/home' priority
     },
-    a() {
-      return this.$apollo.loading;
-    },
   },
 };
 </script>
@@ -107,7 +117,7 @@ export default {
 
 .create-button--add {
   z-index: 10;
-  bottom: -24px;
+  bottom: -16px;
   border-radius: 18px;
   padding: 0 10px;
 }

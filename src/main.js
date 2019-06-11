@@ -8,17 +8,25 @@ import i18n from './i18n';
 
 Vue.config.productionTip = false;
 
-const $state = Vue.observable({
-  dark: false,
-  searchText: '',
-  loading: 0,
+const $state = new Vue({
+  data() {
+    return {
+      dark: false,
+      searchText: '',
+      loading: 0,
+      itemsView: {
+        showControl: false,
+        viewType: 'grid',
+        sortType: 'id',
+        sortOrder: 'asc',
+      },
+    };
+  },
 });
-const $broadcast = new Vue();
 
 Vue.mixin({
   computed: {
     $state: () => $state,
-    $broadcast: () => $broadcast,
   },
 });
 
