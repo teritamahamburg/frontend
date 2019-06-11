@@ -22,6 +22,16 @@ const $state = new Vue({
       },
     };
   },
+  computed: {
+    courses() {
+      return [
+        'デザイン学科',
+        '電気工学科',
+        '機械電子工学科',
+        '情報工学科',
+      ];
+    },
+  },
 });
 
 Vue.mixin({

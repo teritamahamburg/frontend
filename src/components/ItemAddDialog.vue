@@ -35,7 +35,8 @@
                           :rules="[rules.required($t('validation.required'))]"/>
           </v-layout>
           <v-layout>
-            <v-text-field :label="$t('item.course')+'*'" v-model="formData.course"
+            <v-combobox :label="$t('item.course')+'*'" v-model="formData.course"
+                          :items="$state.courses"
                           :rules="[rules.required($t('validation.required'))]"/>
             <v-text-field :label="$t('item.room')+'*'"
                           type="number" class="room-input" v-model="formData.room"
