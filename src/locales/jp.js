@@ -2,7 +2,7 @@ module.exports = {
   item: {
     id: '内部ID',
     schoolName: '学校名',
-    name: '名前',
+    name: '物品名',
     code: '資産コード',
     amount: '数量',
     purchasedAt: '購入日時',
