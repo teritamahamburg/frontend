@@ -28,8 +28,19 @@
         <v-icon>search</v-icon>
         {{ $t('general.search') }}
       </v-btn>
+
       <v-text-field v-if="$route.path === '/search'" v-model="$state.searchText"
         append-icon="search" />
+
+      <download-csv-dialog>
+        <template v-slot:activator="{ on }">
+          <v-btn outline v-on="on" v-show="showControl">
+            <v-icon left>cloud_download</v-icon>
+            CSV
+          </v-btn>
+        </template>
+      </download-csv-dialog>
+
       <v-btn icon @click="$state.dark = !$state.dark">
         <v-icon>brightness_{{$state.dark ? 7 : 3}}</v-icon>
       </v-btn>
@@ -46,11 +57,9 @@
     </v-toolbar>
 
     <v-content :class="{expand: showControl}">
-      <transition :name="transitionName">
-        <keep-alive>
-          <router-view />
-        </keep-alive>
-      </transition>
+      <keep-alive>
+        <router-view />
+      </keep-alive>
 
       <item-remove-dialog
         v-model="$state.dialogs.remove.show"
@@ -98,10 +107,12 @@ import ItemEditHistoryDialog from '@/components/ItemEditHistoryDialog.vue';
 import QrCodeDialog from '@/components/QrCodeDialog.vue';
 import PartDialog from '@/components/PartDialog.vue';
 import ItemRemoveDialog from '@/components/ItemRemoveDialog.vue';
+import DownloadCsvDialog from '@/components/DownloadCSVDialog.vue';
 
 export default {
   name: 'App',
   components: {
+    DownloadCsvDialog,
     ItemsViewController,
     ItemRemoveDialog,
     PartDialog,
@@ -114,7 +125,6 @@ export default {
     return {
       showError: false,
       gqlError: undefined,
-      transitionName: 'none',
     };
   },
   created() {
@@ -127,17 +137,6 @@ export default {
       this.gqlError = message;
       this.showError = true;
     };
-  },
-  watch: {
-    /* $route(to, from) {
-      const toPriority = to.meta.priority;
-      const fromPriority = from.meta.priority;
-      if (!toPriority || !fromPriority || toPriority === fromPriority) {
-        this.transitionName = 'none';
-      } else {
-        this.transitionName = toPriority > fromPriority ? 'slide-left' : 'slide-right';
-      }
-    }, */
   },
   methods: {
     clickBack() {

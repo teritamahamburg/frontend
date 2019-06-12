@@ -42,6 +42,9 @@ module.exports = {
     change: '変更する',
     addPart: '小分類の追加',
     editPart: '小分類の編集',
+    download: 'ダウンロード',
+    csvDownload: 'CSVファイルの ダウンロード',
+    includeDeleted: '削除済みも含む',
   },
   validation: {
     required: '必須',

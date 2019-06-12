@@ -61,6 +61,7 @@ type PartItem {
 }
 
 type Query {
+    csv(paranoid: Boolean = false): String!
     item(id: ID!): Item
     items(search: String, sort: [[String!]!] = [["id", "asc"]]): [Item!]!
 }
