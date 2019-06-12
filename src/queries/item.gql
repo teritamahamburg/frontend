@@ -1,6 +1,7 @@
 query ($id: ID!){
     item(id: $id) {
         id
+        partId
         schoolName
         name
         code

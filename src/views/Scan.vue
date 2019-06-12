@@ -4,9 +4,11 @@
                    v-if="!showApplyDialog"/>
 
     <div class="details-card-wrapper">
-      <item-card class="details-card" hide-actions :item="editItem || {}"
+      <item-card class="details-card" :item="editItem || {}"
         :entry="['room', 'checkedAt']" first-column-width="170px"
-        :class="{ bound }" @animationend.native="bound = false">
+        :class="{ bound }" @animationend.native="bound = false"
+        :hide-actions="['select', 'part']" v-on="$state.itemsViewMenuVOn">
+
         <template v-slot:expand:labels>
           <div class="success" v-show="changed">変更済み</div>
         </template>
