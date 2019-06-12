@@ -7,7 +7,9 @@
         :size="70" :width="7" color="white" indeterminate />
     </div>
 
-    <v-toolbar app>
+    <div class="app-toolbar--overlay"></div>
+
+    <v-toolbar app class="app-toolbar">
       <v-btn :color="$state.dark ? 'white black--text' : 'black white--text'"
              class="create-button--add" v-if="$route.path === '/home'"
              @click="$state.dialogs.add.show = true" absolute>
@@ -32,7 +34,7 @@
         <v-icon>brightness_{{$state.dark ? 7 : 3}}</v-icon>
       </v-btn>
 
-      <template v-slot:extension v-if="$route.meta.itemsControl && $state.itemsView.showControl">
+      <template v-slot:extension v-if="showControl">
         <items-view-controller
           :view-type="$state.itemsView.viewType"
           @change:viewType="v => $state.itemsView.viewType = v"
@@ -43,7 +45,7 @@
       </template>
     </v-toolbar>
 
-    <v-content>
+    <v-content :class="{expand: showControl}">
       <transition :name="transitionName">
         <keep-alive>
           <router-view />
@@ -148,6 +150,9 @@ export default {
       return this.$route.meta.priority
         && this.$route.meta.priority > 1; // 1 is '/home' priority
     },
+    showControl() {
+      return this.$route.meta.itemsControl && this.$state.itemsView.showControl;
+    },
   },
 };
 </script>
@@ -173,21 +178,51 @@ export default {
   padding: 0 10px;
 }
 
-.slide-left-enter-active, .slide-left-leave-active {
-  transform: translate(0px, 0px);
-  transition: transform 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+//noinspection CssInvalidFunction, CssOverwrittenProperties
+.app-toolbar {
+  height: auto;
+  padding-top: constant(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top);
 }
 
-.slide-left-enter, .slide-left-leave-to {
-  transform: translateX(-100vw) translateX(0px);
+//noinspection CssInvalidFunction, CssOverwrittenProperties
+.v-content {
+  padding: calc(56px + constant(safe-area-inset-top)) 0 0 !important;
+  padding: calc(56px + env(safe-area-inset-top)) 0 0 !important;
+
+  &.expand {
+    padding: calc(112px + constant(safe-area-inset-top)) 0 0 !important;
+    padding: calc(112px + env(safe-area-inset-top)) 0 0 !important;
+  }
 }
 
-.slide-right-enter-active, .slide-right-leave-active {
-  transform: translate(0px, 0px);
-  transition: transform 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
-}
-
-.slide-right-enter, .slide-right-leave-to {
-  transform: translateX(100vw) translateX(0px);
+//noinspection CssInvalidFunction, CssOverwrittenProperties
+.app-toolbar--overlay {
+  z-index: 999;
+  height: constant(safe-area-inset-top);
+  height: env(safe-area-inset-top);
+  width: 100%;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 </style>
+
+<!--<style>
+  .slide-left-enter-active, .slide-left-leave-active {
+    transform: translate(0px, 0px);
+    transition: transform 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+  }
+
+  .slide-left-enter, .slide-left-leave-to {
+    transform: translateX(-100vw) translateX(0px);
+  }
+
+  .slide-right-enter-active, .slide-right-leave-active {
+    transform: translate(0px, 0px);
+    transition: transform 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+  }
+
+  .slide-right-enter, .slide-right-leave-to {
+    transform: translateX(100vw) translateX(0px);
+  }
+</style>-->

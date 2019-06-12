@@ -69,7 +69,18 @@ const $state = new Vue({
       };
     },
   },
+  watch: {
+    dark(val) {
+      this.setBGColor(val);
+    },
+  },
+  created() {
+    this.setBGColor(this.dark);
+  },
   methods: {
+    setBGColor(val) {
+      document.body.style.backgroundColor = val ? 'rgb(48, 48, 48)' : 'rgb(250, 250, 250)';
+    },
     showEditDialog(item) {
       if (`${item.partId}` === '0') {
         this.dialogs.edit.item = item;
