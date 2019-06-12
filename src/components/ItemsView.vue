@@ -68,8 +68,11 @@ export default {
       type: String,
       default: 'grid', // sort
     },
+    /**
+     * hideActionsはviewTypeがgridの場合のみ詳細(Array)に設定可能
+    */
     hideActions: {
-      type: Boolean,
+      type: [Boolean, Array],
       default: false,
     },
   },
@@ -119,6 +122,7 @@ export default {
   },
   methods: {
     selectItem(id, val) {
+      console.log(this.$listeners);
       this.selectedItems = this.selectedItems
         .filter(i => i !== id);
       if (val) {

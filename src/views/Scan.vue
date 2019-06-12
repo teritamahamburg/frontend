@@ -1,6 +1,7 @@
 <template>
   <div class="check">
-    <qrcode-stream @decode="onDecode" class="qrcode-stream" v-if="!showApplyDialog"/>
+    <qrcode-stream @decode="onDecode" class="qrcode-stream"
+                   v-if="!showApplyDialog"/>
 
     <div class="details-card-wrapper">
       <item-card class="details-card" hide-actions :item="editItem || {}"

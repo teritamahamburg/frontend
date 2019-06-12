@@ -20,6 +20,7 @@ export default new Router({
       component: Home,
       meta: {
         priority: 1,
+        itemsControl: true,
       },
     },
     {
@@ -36,6 +37,7 @@ export default new Router({
       component: Search,
       meta: {
         priority: 2,
+        overlay: false,
       },
     },
   ],

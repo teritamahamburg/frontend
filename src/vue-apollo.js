@@ -103,7 +103,7 @@ export async function onLogin(apolloClient, token) {
 // Manually call this when user log out
 export async function onLogout(apolloClient) {
   if (typeof localStorage !== 'undefined') {
-    localStorage.removeItem(AUTH_TOKEN);
+    localStorage.showRemoveDialog(AUTH_TOKEN);
   }
   if (apolloClient.wsClient) restartWebsockets(apolloClient.wsClient);
   try {

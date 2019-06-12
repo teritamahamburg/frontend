@@ -1,6 +1,8 @@
 <template>
   <v-app :dark="$state.dark">
-    <div class="overlay--graphql" v-show="$state.loading !== 0">
+    <div class="overlay--graphql"
+         v-show="$route.meta.overlay !== false &&$state.loading !== 0">
+      <!-- ignore undefined ↑-->
       <v-progress-circular
         :size="70" :width="7" color="white" indeterminate />
     </div>
@@ -8,7 +10,7 @@
     <v-toolbar app>
       <v-btn :color="$state.dark ? 'white black--text' : 'black white--text'"
              class="create-button--add" v-if="$route.path === '/home'"
-             @click="$state.$emit('clickAdd')" absolute>
+             @click="$state.dialogs.add.show = true" absolute>
         <v-icon>add</v-icon>
         {{$t('general.createItem')}}
       </v-btn>
@@ -30,7 +32,7 @@
         <v-icon>brightness_{{$state.dark ? 7 : 3}}</v-icon>
       </v-btn>
 
-      <template v-slot:extension v-if="$route.path === '/home' && $state.itemsView.showControl">
+      <template v-slot:extension v-if="$route.meta.itemsControl && $state.itemsView.showControl">
         <items-view-controller
           :view-type="$state.itemsView.viewType"
           @change:viewType="v => $state.itemsView.viewType = v"
@@ -47,6 +49,36 @@
           <router-view />
         </keep-alive>
       </transition>
+
+      <item-remove-dialog
+        v-model="$state.dialogs.remove.show"
+        :ids="$state.dialogs.remove.ids"
+        @click:cancel="$state.dialogs.remove.ids = []"
+        @removed="$state.$emit('items:removed')" />
+
+      <item-add-dialog
+        v-model="$state.dialogs.add.show"
+        @added="$state.$emit('items:refetch')"/>
+
+      <item-edit-dialog
+        v-model="$state.dialogs.edit.show"
+        :item="$state.dialogs.edit.item"
+        @edited="$state.$emit('items:refetch')"/>
+
+      <item-edit-history-dialog
+        v-model="$state.dialogs.editHistory.show"
+        :id="$state.dialogs.editHistory.id"/>
+
+      <qr-code-dialog
+        v-model="$state.dialogs.qrCode.show"
+        :text="$state.dialogs.qrCode.text"/>
+
+      <part-dialog
+        v-model="$state.dialogs.part.show"
+        :item="$state.dialogs.part.item"
+        :add="$state.dialogs.part.add"
+        @added="$state.$emit('items:refetch')"
+        @edited="$state.$emit('items:refetch')"/>
     </v-content>
 
     <v-snackbar v-model="showError" bottom>
@@ -58,15 +90,33 @@
 <script>
 import ItemsViewController from '@/components/ItemsViewController.vue';
 
+import ItemAddDialog from '@/components/ItemAddDialog.vue';
+import ItemEditDialog from '@/components/ItemEditDialog.vue';
+import ItemEditHistoryDialog from '@/components/ItemEditHistoryDialog.vue';
+import QrCodeDialog from '@/components/QrCodeDialog.vue';
+import PartDialog from '@/components/PartDialog.vue';
+import ItemRemoveDialog from '@/components/ItemRemoveDialog.vue';
+
 export default {
   name: 'App',
-  components: { ItemsViewController },
+  components: {
+    ItemsViewController,
+    ItemRemoveDialog,
+    PartDialog,
+    QrCodeDialog,
+    ItemEditHistoryDialog,
+    ItemEditDialog,
+    ItemAddDialog,
+  },
   data() {
     return {
       showError: false,
       gqlError: undefined,
       transitionName: 'none',
     };
+  },
+  created() {
+    this.$state.dialogs.qrCode.verify = this.$t('qrcode.verify');
   },
   mounted() {
     window.gqlError = ({ message }) => {

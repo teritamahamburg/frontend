@@ -6,8 +6,8 @@
 
       <v-spacer/>
       <v-checkbox color="error" hide-details class="select-check" height="18"
-                  @change="v => $emit('select', v, item)" v-if="!hideActions"/>
-      <v-menu offset-y v-if="!hideActions">
+                  @change="v => $emit('select', v, item)" v-if="!hideAction('select')"/>
+      <v-menu offset-y v-if="!hideAction('menu')">
         <template v-slot:activator="{ on }">
           <v-btn icon small style="margin: 0" v-on="on">
             <v-icon>more_vert</v-icon>
@@ -36,7 +36,8 @@
           <v-list-tile-sub-title>{{listEntry[k]}}</v-list-tile-sub-title>
         </v-list-tile>
         <v-btn outline small class="parts-btn"
-               v-if="!hideActions && item.parts && item.parts.length > 0" @click="incrementPanel">
+               v-if="!hideAction('part') && item.parts && item.parts.length > 0"
+               @click="incrementPanel">
           {{$t('item.parts')}}
           <v-icon>keyboard_arrow_right</v-icon>
         </v-btn>
@@ -51,8 +52,8 @@
             <span class="title">{{ part.name }}</span>
             <v-spacer/>
             <v-checkbox color="error" hide-details class="select-check" height="18"
-                        @change="v => $emit('select', v, part)" v-if="!hideActions"/>
-            <v-menu offset-y v-if="!hideActions">
+                        @change="v => $emit('select', v, part)" v-if="!hideAction('select')"/>
+            <v-menu offset-y v-if="!hideAction('menu')">
               <template v-slot:activator="{ on }">
                 <v-btn icon small style="margin: 0" v-on="on">
                   <v-icon>more_vert</v-icon>
@@ -98,7 +99,7 @@ export default {
       },
     },
     hideActions: {
-      type: Boolean,
+      type: [Boolean, Array],
       default: false,
     },
     entry: {
@@ -151,6 +152,10 @@ export default {
     },
     decrementPanel() {
       this.panel = this.panel - 1;
+    },
+    hideAction(name) {
+      if (typeof this.hideActions === 'boolean') return this.hideActions;
+      return this.hideActions.includes(name);
     },
   },
 };

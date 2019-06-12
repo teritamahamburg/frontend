@@ -7,8 +7,8 @@
     <v-layout class="empty" v-else-if="!searchItems || searchItems.length === 0">
       <div class="headline">{{$t('general.noSearchResult')}}</div>
     </v-layout>
-    <items-view v-else :items="searchItems" :hide-actions="true"
-                class="items-view" />
+    <items-view v-else :items="searchItems" class="items-view"
+                :hide-actions="['select', 'part']" v-on="$state.itemsViewMenuVOn" />
   </div>
 </template>
 
