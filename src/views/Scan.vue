@@ -5,13 +5,20 @@
 
     <div class="details-card-wrapper">
       <item-card class="details-card" :item="editItem || {}"
-        :entry="['room', 'checkedAt']" first-column-width="170px"
+        :entry="showEntries" first-column-width="170px"
         :class="{ bound }" @animationend.native="bound = false"
         :hide-actions="['select', 'part']" v-on="$state.itemsViewMenuVOn">
+
+        <template v-slot:expand:title>
+          <v-btn icon small @click="showAllEntry = !showAllEntry">
+            <v-icon>keyboard_arrow_{{showAllEntry ? 'up' : 'down'}}</v-icon>
+          </v-btn>
+        </template>
 
         <template v-slot:expand:labels>
           <div class="success" v-show="changed">変更済み</div>
         </template>
+
         <template v-slot:expand:list>
           <v-list-tile v-show="applyChange">
             <v-list-tile-title style="width:170px">{{$t('item.editUser')}}</v-list-tile-title>
@@ -105,6 +112,7 @@ export default {
       },
       changed: false,
       bound: false,
+      showAllEntry: true,
     };
   },
   computed: {
@@ -137,6 +145,13 @@ export default {
         editCheckedAt: false,
         checkedAt: undefined,
       };
+    },
+    showEntries() {
+      if (this.showAllEntry && this.item) {
+        return Object.keys(this.item)
+          .filter(v => v !== 'partId');
+      }
+      return ['room', 'checkedAt'];
     },
   },
   watch: {

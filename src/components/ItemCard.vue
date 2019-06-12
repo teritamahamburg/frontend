@@ -1,5 +1,7 @@
 <template>
   <v-card max-width="350" class="item-card" height="100%">
+    <slot name="expand:head" />
+
     <v-card-title class="item-title">
       <span class="title">{{item.name}}</span>
       <span class="grey--text" style="margin-left: 16px">{{item.code}}</span>
@@ -19,6 +21,7 @@
           </v-list-tile>
         </v-list>
       </v-menu>
+      <slot name="expand:title" />
     </v-card-title>
 
     <template v-if="panel === 0">

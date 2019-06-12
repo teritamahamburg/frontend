@@ -122,7 +122,6 @@ export default {
   },
   methods: {
     selectItem(id, val) {
-      console.log(this.$listeners);
       this.selectedItems = this.selectedItems
         .filter(i => i !== id);
       if (val) {
