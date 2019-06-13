@@ -1,7 +1,7 @@
 <template>
   <v-dialog :value="value" @input="v => $emit('change', v)" max-width="300">
     <v-card>
-      <qrcode v-if="text" :value="text" :options="{width:300}"/>
+      <qrcode v-if="text" :value="fullText" :options="{width:300}"/>
     </v-card>
   </v-dialog>
 </template>
@@ -26,6 +26,16 @@ export default {
     text: {
       type: String,
       default: undefined,
+    },
+    verify: {
+      type: String,
+      default: undefined,
+    },
+  },
+  computed: {
+    fullText() {
+      if (this.verify) return `${this.verify}:${this.text}`;
+      return `${this.text}`;
     },
   },
 };

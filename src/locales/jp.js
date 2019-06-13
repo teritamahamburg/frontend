@@ -18,7 +18,8 @@ module.exports = {
     parts: '小分類',
   },
   general: {
-    emptyAndAdd: 'アイテムがありません。 追加してください。',
+    empty: '物品がありません',
+    emptyAndAdd: '物品がありません。 追加してください。',
     addItem: '物品の追加',
     add: '追加',
     cancel: 'キャンセル',
@@ -42,6 +43,12 @@ module.exports = {
     change: '変更する',
     addPart: '小分類の追加',
     editPart: '小分類の編集',
+    download: 'ダウンロード',
+    csvDownload: 'CSVファイルの ダウンロード',
+    includeDeleted: '削除済みも含む',
+    csv: 'CSV',
+    restoreItem: '物品の復元',
+    restore: '復元',
   },
   validation: {
     required: '必須',

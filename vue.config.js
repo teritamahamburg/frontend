@@ -8,6 +8,22 @@ module.exports = {
       },
     },
   },
+  pwa: {
+    name: 'Teritama',
+    themeColor: '#FAFAFA',
+    msTileColor: '#FAFAFA',
+    appleMobileWebAppCapable: 'yes',
+    manifestOptions: {
+      display: 'fullscreen',
+    },
+    iconPaths: {
+      favicon32: 'img/icons/x32.png',
+      favicon16: 'img/icons/x16.png',
+      appleTouchIcon: 'img/icons/x152.png',
+      msTileImage: 'img/icons/x144.png',
+      maskIcon: 'img/icons/safari-pinned-tab.svg',
+    },
+  },
   pluginOptions: {
     i18n: {
       locale: 'jp',

@@ -21,28 +21,29 @@
     <slot name="list" v-else>
       <v-data-table hide-actions :headers="tableHeaderWithCheck" :items="items">
         <template v-slot:items="{ item }">
-          <td style="padding: 0 0 0 16px">
-            <v-checkbox hide-details color="error" v-if="!hideActions"
-                        @change="v => selectItem(item.id, v)"/>
-          </td>
-          <td v-for="{ value } in showProps" :key="value">
-            {{ item[value] }}
-          </td>
-          <td v-if="!hideActions">
-            <v-btn icon @click="$emit('edit', item)">
-              <v-icon>edit</v-icon>
-            </v-btn>
-          </td>
-          <td v-if="!hideActions">
-            <v-btn icon @click="$emit('editHistory', item)">
-              <v-icon>history</v-icon>
-            </v-btn>
-          </td>
-          <td v-if="!hideActions">
-            <v-btn icon @click="$emit('qrCode', item)">
-              <v-icon>nfc</v-icon>
-            </v-btn>
-          </td>
+          <tr @click="$emit('click:row', item)">
+            <td style="padding: 0 0 0 16px" v-if="!hideActions">
+              <v-checkbox hide-details color="error" @change="v => selectItem(item.id, v)"/>
+            </td>
+            <td v-for="{ value } in showProps" :key="value">
+              {{ item[value] }}
+            </td>
+            <td v-if="!hideActions">
+              <v-btn icon @click="$emit('edit', item)">
+                <v-icon>edit</v-icon>
+              </v-btn>
+            </td>
+            <td v-if="!hideActions">
+              <v-btn icon @click="$emit('editHistory', item)">
+                <v-icon>history</v-icon>
+              </v-btn>
+            </td>
+            <td v-if="!hideActions">
+              <v-btn icon @click="$emit('qrCode', item)">
+                <v-icon>nfc</v-icon>
+              </v-btn>
+            </td>
+          </tr>
         </template>
       </v-data-table>
     </slot>
@@ -68,8 +69,11 @@ export default {
       type: String,
       default: 'grid', // sort
     },
+    /**
+     * hideActionsはviewTypeがgridの場合のみ詳細(Array)に設定可能
+    */
     hideActions: {
-      type: Boolean,
+      type: [Boolean, Array],
       default: false,
     },
   },

@@ -11,6 +11,10 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     {
+      path: '/index.html',
+      redirect: '/',
+    },
+    {
       path: '/',
       redirect: '/home',
     },
@@ -20,6 +24,7 @@ export default new Router({
       component: Home,
       meta: {
         priority: 1,
+        itemsControl: true,
       },
     },
     {
@@ -36,6 +41,7 @@ export default new Router({
       component: Search,
       meta: {
         priority: 2,
+        overlay: false,
       },
     },
   ],

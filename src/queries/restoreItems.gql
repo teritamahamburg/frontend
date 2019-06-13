@@ -1,0 +1,7 @@
+{
+    restoreItems: items(itemEnum: ONLY_DELETED) {
+        id
+        name
+        code
+    }
+}

@@ -1,0 +1,6 @@
+mutation ($id: ID!) {
+    restoreItem(id: $id) {
+        success
+        message
+    }
+}
