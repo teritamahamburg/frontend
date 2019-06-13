@@ -124,6 +124,11 @@
     <v-snackbar v-model="showError" bottom>
       {{ gqlError }}
     </v-snackbar>
+
+    <v-alert :value="showReloadAlert">
+      <div>{{ $t('general.updateArrived') }}</div>
+      <v-btn color="primary" @click="locationReload(true)">Reload</v-btn>
+    </v-alert>
   </v-app>
 </template>
 
@@ -156,6 +161,7 @@ export default {
     return {
       showError: false,
       gqlError: undefined,
+      showReloadAlert: false,
     };
   },
   created() {
@@ -168,8 +174,14 @@ export default {
       this.gqlError = message;
       this.showError = true;
     };
+    if (window.isUpdateAvailable) { // PWA用の更新処理
+      window.isUpdateAvailable.then((available) => {
+        this.showReloadAlert = available;
+      });
+    }
   },
   methods: {
+    locationReload: val => window.location.reload(val),
     clickBack() {
       this.$state.searchText = '';
       this.$router.push('/home');
