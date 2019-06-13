@@ -9,41 +9,65 @@
 
     <div class="app-toolbar--overlay"></div>
 
-    <v-toolbar app class="app-toolbar">
-      <v-btn :color="$state.dark ? 'white black--text' : 'black white--text'"
-             class="create-button--add" v-if="$route.path === '/home'"
-             @click="$state.dialogs.add.show = true" absolute>
-        <v-icon>add</v-icon>
-        {{$t('general.createItem')}}
-      </v-btn>
-      <v-btn icon @click="clickBack" v-show="showBack">
-        <v-icon>keyboard_arrow_left</v-icon>
-      </v-btn>
-      <v-spacer />
-      <v-btn outline to="/scan" v-show="($route.meta.priority || 999) <= 1">
-        <v-icon>scanner</v-icon>
-        {{ $t('general.scan') }}
-      </v-btn>
-      <v-btn outline to="/search" v-show="($route.meta.priority || 999) <= 1">
-        <v-icon>search</v-icon>
-        {{ $t('general.search') }}
-      </v-btn>
+    <v-toolbar app dense class="app-toolbar">
+      <template v-slot>
+        <v-btn :color="$state.dark ? 'white black--text' : 'black white--text'"
+               class="create-button--add" v-if="$route.path === '/home'"
+               @click="$state.dialogs.add.show = true" absolute>
+          <v-icon>add</v-icon>
+          {{$t('general.createItem')}}
+        </v-btn>
+        <v-btn icon @click="clickBack" v-show="showBack">
+          <v-icon>keyboard_arrow_left</v-icon>
+        </v-btn>
+        <v-spacer />
+        <v-btn outline to="/scan" v-show="($route.meta.priority || 999) <= 1">
+          <v-icon>scanner</v-icon>
+          {{ $t('general.scan') }}
+        </v-btn>
+        <v-btn outline to="/search" v-show="($route.meta.priority || 999) <= 1">
+          <v-icon>search</v-icon>
+          {{ $t('general.search') }}
+        </v-btn>
 
-      <v-text-field v-if="$route.path === '/search'" v-model="$state.searchText"
-        append-icon="search" />
+        <v-text-field v-if="$route.path === '/search'" v-model="$state.searchText"
+                      append-icon="search" />
 
-      <download-csv-dialog>
-        <template v-slot:activator="{ on }">
-          <v-btn outline v-on="on" v-show="showControl">
-            <v-icon left>cloud_download</v-icon>
-            CSV
-          </v-btn>
-        </template>
-      </download-csv-dialog>
+        <v-menu offset-y>
+          <template v-slot:activator="{ on }">
+            <v-btn icon v-on="on">
+              <v-icon>menu</v-icon>
+            </v-btn>
+          </template>
 
-      <v-btn icon @click="$state.dark = !$state.dark">
-        <v-icon>brightness_{{$state.dark ? 7 : 3}}</v-icon>
-      </v-btn>
+          <v-list>
+            <v-list-tile @click="$state.dark = !$state.dark">
+              <v-list-tile-action>
+                <v-icon>brightness_{{$state.dark ? 7 : 3}}</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                {{$state.dark ? 'Light Mode' : 'Dark Mode'}}
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile v-show="showControl" @click="$state.dialogs.csv.show = true">
+              <v-list-tile-action>
+                <v-icon left>cloud_download</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                {{ $t('general.csv') }}
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile v-show="showControl" @click="$state.dialogs.restore.show = true">
+              <v-list-tile-action>
+                <v-icon left>restore_page</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                {{ $t('general.restoreItem') }}
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
+      </template>
 
       <template v-slot:extension v-if="showControl">
         <items-view-controller
@@ -90,6 +114,11 @@
         :add="$state.dialogs.part.add"
         @added="$state.$emit('items:refetch')"
         @edited="$state.$emit('items:refetch')"/>
+
+      <download-csv-dialog v-model="$state.dialogs.csv.show" />
+
+      <restore-item-dialog v-model="$state.dialogs.restore.show"
+        @restored="$state.$emit('items:refetch')"/>
     </v-content>
 
     <v-snackbar v-model="showError" bottom>
@@ -108,10 +137,12 @@ import QrCodeDialog from '@/components/QrCodeDialog.vue';
 import PartDialog from '@/components/PartDialog.vue';
 import ItemRemoveDialog from '@/components/ItemRemoveDialog.vue';
 import DownloadCsvDialog from '@/components/DownloadCSVDialog.vue';
+import RestoreItemDialog from '@/components/RestoreItemDialog.vue';
 
 export default {
   name: 'App',
   components: {
+    RestoreItemDialog,
     DownloadCsvDialog,
     ItemsViewController,
     ItemRemoveDialog,
@@ -184,14 +215,16 @@ export default {
   padding-top: env(safe-area-inset-top);
 }
 
+$toolbar-height: 48px;
+
 //noinspection CssInvalidFunction, CssOverwrittenProperties
 .v-content {
-  padding: calc(56px + constant(safe-area-inset-top)) 0 0 !important;
-  padding: calc(56px + env(safe-area-inset-top)) 0 0 !important;
+  padding: calc(#{$toolbar-height} + constant(safe-area-inset-top)) 0 0 !important;
+  padding: calc(#{$toolbar-height} + env(safe-area-inset-top)) 0 0 !important;
 
   &.expand {
-    padding: calc(112px + constant(safe-area-inset-top)) 0 0 !important;
-    padding: calc(112px + env(safe-area-inset-top)) 0 0 !important;
+    padding: calc(#{$toolbar-height * 2} + constant(safe-area-inset-top)) 0 0 !important;
+    padding: calc(#{$toolbar-height * 2} + env(safe-area-inset-top)) 0 0 !important;
   }
 }
 

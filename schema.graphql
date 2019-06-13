@@ -48,6 +48,7 @@ type Mutation {
     editItem(data: EditItemInput!, id: ID!): Result!
     editPart(data: PartItemInput!, id: ID!): Result!
     removeItems(ids: [ID!]!): Result!
+    restoreItem(id: ID!): Result!
 }
 
 type PartItem {
@@ -63,7 +64,7 @@ type PartItem {
 type Query {
     csv(paranoid: Boolean = false): String!
     item(id: ID!): Item
-    items(search: String, sort: [[String!]!] = [["id", "asc"]]): [Item!]!
+    items(itemEnum: ItemEnum = NORMAL, search: String, sort: [[String!]!] = [["id", "asc"]]): [Item!]!
 }
 
 type Result {
@@ -84,6 +85,12 @@ type User {
 enum CacheControlScope {
     PRIVATE
     PUBLIC
+}
+
+enum ItemEnum {
+    ALL
+    NORMAL
+    ONLY_DELETED
 }
 
 input EditItemInput {

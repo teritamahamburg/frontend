@@ -47,6 +47,12 @@ const $state = new Vue({
           add: true,
           item: {},
         },
+        csv: {
+          show: false,
+        },
+        restore: {
+          show: false,
+        },
       },
     };
   },

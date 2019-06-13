@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="show" max-width="250">
+  <v-dialog :value="show" @input="v => $emit('change', v)" max-width="250">
     <template v-slot:activator="{ on }">
       <slot name="activator" :on="on" />
     </template>
@@ -13,7 +13,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn outline @click="show = false">
+        <v-btn outline @click="$emit('change', false)">
           {{ $t('general.cancel') }}
         </v-btn>
         <v-btn depressed dark color="black" @click="clickDownloadInDialog">
@@ -41,9 +41,18 @@ const csvDownload = (csv, filename = 'items.csv') => {
 
 export default {
   name: 'DownloadCsvDialog',
+  model: {
+    prop: 'show',
+    event: 'change',
+  },
+  props: {
+    show: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
-      show: false,
       paranoid: false,
     };
   },
@@ -56,7 +65,7 @@ export default {
         },
       }).then(({ data: { csv } }) => {
         csvDownload(csv);
-        this.show = false;
+        this.$emit('change', false);
       }).catch((error) => {
         if (window.gqlError) window.gqlError(error);
       });
