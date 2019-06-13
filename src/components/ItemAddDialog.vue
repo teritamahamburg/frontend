@@ -134,7 +134,7 @@ export default {
       if (this.$refs.form.validate()) {
         const data = { ...this.formData };
         if (data.sameUser) {
-          data.editUser = data.name;
+          data.editUser = data.user;
         }
         delete data.sameUser;
         data.amount = Number(data.amount);
