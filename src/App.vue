@@ -8,8 +8,9 @@
     </div>
 
     <div class="app-toolbar--overlay"></div>
+    <div class="app-toolbar--offline">{{ $t('general.offlineMode') }}</div>
 
-    <v-toolbar app dense class="app-toolbar">
+    <v-toolbar app dense class="app-toolbar" :class="{ offline }">
       <template v-slot>
         <v-btn :color="$state.dark ? 'white black--text' : 'black white--text'"
                class="create-button--add" v-if="$route.path === '/home'"
@@ -124,6 +125,11 @@
     <v-snackbar v-model="showError" bottom>
       {{ gqlError }}
     </v-snackbar>
+
+    <v-alert :value="showReloadAlert">
+      <div>{{ $t('general.updateArrived') }}</div>
+      <v-btn color="primary" @click="locationReload(true)">Reload</v-btn>
+    </v-alert>
   </v-app>
 </template>
 
@@ -156,10 +162,20 @@ export default {
     return {
       showError: false,
       gqlError: undefined,
+      showReloadAlert: false,
+      online: window.navigator.onLine,
     };
   },
   created() {
     this.$state.dialogs.qrCode.verify = this.$t('qrcode.verify');
+
+    window.addEventListener('offline', () => {
+      this.online = false;
+    });
+
+    window.addEventListener('online', () => {
+      this.online = true;
+    });
   },
   mounted() {
     window.gqlError = ({ message }) => {
@@ -168,8 +184,14 @@ export default {
       this.gqlError = message;
       this.showError = true;
     };
+    if (window.isUpdateAvailable) { // PWA用の更新処理
+      window.isUpdateAvailable.then((available) => {
+        this.showReloadAlert = available;
+      });
+    }
   },
   methods: {
+    locationReload: val => window.location.reload(val),
     clickBack() {
       this.$state.searchText = '';
       this.$router.push('/home');
@@ -182,6 +204,9 @@ export default {
     },
     showControl() {
       return this.$route.meta.itemsControl && this.$state.itemsView.showControl;
+    },
+    offline() {
+      return !this.online;
     },
   },
 };
@@ -208,11 +233,25 @@ export default {
   padding: 0 10px;
 }
 
+$toolbar-height: 48px;
+
+.app-toolbar--offline {
+  width: 100%;
+  height: #{$toolbar-height / 2};
+  background-color: purple;
+  color: white;
+  text-align: center;
+}
+
 //noinspection CssInvalidFunction, CssOverwrittenProperties
 .app-toolbar {
   height: auto;
   padding-top: constant(safe-area-inset-top);
   padding-top: env(safe-area-inset-top);
+
+  &.offline {
+    margin-top: 24px !important;
+  }
 }
 
 $toolbar-height: 48px;

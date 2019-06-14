@@ -49,6 +49,8 @@ module.exports = {
     csv: 'CSV',
     restoreItem: '物品の復元',
     restore: '復元',
+    updateArrived: '新しいアップデートがあります! リロードして更新して下さい.',
+    offlineMode: 'オフラインモード',
   },
   validation: {
     required: '必須',
