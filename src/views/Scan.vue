@@ -112,7 +112,7 @@ export default {
       },
       changed: false,
       bound: false,
-      showAllEntry: true,
+      showAllEntry: false,
     };
   },
   computed: {

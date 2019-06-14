@@ -82,7 +82,7 @@
     </v-toolbar>
 
     <v-content :class="{expand: showControl}">
-      <keep-alive>
+      <keep-alive include="Home">
         <router-view />
       </keep-alive>
 
@@ -107,6 +107,7 @@
 
       <qr-code-dialog
         v-model="$state.dialogs.qrCode.show"
+        :verify="$state.dialogs.qrCode.verify"
         :text="$state.dialogs.qrCode.text"/>
 
       <part-dialog
