@@ -1,6 +1,6 @@
 {
-  "name": "Teritama",
-  "short_name": "Teritama",
+  "name": "あせまな",
+  "short_name": "あせまな",
   "icons": [
     { "src": "./img/icons/x16.png", "sizes": "16x16", "type": "image/png" },
     { "src": "./img/icons/x32.png", "sizes": "32x32", "type": "image/png" },

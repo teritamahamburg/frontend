@@ -9,7 +9,7 @@ module.exports = {
     },
   },
   pwa: {
-    name: 'Teritama',
+    name: 'あせまな',
     themeColor: '#FAFAFA',
     msTileColor: '#FAFAFA',
     appleMobileWebAppCapable: 'yes',
