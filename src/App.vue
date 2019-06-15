@@ -8,7 +8,7 @@
     </div>
 
     <div class="app-toolbar--overlay"></div>
-    <div class="app-toolbar--offline">{{ $t('general.offlineMode') }}</div>
+    <div class="app-toolbar--offline" v-show="offline">{{ $t('general.offlineMode') }}</div>
 
     <v-toolbar app dense class="app-toolbar" :class="{ offline }">
       <template v-slot>

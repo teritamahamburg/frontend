@@ -1,6 +1,8 @@
 <template>
-  <v-card max-width="350" class="item-card" height="100%">
+  <v-card max-width="350" class="item-card">
     <slot name="expand:head" />
+    <img :src="`/seal/${item.internalId}${item.seal}`" width="350" alt="seal"
+         v-if="showSealImg"/>
 
     <v-card-title class="item-title">
       <div class="attr">
@@ -152,6 +154,9 @@ export default {
         ['edit', this.$t('general.edit')],
         ['remove', this.$t('general.remove')],
       ];
+    },
+    showSealImg() {
+      return this.item.seal && this.panel === 0 && !this.hideAction('seal');
     },
   },
   methods: {

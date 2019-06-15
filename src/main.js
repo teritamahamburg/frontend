@@ -43,6 +43,7 @@ const $state = new Vue({
         { type: 'action', key: 'edit' },
         { type: 'action', key: 'remove' },
         { type: 'action', key: 'part' },
+        { type: 'action', key: 'seal' },
       ],
       dialogs: {
         add: {
@@ -128,6 +129,7 @@ const $state = new Vue({
         'edit',
         'remove',
         'part',
+        'seal',
       ].filter(k => !this.attrs.some(a => a.key === k))
         .map(key => ({ type: 'action', key }));
     },

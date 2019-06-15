@@ -6,6 +6,9 @@ module.exports = {
       '/graphql': {
         target: 'http://localhost:8081',
       },
+      '/seal': {
+        target: 'http://localhost:8081',
+      },
     },
   },
   pwa: {

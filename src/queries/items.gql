@@ -2,6 +2,7 @@ query ($sort: [[String!]!]!) {
     items(sort: $sort) {
         id
         internalId
+        seal
         schoolName
         name
         code
