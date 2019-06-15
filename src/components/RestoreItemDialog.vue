@@ -4,7 +4,7 @@
       <v-card-title>
         <span class="headline">{{ $t('general.restoreItem') }}</span>
       </v-card-title>
-      <items-view view-type="list" hide-actions :show-props="showProps" :items="restoreItems"
+      <items-view view-type="list" :attrs="attrs" :items="restoreItems"
                   @click:row="restoreItem" >
         <template v-slot:empty>
           <v-layout justify-center >
@@ -63,10 +63,10 @@ export default {
     empty() {
       return !this.restoreItems || this.restoreItems.length === 0;
     },
-    showProps() {
+    attrs() {
       if (this.empty) return [];
       return Object.keys(this.restoreItems[0])
-        .map(k => ({ text: k, value: k }));
+        .map(key => ({ type: 'value', key }));
     },
   },
   methods: {

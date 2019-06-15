@@ -58,12 +58,21 @@
                 {{ $t('general.csv') }}
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile v-show="showControl" @click="$state.dialogs.restore.show = true">
+            <v-list-tile v-show="$route.path === '/home'"
+                         @click="$state.dialogs.restore.show = true">
               <v-list-tile-action>
                 <v-icon left>restore_page</v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
                 {{ $t('general.restoreItem') }}
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile to="/setting">
+              <v-list-tile-action>
+                <v-icon left>settings</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                {{ $t('general.settings') }}
               </v-list-tile-content>
             </v-list-tile>
           </v-list>
@@ -195,7 +204,7 @@ export default {
     locationReload: val => window.location.reload(val),
     clickBack() {
       this.$state.searchText = '';
-      this.$router.push('/home');
+      this.$router.back();
     },
   },
   computed: {

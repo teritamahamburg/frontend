@@ -1,5 +1,5 @@
 query ($text: String!){
-    items(search: $text) {
+    searchItems: items(search: $text) {
         id
         schoolName
         name

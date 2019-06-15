@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Home from './views/Home.vue';
 import Scan from '@/views/Scan.vue';
 import Search from '@/views/Search.vue';
+import Setting from '@/views/Setting.vue';
 
 Vue.use(Router);
 
@@ -41,6 +42,15 @@ export default new Router({
       component: Search,
       meta: {
         priority: 2,
+        overlay: false,
+      },
+    },
+    {
+      path: '/setting',
+      name: 'setting',
+      component: Setting,
+      meta: {
+        priority: 3,
         overlay: false,
       },
     },
