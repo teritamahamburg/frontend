@@ -2,7 +2,7 @@
   <div class="home">
     <items-view
       :items="items" :view-type="$state.itemsView.viewType"
-      :show-props="showProps"
+      :attrs="$state.attrs"
       v-on="$state.itemsViewMenuVOn"
       @select="(v, i, l) => $state.dialogs.remove.ids = l"/>
 
@@ -85,20 +85,6 @@ export default {
     },
     items(val) {
       this.$state.itemsView.showControl = (val && val.length >= 1);
-    },
-  },
-  computed: {
-    showProps() {
-      const { item } = this.$i18n.messages[this.$i18n.locale];
-      return Object.entries(item)
-        .filter(([k]) => k !== 'parts')
-        .reduce((p, [key, value]) => {
-          p.push({
-            text: value,
-            value: key,
-          });
-          return p;
-        }, []);
     },
   },
 };

@@ -10,6 +10,17 @@
       </v-card-title>
       <v-card-text>
         <v-form ref="form">
+          <template>
+            <v-text-field prepend-icon="attach_file" readonly :label="$t('general.sealImage')"
+              @click="$refs.image.click()" :value="sealImage.name"
+              append-icon="clear" @click:append="clearSealImage"/>
+            <input
+              type="file"
+              style="display: none"
+              ref="image"
+              accept="image/*"
+              @change="onFilePicked">
+          </template>
           <v-text-field :label="$t('item.schoolName')+'*'" v-model="formData.schoolName"
                         :rules="[rules.required($t('validation.required'))]"/>
           <v-text-field :label="$t('item.name')+'*'" v-model="formData.name"
@@ -69,8 +80,9 @@
 </template>
 
 <script>
-import DatePicker from '@/components/DatePicker.vue';
 import addItemMutation from '@/mutations/addItem.gql';
+
+import DatePicker from '@/components/DatePicker.vue';
 import validationRules from '@/ValidationRules';
 
 export default {
@@ -93,6 +105,11 @@ export default {
   },
   data() {
     return {
+      sealImage: {
+        name: '',
+        file: undefined,
+        url: '',
+      },
       formData: {
         schoolName: 'ss',
         name: '',
@@ -139,6 +156,7 @@ export default {
         delete data.sameUser;
         data.amount = Number(data.amount);
         data.room = Number(data.room);
+        data.sealImage = this.sealImage.file;
         this.$apollo.mutate({
           mutation: addItemMutation,
           variables: { data },
@@ -156,8 +174,30 @@ export default {
         this.$refs.form.resetValidation();
         this.$nextTick(() => {
           this.formData = this.defaultFormData;
+          this.clearSealImage();
         });
       });
+    },
+    onFilePicked(e) {
+      const { files } = e.target;
+      if (files[0] !== undefined) {
+        const file = files[0];
+        this.sealImage.name = file.name;
+        if (this.sealImage.name.lastIndexOf('.') <= 0) return;
+        const fr = new FileReader();
+        fr.readAsDataURL(file);
+        fr.addEventListener('load', () => {
+          this.sealImage.url = fr.result;
+          this.sealImage.file = file;
+        });
+      } else {
+        this.clearSealImage();
+      }
+    },
+    clearSealImage() {
+      this.sealImage.name = '';
+      this.sealImage.file = undefined;
+      this.sealImage.url = '';
     },
   },
 };

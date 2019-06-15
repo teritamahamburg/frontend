@@ -7,7 +7,8 @@
       <item-card class="details-card" :item="editItem || {}"
         :entry="showEntries" first-column-width="170px"
         :class="{ bound }" @animationend.native="bound = false"
-        :hide-actions="['select', 'part']" v-on="$state.itemsViewMenuVOn">
+        :show-actions="['addPart', 'qrCode', 'edit', 'editHistory', 'remove']"
+        v-on="$state.itemsViewMenuVOn">
 
         <template v-slot:expand:title>
           <v-btn icon small @click="showAllEntry = !showAllEntry">
@@ -112,7 +113,7 @@ export default {
       },
       changed: false,
       bound: false,
-      showAllEntry: true,
+      showAllEntry: false,
     };
   },
   computed: {
@@ -148,8 +149,9 @@ export default {
     },
     showEntries() {
       if (this.showAllEntry && this.item) {
-        return Object.keys(this.item)
-          .filter(v => v !== 'partId');
+        return this.$state.attrs
+          .filter(({ type }) => type === 'value')
+          .map(({ key }) => key);
       }
       return ['room', 'checkedAt'];
     },

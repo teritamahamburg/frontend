@@ -8,8 +8,9 @@
     </div>
 
     <div class="app-toolbar--overlay"></div>
+    <div class="app-toolbar--offline" v-show="offline">{{ $t('general.offlineMode') }}</div>
 
-    <v-toolbar app dense class="app-toolbar">
+    <v-toolbar app dense class="app-toolbar" :class="{ offline }">
       <template v-slot>
         <v-btn :color="$state.dark ? 'white black--text' : 'black white--text'"
                class="create-button--add" v-if="$route.path === '/home'"
@@ -57,12 +58,21 @@
                 {{ $t('general.csv') }}
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile v-show="showControl" @click="$state.dialogs.restore.show = true">
+            <v-list-tile v-show="$route.path === '/home'"
+                         @click="$state.dialogs.restore.show = true">
               <v-list-tile-action>
                 <v-icon left>restore_page</v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
                 {{ $t('general.restoreItem') }}
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile to="/setting">
+              <v-list-tile-action>
+                <v-icon left>settings</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                {{ $t('general.settings') }}
               </v-list-tile-content>
             </v-list-tile>
           </v-list>
@@ -81,7 +91,7 @@
     </v-toolbar>
 
     <v-content :class="{expand: showControl}">
-      <keep-alive>
+      <keep-alive include="Home">
         <router-view />
       </keep-alive>
 
@@ -106,6 +116,7 @@
 
       <qr-code-dialog
         v-model="$state.dialogs.qrCode.show"
+        :verify="$state.dialogs.qrCode.verify"
         :text="$state.dialogs.qrCode.text"/>
 
       <part-dialog
@@ -162,10 +173,19 @@ export default {
       showError: false,
       gqlError: undefined,
       showReloadAlert: false,
+      online: window.navigator.onLine,
     };
   },
   created() {
     this.$state.dialogs.qrCode.verify = this.$t('qrcode.verify');
+
+    window.addEventListener('offline', () => {
+      this.online = false;
+    });
+
+    window.addEventListener('online', () => {
+      this.online = true;
+    });
   },
   mounted() {
     window.gqlError = ({ message }) => {
@@ -184,7 +204,7 @@ export default {
     locationReload: val => window.location.reload(val),
     clickBack() {
       this.$state.searchText = '';
-      this.$router.push('/home');
+      this.$router.back();
     },
   },
   computed: {
@@ -194,6 +214,9 @@ export default {
     },
     showControl() {
       return this.$route.meta.itemsControl && this.$state.itemsView.showControl;
+    },
+    offline() {
+      return !this.online;
     },
   },
 };
@@ -220,11 +243,25 @@ export default {
   padding: 0 10px;
 }
 
+$toolbar-height: 48px;
+
+.app-toolbar--offline {
+  width: 100%;
+  height: #{$toolbar-height / 2};
+  background-color: purple;
+  color: white;
+  text-align: center;
+}
+
 //noinspection CssInvalidFunction, CssOverwrittenProperties
 .app-toolbar {
   height: auto;
   padding-top: constant(safe-area-inset-top);
   padding-top: env(safe-area-inset-top);
+
+  &.offline {
+    margin-top: 24px !important;
+  }
 }
 
 $toolbar-height: 48px;

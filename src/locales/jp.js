@@ -1,6 +1,8 @@
 module.exports = {
   item: {
     id: '内部ID',
+    internalId: '物品別ID',
+    partId: '小分類別ID',
     schoolName: '学校名',
     name: '物品名',
     code: '資産コード',
@@ -15,7 +17,6 @@ module.exports = {
     editUser: '編集者',
     createdAt: '作成日時',
     deletedAt: '削除日時',
-    parts: '小分類',
   },
   general: {
     empty: '物品がありません',
@@ -49,7 +50,17 @@ module.exports = {
     csv: 'CSV',
     restoreItem: '物品の復元',
     restore: '復元',
+    part: '小分類',
+    parts: '小分類',
+    select: '選択',
     updateArrived: '新しいアップデートがあります! リロードして更新して下さい.',
+    offlineMode: 'オフラインモード',
+    settings: '設定',
+    attributeList: '属性一覧',
+    actionAttributeList: '操作属性一覧',
+    showAttributeList: '表示属性一覧',
+    sealImage: 'シール画像',
+    backTop: 'トップに戻る',
   },
   validation: {
     required: '必須',

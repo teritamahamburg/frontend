@@ -9,7 +9,7 @@
     <slot name="grid" v-else-if="viewType === 'grid'">
       <div class="item-card-grid">
         <item-card v-for="item in items" :key="item.id" :item="item"
-          :hide-actions="hideActions" :entry="showProps.map(p => p.value)"
+          :show-actions="showActions" :entry="showProps.map(p => p.value)"
           @select="(val, { id }) => {selectItem(id, val)}"
           @remove="i => $emit('remove', i)"
           @edit="i => $emit('edit', i)"
@@ -22,27 +22,21 @@
       <v-data-table hide-actions :headers="tableHeaderWithCheck" :items="items">
         <template v-slot:items="{ item }">
           <tr @click="$emit('click:row', item)">
-            <td style="padding: 0 0 0 16px" v-if="!hideActions">
-              <v-checkbox hide-details color="error" @change="v => selectItem(item.id, v)"/>
-            </td>
-            <td v-for="{ value } in showProps" :key="value">
-              {{ item[value] }}
-            </td>
-            <td v-if="!hideActions">
-              <v-btn icon @click="$emit('edit', item)">
-                <v-icon>edit</v-icon>
-              </v-btn>
-            </td>
-            <td v-if="!hideActions">
-              <v-btn icon @click="$emit('editHistory', item)">
-                <v-icon>history</v-icon>
-              </v-btn>
-            </td>
-            <td v-if="!hideActions">
-              <v-btn icon @click="$emit('qrCode', item)">
-                <v-icon>nfc</v-icon>
-              </v-btn>
-            </td>
+            <template v-for="(a) in listAttrs">
+              <td v-if="a.type === 'value'" :key="a.key">
+                {{ item[a.key] }}
+              </td>
+              <template v-else>
+                <td v-if="a.key === 'select'" :key="a.key" style="padding: 0 0 0 16px">
+                  <v-checkbox hide-details color="error" @change="v => selectItem(item.id, v)"/>
+                </td>
+                <td v-else :key="a.key">
+                  <v-btn icon @click="$emit(a.key, item)">
+                    <v-icon v-text="$vuetify.icons[a.key]" />
+                  </v-btn>
+                </td>
+              </template>
+            </template>
           </tr>
         </template>
       </v-data-table>
@@ -61,20 +55,13 @@ export default {
       type: Array,
       default: () => [],
     },
-    showProps: {
-      type: Array,
-      default: () => [],
-    },
     viewType: {
       type: String,
       default: 'grid', // sort
     },
-    /**
-     * hideActionsはviewTypeがgridの場合のみ詳細(Array)に設定可能
-    */
-    hideActions: {
-      type: [Boolean, Array],
-      default: false,
+    attrs: {
+      type: Array,
+      default: () => [],
     },
   },
   /*
@@ -98,27 +85,28 @@ export default {
         this.$vuetify.breakpoint.height / 3,
       );
     },
+    listAttrs() {
+      return this.attrs.filter(({ type, key }) => !(type === 'action' && key === 'part'));
+    },
     tableHeaderWithCheck() {
-      if (this.hideActions) return this.showProps;
-      return [
-        {
-          value: 'select',
-          sortable: false,
-        },
-        ...this.showProps,
-        {
-          value: 'edit',
-          sortable: false,
-        },
-        {
-          value: 'history',
-          sortable: false,
-        },
-        {
-          value: 'qrcode',
-          sortable: false,
-        },
-      ];
+      return this.listAttrs.map(({ type, key }) => ({
+        text: type === 'value' ? key : undefined,
+        value: key,
+        sortable: type === 'value',
+      }));
+    },
+    showActions() {
+      return this.attrs
+        .filter(({ type }) => type === 'action')
+        .map(({ key }) => key);
+    },
+    showProps() {
+      return this.attrs
+        .filter(({ type }) => type === 'value')
+        .map(({ key }) => ({
+          text: key,
+          value: key,
+        }));
     },
   },
   methods: {

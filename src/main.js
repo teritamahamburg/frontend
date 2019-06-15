@@ -21,6 +21,30 @@ const $state = new Vue({
         sortType: 'id',
         sortOrder: 'asc',
       },
+      attrs: [
+        { type: 'action', key: 'select' },
+        { type: 'value', key: 'id' },
+        { type: 'value', key: 'schoolName' },
+        { type: 'value', key: 'name' },
+        { type: 'value', key: 'code' },
+        { type: 'value', key: 'amount' },
+        { type: 'value', key: 'purchasedAt' },
+        { type: 'value', key: 'user' },
+        { type: 'value', key: 'course' },
+        { type: 'value', key: 'checkedAt' },
+        { type: 'value', key: 'room' },
+        { type: 'value', key: 'disposalAt' },
+        { type: 'value', key: 'depreciationAt' },
+        { type: 'value', key: 'createdAt' },
+        { type: 'value', key: 'deletedAt' },
+        { type: 'action', key: 'addPart' },
+        { type: 'action', key: 'qrCode' },
+        { type: 'action', key: 'editHistory' },
+        { type: 'action', key: 'edit' },
+        { type: 'action', key: 'remove' },
+        { type: 'action', key: 'part' },
+        { type: 'action', key: 'seal' },
+      ],
       dialogs: {
         add: {
           show: false,
@@ -73,6 +97,41 @@ const $state = new Vue({
         qrCode: this.showQRCodeDialog,
         remove: this.showRemoveDialog,
       };
+    },
+    attributes() {
+      return [
+        'id',
+        'internalId',
+        'partId',
+        'schoolName',
+        'name',
+        'code',
+        'amount',
+        'user',
+        'course',
+        'room',
+        'editUser',
+        'purchasedAt',
+        'checkedAt',
+        'disposalAt',
+        'depreciationAt',
+        'createdAt',
+        'deletedAt',
+      ].filter(k => !this.attrs.some(a => a.key === k))
+        .map(key => ({ type: 'value', key }));
+    },
+    attributeActions() {
+      return [
+        'select',
+        'addPart',
+        'qrCode',
+        'editHistory',
+        'edit',
+        'remove',
+        'part',
+        'seal',
+      ].filter(k => !this.attrs.some(a => a.key === k))
+        .map(key => ({ type: 'action', key }));
     },
   },
   watch: {

@@ -1,10 +1,14 @@
 <template>
-  <v-card max-width="350" class="item-card" height="100%">
+  <v-card max-width="350" class="item-card">
     <slot name="expand:head" />
+    <img :src="`/seal/${item.internalId}${item.seal}`" width="350" alt="seal"
+         v-if="showSealImg"/>
 
     <v-card-title class="item-title">
-      <span class="title">{{item.name}}</span>
-      <span class="grey--text" style="margin-left: 16px">{{item.code}}</span>
+      <div class="attr">
+        <div class="title">{{item.name}}</div>
+        <div class="grey--text code">{{item.code}}</div>
+      </div>
 
       <v-spacer/>
       <v-checkbox color="error" hide-details class="select-check" height="18"
@@ -16,9 +20,12 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-tile v-for="m in menuItems" :key="m[0]" @click="$emit(m[0], item)">
-            <v-list-tile-title>{{ m[1] }}</v-list-tile-title>
-          </v-list-tile>
+          <template v-for="m in menuItems">
+            <v-list-tile :key="m[0]" v-if="!hideAction(m[0])"
+                         @click="$emit(m[0], item)">
+              <v-list-tile-title>{{ m[1] }}</v-list-tile-title>
+            </v-list-tile>
+          </template>
         </v-list>
       </v-menu>
       <slot name="expand:title" />
@@ -41,7 +48,7 @@
         <v-btn outline small class="parts-btn"
                v-if="!hideAction('part') && item.parts && item.parts.length > 0"
                @click="incrementPanel">
-          {{$t('item.parts')}}
+          {{$t('general.parts')}}
           <v-icon>keyboard_arrow_right</v-icon>
         </v-btn>
         <slot name="expand:list"/>
@@ -101,9 +108,9 @@ export default {
       default: () => {
       },
     },
-    hideActions: {
+    showActions: {
       type: [Boolean, Array],
-      default: false,
+      default: true,
     },
     entry: {
       type: Array,
@@ -148,6 +155,9 @@ export default {
         ['remove', this.$t('general.remove')],
       ];
     },
+    showSealImg() {
+      return this.item.seal && this.panel === 0 && !this.hideAction('seal');
+    },
   },
   methods: {
     incrementPanel() {
@@ -157,8 +167,9 @@ export default {
       this.panel = this.panel - 1;
     },
     hideAction(name) {
-      if (typeof this.hideActions === 'boolean') return this.hideActions;
-      return this.hideActions.includes(name);
+      if (typeof this.showActions === 'boolean') return !this.showActions;
+      if (name === 'menu') return false;
+      return !this.showActions.includes(name);
     },
   },
 };
@@ -186,7 +197,11 @@ export default {
 <style scoped lang="scss">
   .item-card {
     .item-title {
-      padding: 16px 16px 0;
+      padding: 8px 16px 0;
+
+      .attr .code {
+        line-height: 1.2;
+      }
     }
 
     .select-check {
