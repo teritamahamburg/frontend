@@ -31,7 +31,8 @@
                   <v-checkbox hide-details color="error" @change="v => selectItem(item.id, v)"/>
                 </td>
                 <td v-else :key="a.key">
-                  <v-btn icon @click="$emit(a.key, item)">
+                  <v-btn icon v-if="a.key !== 'seal' || item.seal"
+                         @click="a.key === 'seal' ? showSealDialog(item) : $emit(a.key, item)">
                     <v-icon v-text="$vuetify.icons[a.key]" />
                   </v-btn>
                 </td>
@@ -41,6 +42,12 @@
         </template>
       </v-data-table>
     </slot>
+
+    <v-dialog v-model="sealDialog.show" max-width="600">
+      <v-card>
+        <v-img :src="`seal/${sealDialog.item.internalId}${sealDialog.item.seal}`" />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -76,6 +83,10 @@ export default {
   data() {
     return {
       selectedItems: [],
+      sealDialog: {
+        show: false,
+        item: {},
+      },
     };
   },
   computed: {
@@ -117,6 +128,10 @@ export default {
         this.selectedItems.push(id);
       }
       this.$emit('select', val, id, this.selectedItems);
+    },
+    showSealDialog(item) {
+      this.sealDialog.item = item;
+      this.sealDialog.show = true;
     },
   },
 };

@@ -9,5 +9,6 @@ Vue.use(Vuetify, {
     qrCode: 'nfc',
     editHistory: 'history',
     remove: 'delete',
+    seal: 'image',
   },
 });
