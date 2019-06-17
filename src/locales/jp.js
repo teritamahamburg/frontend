@@ -59,7 +59,7 @@ module.exports = {
     attributeList: '属性一覧',
     actionAttributeList: '操作属性一覧',
     showAttributeList: '表示属性一覧',
-    sealImage: 'シール画像',
+    seal: 'シール画像',
     backTop: 'トップに戻る',
   },
   validation: {

@@ -11,7 +11,7 @@
       <v-card-text>
         <v-form ref="form">
           <template>
-            <v-text-field prepend-icon="attach_file" readonly :label="$t('general.sealImage')"
+            <v-text-field prepend-icon="attach_file" readonly :label="$t('general.seal')"
               @click="$refs.image.click()" :value="sealImage.name"
               append-icon="clear" @click:append="clearSealImage"/>
             <input
