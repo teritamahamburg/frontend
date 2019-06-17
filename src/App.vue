@@ -246,6 +246,9 @@ export default {
 $toolbar-height: 48px;
 
 .app-toolbar--offline {
+  z-index: 998;
+  position: fixed;
+  top: 0;
   width: 100%;
   height: #{$toolbar-height / 2};
   background-color: purple;
