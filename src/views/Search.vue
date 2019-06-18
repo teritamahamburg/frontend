@@ -1,6 +1,6 @@
 <template>
   <div class="search">
-    <v-layout class="empty--no_text" v-if="!$state.searchText">
+    <v-layout class="empty--no_text" v-if="!$store.state.searchText">
       <div class="headline">{{$t('general.searchHere')}}</div>
       <v-icon class="arrow-icon" :size="36">subdirectory_arrow_right</v-icon>
     </v-layout>
@@ -8,7 +8,7 @@
       <div class="headline">{{$t('general.noSearchResult')}}</div>
     </v-layout>
     <items-view v-else :items="searchItems" class="items-view"
-                :attrs="$state.attrs" v-on="$state.itemsViewMenuVOn" />
+                :attrs="$store.state.attrs" v-on="$store.getters.itemsViewMenuVOn" />
   </div>
 </template>
 
@@ -25,7 +25,7 @@ export default {
       query: searchItemsQuery,
       variables() {
         return {
-          text: this.$state.searchText,
+          text: this.$store.state.searchText,
         };
       },
       update({ searchItems: items }) {

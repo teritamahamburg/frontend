@@ -24,7 +24,6 @@
 
 <script>
 import RestoreItemsQuery from '@/queries/restoreItems.gql';
-import RestoreItemMutation from '@/mutations/restoreItem.gql';
 import ItemsView from '@/components/ItemsView.vue';
 
 export default {
@@ -56,7 +55,7 @@ export default {
   watch: {
     show(val) {
       this.$apollo.queries.restoreItems.skip = !val;
-      if (val) this.$apollo.queries.restoreItems.refetch();
+      if (val && this.$store.state.online) this.$apollo.queries.restoreItems.refetch();
     },
   },
   computed: {
@@ -71,8 +70,7 @@ export default {
   },
   methods: {
     restoreItem({ id }) {
-      this.$apollo.mutate({
-        mutation: RestoreItemMutation,
+      this.$mutate('restoreItem', {
         variables: { id },
       }).then(({ data: { restoreItem: { success } } }) => {
         if (success) {

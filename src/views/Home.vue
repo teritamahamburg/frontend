@@ -1,18 +1,18 @@
 <template>
   <div class="home">
     <items-view
-      :items="items" :view-type="$state.itemsView.viewType"
-      :attrs="$state.attrs"
-      v-on="$state.itemsViewMenuVOn"
-      @select="(v, i, l) => $state.dialogs.remove.ids = l"/>
+      :items="itemsInOffline" :view-type="$store.state.itemsView.viewType"
+      :attrs="$store.state.attrs"
+      v-on="$store.getters.itemsViewMenuVOn"
+      @select="(v, i, l) => $store.state.dialogs.remove.ids = l"/>
 
-    <v-btn fab fixed right bottom @click="$apollo.queries.items.refetch()"
-           :color="$state.dark ? 'white black--text' : 'black white--text'"
-           v-if="$state.dialogs.remove.ids.length === 0">
+    <v-btn fab fixed right bottom @click="$broadcast.$emit('items:refetch')"
+           :color="$store.state.dark ? 'white black--text' : 'black white--text'"
+           v-if="$store.state.dialogs.remove.ids.length === 0 && $store.state.online">
       <v-icon>refresh</v-icon>
     </v-btn>
-    <v-btn fab fixed right bottom color="error" @click="$state.dialogs.remove.show = true"
-           v-else>
+    <v-btn fab fixed right bottom color="error" v-if="$store.state.dialogs.remove.ids.length > 0"
+           @click="$store.state.dialogs.remove.show = true">
       <v-icon>delete</v-icon>
     </v-btn>
   </div>
@@ -34,7 +34,7 @@ export default {
       variables() {
         return {
           sort: [
-            [this.$state.itemsView.sortType, this.$state.itemsView.sortOrder],
+            [this.$store.state.itemsView.sortType, this.$store.state.itemsView.sortOrder],
           ],
         };
       },
@@ -61,30 +61,35 @@ export default {
     },
   },
   created() {
-    this.$state.$on('items:refetch', () => {
-      this.$apollo.queries.items.refetch();
+    this.$broadcast.$on('items:refetch', () => {
+      if (this.$store.state.online) this.$apollo.queries.items.refetch();
     });
-    this.$state.$on('items:removed', () => {
-      this.$state.dialogs.remove.ids = [];
-      this.$apollo.queries.items.refetch();
+    this.$broadcast.$on('items:removed', () => {
+      this.$store.state.dialogs.remove.ids = [];
+      if (this.$store.state.online) this.$apollo.queries.items.refetch();
     });
   },
   mounted() {
     const { hash } = window.location;
     if (hash.length === 0 || viewTypes.findIndex(v => v.type === hash.substring(1)) === -1) {
-      window.location.hash = `#${this.$state.itemsView.viewType}`;
+      window.location.hash = `#${this.$store.state.itemsView.viewType}`;
     } else {
-      this.$state.itemsView.viewType = hash.substring(1);
+      this.$store.commit('setViewType', hash.substring(1));
     }
   },
   watch: {
     // eslint-disable-next-line func-names
-    '$state.itemsView.viewType': function (val) {
+    '$store.state.itemsView.viewType': function (val) {
       window.location.hash = `#${val}`;
-      this.$state.dialogs.remove.ids = [];
+      this.$store.state.dialogs.remove.ids = [];
     },
     items(val) {
-      this.$state.itemsView.showControl = (val && val.length >= 1);
+      this.$store.state.itemsView.showControl = (val && val.length >= 1);
+    },
+  },
+  computed: {
+    itemsInOffline() {
+      return [...this.items, ...this.$store.state.apollo.offlineItem.items];
     },
   },
 };

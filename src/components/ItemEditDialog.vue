@@ -43,7 +43,6 @@
 <script>
 import DatePicker from '@/components/DatePicker.vue';
 import validationRules from '@/ValidationRules';
-import editItemMutation from '@/mutations/editItem.gql';
 
 export default {
   name: 'ItemEditDialog',
@@ -113,8 +112,7 @@ export default {
             }
           });
         if (!data.editUser) data.editUser = this.item.editUser;
-        this.$apollo.mutate({
-          mutation: editItemMutation,
+        this.$mutate('editItem', {
           variables: {
             id: this.item.id,
             data,

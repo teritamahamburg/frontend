@@ -67,7 +67,7 @@ export default {
     value(val) {
       this.$apollo.queries.histories.skip = !val;
       this.$nextTick(() => {
-        this.$apollo.queries.histories.refetch();
+        if (this.$store.state.online) this.$apollo.queries.histories.refetch();
       });
     },
   },

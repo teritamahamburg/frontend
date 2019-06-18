@@ -25,8 +25,6 @@
 </template>
 
 <script>
-import csvMutation from '@/mutations/csv.gql';
-
 const csvDownload = (csv, filename = 'items.csv') => {
   const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], { type: 'text/csv' });
   const a = document.createElement('a');
@@ -58,8 +56,7 @@ export default {
   },
   methods: {
     clickDownloadInDialog() {
-      this.$apollo.mutate({
-        mutation: csvMutation,
+      this.$mutate('csv', {
         variables: {
           paranoid: this.paranoid,
         },

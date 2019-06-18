@@ -1,6 +1,6 @@
 <template>
   <div class="items-view">
-    <slot name="empty" v-if="!items || items.length === 0">
+    <slot name="empty" v-if="empty">
       <div class="empty">
         <v-icon :size="emptyIconSize">devices</v-icon>
         <div class="headline">{{$t('general.emptyAndAdd')}}</div>
@@ -44,7 +44,7 @@
     </slot>
 
     <v-dialog v-model="sealDialog.show" max-width="600">
-      <v-card>
+      <v-card v-if="sealDialog.show">
         <v-img :src="`seal/${sealDialog.item.internalId}${sealDialog.item.seal}`" />
       </v-card>
     </v-dialog>
@@ -90,6 +90,9 @@ export default {
     };
   },
   computed: {
+    empty() {
+      return !this.items || this.items.length === 0;
+    },
     emptyIconSize() {
       return Math.min(
         this.$vuetify.breakpoint.width / 2,
@@ -138,7 +141,7 @@ export default {
 
 export const viewTypes = [
   { type: 'list', icon: 'view_list' },
-  { type: 'grid', icon: 'view_comfy' },
+  { type: 'grid', icon: 'view_module' },
 ];
 </script>
 

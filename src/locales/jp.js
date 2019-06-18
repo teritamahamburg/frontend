@@ -61,6 +61,9 @@ module.exports = {
     showAttributeList: '表示属性一覧',
     seal: 'シール画像',
     backTop: 'トップに戻る',
+    applyOfflineChanges: 'オフラインの変更を反映',
+    askOfflineChange: '変更をサーバーに反映しますか？',
+    reflect: '反映',
   },
   validation: {
     required: '必須',

@@ -8,7 +8,7 @@
         :entry="showEntries" first-column-width="170px"
         :class="{ bound }" @animationend.native="bound = false"
         :show-actions="['addPart', 'qrCode', 'edit', 'editHistory', 'remove']"
-        v-on="$state.itemsViewMenuVOn">
+        v-on="$store.getters.itemsViewMenuVOn">
 
         <template v-slot:expand:title>
           <v-btn icon small @click="showAllEntry = !showAllEntry">
@@ -71,7 +71,6 @@ import { QrcodeStream } from 'vue-qrcode-reader';
 import ItemCard from '@/components/ItemCard.vue';
 import DatePicker from '@/components/DatePicker.vue';
 import itemQuery from '@/queries/item.gql';
-import editItemMutation from '@/mutations/editItem.gql';
 
 export default {
   name: 'Scan',
@@ -149,7 +148,7 @@ export default {
     },
     showEntries() {
       if (this.showAllEntry && this.item) {
-        return this.$state.attrs
+        return this.$store.state.attrs
           .filter(({ type }) => type === 'value')
           .map(({ key }) => key);
       }
@@ -182,8 +181,7 @@ export default {
         data.checkedAt = this.applyDialog.checkedAt;
       }
       if (Object.keys(data).length <= 1) return;
-      this.$apollo.mutate({
-        mutation: editItemMutation,
+      this.$mutate('editItem', {
         variables: {
           id: this.id,
           data,

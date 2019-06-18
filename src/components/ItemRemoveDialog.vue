@@ -18,8 +18,6 @@
 </template>
 
 <script>
-import removeItemsMutation from '@/mutations/removeItems.gql';
-
 export default {
   name: 'ItemRemoveDialog',
   model: {
@@ -42,8 +40,7 @@ export default {
       this.$emit('click:cancel');
     },
     clickRemoveInDialog() {
-      this.$apollo.mutate({
-        mutation: removeItemsMutation,
+      this.$mutate('removeItems', {
         variables: {
           ids: [...this.ids],
         },

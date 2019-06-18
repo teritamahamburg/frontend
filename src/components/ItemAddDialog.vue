@@ -47,7 +47,7 @@
           </v-layout>
           <v-layout>
             <v-combobox :label="$t('item.course')+'*'" v-model="formData.course"
-                          :items="$state.courses"
+                          :items="$store.getters.courses"
                           :rules="[rules.required($t('validation.required'))]"/>
             <v-text-field :label="$t('item.room')+'*'"
                           type="number" class="room-input" v-model="formData.room"
@@ -80,8 +80,6 @@
 </template>
 
 <script>
-import addItemMutation from '@/mutations/addItem.gql';
-
 import DatePicker from '@/components/DatePicker.vue';
 import validationRules from '@/ValidationRules';
 
@@ -128,7 +126,6 @@ export default {
     };
   },
   computed: {
-    addItemMutation: () => addItemMutation,
     rules: () => validationRules,
     defaultFormData: () => ({
       schoolName: 'ss',
@@ -157,8 +154,7 @@ export default {
         data.amount = Number(data.amount);
         data.room = Number(data.room);
         data.sealImage = this.sealImage.file;
-        this.$apollo.mutate({
-          mutation: addItemMutation,
+        this.$mutate('addItem', {
           variables: { data },
         }).then((formData) => {
           this.$emit('added', formData);
