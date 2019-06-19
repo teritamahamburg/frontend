@@ -17,7 +17,8 @@
         @click="$store.state.dialogs.reflect.show = true" />
     </v-snackbar>
 
-    <v-toolbar app dense class="app-toolbar" :class="{ offline }">
+    <v-toolbar app dense class="app-toolbar"
+               :class="{ offline, 'bottom--btn': paddingToolbar }">
       <template v-slot>
         <v-btn :color="$store.state.dark ? 'white black--text' : 'black white--text'"
                class="create-button--add" v-if="$route.path === '/home'"
@@ -25,6 +26,7 @@
           <v-icon>add</v-icon>
           {{$t('general.createItem')}}
         </v-btn>
+
         <v-btn icon @click="clickBack" v-show="showBack">
           <v-icon>keyboard_arrow_left</v-icon>
         </v-btn>
@@ -97,7 +99,7 @@
       </template>
     </v-toolbar>
 
-    <v-content :class="{expand: showControl}">
+    <v-content :class="{expand: showControl, paddingToolbar }">
       <keep-alive include="Home">
         <router-view />
       </keep-alive>
@@ -229,6 +231,9 @@ export default {
     offline() {
       return !this.$store.state.online;
     },
+    paddingToolbar() {
+      return this.$route.path === '/home' && this.$vuetify.breakpoint.width <= 470;
+    },
   },
 };
 </script>
@@ -255,6 +260,7 @@ export default {
 }
 
 $toolbar-height: 48px;
+$toolbar-button-pad: 16px;
 
 //noinspection CssInvalidFunction, CssOverwrittenProperties
 .app-toolbar {
@@ -264,6 +270,10 @@ $toolbar-height: 48px;
 
   &.offline {
     margin-top: 24px !important;
+  }
+
+  &.bottom--btn {
+    padding-bottom: $toolbar-button-pad;
   }
 }
 
@@ -277,6 +287,20 @@ $toolbar-height: 48px;
   &.expand {
     padding: calc(#{$toolbar-height * 2} + constant(safe-area-inset-top)) 0 0 !important;
     padding: calc(#{$toolbar-height * 2} + env(safe-area-inset-top)) 0 0 !important;
+  }
+
+  &.paddingToolbar {
+    padding: calc(#{$toolbar-height} + #{$toolbar-button-pad}
+      + constant(safe-area-inset-top)) 0 0 !important;
+    padding: calc(#{$toolbar-height} + #{$toolbar-button-pad}
+      + env(safe-area-inset-top)) 0 0 !important;
+
+    &.expand {
+      padding: calc(#{$toolbar-height * 2} + #{$toolbar-button-pad}
+        + constant(safe-area-inset-top)) 0 0 !important;
+      padding: calc(#{$toolbar-height * 2} + #{$toolbar-button-pad}
+        + env(safe-area-inset-top)) 0 0 !important;
+    }
   }
 }
 
