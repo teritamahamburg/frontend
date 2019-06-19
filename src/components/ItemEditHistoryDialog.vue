@@ -1,5 +1,6 @@
 <template>
-  <v-dialog :value="value" persistent max-width="600">
+  <v-dialog :value="value" persistent max-width="600"
+    :fullscreen="$vuetify.breakpoint.xsOnly">
     <v-card>
       <v-card-title>
         <span class="headline">{{ $t('general.editHistory') }}</span>

@@ -1,5 +1,6 @@
 <template>
-  <v-dialog :value="show" persistent max-width="600" class="add-dialog">
+  <v-dialog :value="show" persistent max-width="600"
+   :fullscreen="$vuetify.breakpoint.xsOnly">
     <template v-slot:activator="{ on }">
       <slot name="activator" :on="on" />
     </template>
