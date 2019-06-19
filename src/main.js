@@ -27,7 +27,3 @@ waitOnCache.then(() => {
     render: h => h(App),
   }).$mount('#app');
 });
-
-// TODO: mutate hook
-// TODO: graphql mutation cache
-// TODO: mutation emulate

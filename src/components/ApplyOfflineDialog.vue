@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import { commitMutate } from '@/vue-apollo';
+
 export default {
   name: 'ApplyOfflineDialog',
   model: {
@@ -38,24 +40,7 @@ export default {
       this.$emit('change', false);
     },
     async clickReflectInDialog() {
-      const {
-        offlineQueries,
-        /* offlineItem: {
-          temp: {
-            ids,
-            internalIds,
-          },
-          items,
-        }, */
-      } = this.$store.state.apollo;
-      // eslint-disable-next-line no-restricted-syntax
-      for (const query of offlineQueries) {
-        delete query.mutationName;
-        // eslint-disable-next-line no-await-in-loop
-        await this.$apollo.mutate(query);
-      }
-      this.$store.commit('clearOfflineQueries');
-      this.$broadcast.$emit('items:refetch');
+      await commitMutate.bind(this);
       this.closeDialog();
     },
   },

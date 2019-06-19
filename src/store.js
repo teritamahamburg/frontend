@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
+import { storeMutate } from '@/vue-apollo';
 
 Vue.use(Vuex);
 
@@ -117,31 +118,8 @@ const store = new Vuex.Store({
       state.attrs = val;
     },
     addOfflineQuery(state, query) {
+      storeMutate(state, query);
       state.apollo.offlineQueries.push(query);
-      switch (query.mutationName) {
-        case 'addItem': {
-          const { data } = query.variables;
-          const id = `temp-id_${Date.now()}`;
-          const internalId = `temp-internalId_${Date.now()}`;
-          state.apollo.offlineItem.temp.ids[id] = id;
-          state.apollo.offlineItem.temp.internalIds[internalId] = internalId;
-          state.apollo.offlineItem.items.push({
-            ...data,
-            createdAt: undefined,
-            id,
-            internalId,
-            partId: 0,
-          });
-          break;
-        }
-        default: {
-          if (window.gqlError) {
-            window.gqlError({
-              message: 'その操作はできません',
-            });
-          }
-        }
-      }
     },
     clearOfflineQueries(state) {
       state.apollo = {
