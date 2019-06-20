@@ -19,7 +19,8 @@
       </div>
     </slot>
     <slot name="list" v-else>
-      <v-data-table hide-actions :headers="tableHeaderWithCheck" :items="items">
+      <v-data-table hide-actions class="items-view--list"
+                    :headers="tableHeaderWithCheck" :items="items">
         <template v-slot:items="{ item }">
           <tr @click="$emit('click:row', item)">
             <template v-for="(a) in listAttrs">
@@ -169,5 +170,11 @@ export const viewTypes = [
       justify-content: center;
       align-items: start;
     }
+  }
+</style>
+
+<style>
+  .items-view--list .v-table__overflow .v-table {
+    max-width: none;
   }
 </style>
