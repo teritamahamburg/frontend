@@ -4,6 +4,7 @@ module.exports = {
     internalId: '物品別ID',
     partId: '小分類別ID',
     schoolName: '学校名',
+    seal: 'シール画像',
     name: '物品名',
     code: '資産コード',
     amount: '数量',

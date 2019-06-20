@@ -5,6 +5,11 @@ schema {
     mutation: Mutation
 }
 
+type CSV {
+    columns: [String!]!
+    rows: String!
+}
+
 type Course {
     id: ID!
     name: String!
@@ -63,7 +68,7 @@ type PartItem {
 }
 
 type Query {
-    csv(paranoid: Boolean = false): String!
+    csv(paranoid: Boolean = false): CSV!
     item(id: ID!): Item
     items(itemEnum: ItemEnum = NORMAL, search: String, sort: [[String!]!] = [["id", "asc"]]): [Item!]!
 }

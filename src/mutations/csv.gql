@@ -1,3 +1,0 @@
-query ($paranoid: Boolean) {
-    csv(paranoid: $paranoid)
-}

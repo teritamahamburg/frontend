@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import csvQuery from '@/queries/csv.gql';
+
 const csvDownload = (csv, filename = 'items.csv') => {
   const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], { type: 'text/csv' });
   const a = document.createElement('a');
@@ -56,12 +58,13 @@ export default {
   },
   methods: {
     clickDownloadInDialog() {
-      this.$mutate('csv', {
+      this.$apollo.query({
+        query: csvQuery,
         variables: {
           paranoid: this.paranoid,
         },
-      }).then(({ data: { csv } }) => {
-        csvDownload(csv);
+      }).then(({ data: { csv: { columns, rows } } }) => {
+        csvDownload(`${columns.map(s => this.$t(`item.${s}`)).join(',')}\n${rows}`);
         this.$emit('change', false);
       }).catch((error) => {
         if (window.gqlError) window.gqlError(error);
