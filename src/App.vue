@@ -188,6 +188,14 @@ export default {
       showReloadAlert: false,
     };
   },
+  watch: {
+    '$store.state.online': function (val, oldVal) {
+      if (!oldVal && val
+        && this.$store.state.apollo.offlineQueries.length > 0) {
+        this.$store.state.dialogs.reflect.show = true;
+      }
+    },
+  },
   created() {
     this.$store.state.dialogs.qrCode.verify = this.$t('qrcode.verify');
 

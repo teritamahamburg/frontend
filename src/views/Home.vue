@@ -77,6 +77,7 @@ export default {
     } else {
       this.$store.commit('setViewType', hash.substring(1));
     }
+    this.$broadcast.$emit('items:refetch');
   },
   watch: {
     // eslint-disable-next-line func-names
