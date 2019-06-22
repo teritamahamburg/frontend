@@ -30,7 +30,9 @@ export default {
   components: { ItemsView },
   apollo: {
     restoreItems: {
-      skip: true,
+      skip() {
+        return !(this.show && this.$store.state.online);
+      },
       query: RestoreItemsQuery,
       update({ restoreItems }) {
         return restoreItems.map((i) => {
@@ -53,9 +55,8 @@ export default {
     },
   },
   watch: {
-    show(val) {
-      this.$apollo.queries.restoreItems.skip = !val;
-      if (val && this.$store.state.online) this.$apollo.queries.restoreItems.refetch();
+    show() {
+      this.$apollo.queries.restoreItems.refetch();
     },
   },
   computed: {

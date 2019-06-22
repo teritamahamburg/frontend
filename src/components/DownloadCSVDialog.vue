@@ -58,17 +58,19 @@ export default {
   },
   methods: {
     clickDownloadInDialog() {
-      this.$apollo.query({
-        query: csvQuery,
-        variables: {
-          paranoid: this.paranoid,
-        },
-      }).then(({ data: { csv: { columns, rows } } }) => {
-        csvDownload(`${columns.map(s => this.$t(`item.${s}`)).join(',')}\n${rows}`);
-        this.$emit('change', false);
-      }).catch((error) => {
-        if (window.gqlError) window.gqlError(error);
-      });
+      if (this.$store.state.online) {
+        this.$apollo.query({
+          query: csvQuery,
+          variables: {
+            paranoid: this.paranoid,
+          },
+        }).then(({ data: { csv: { columns, rows } } }) => {
+          csvDownload(`${columns.map(s => this.$t(`item.${s}`)).join(',')}\n${rows}`);
+          this.$emit('change', false);
+        }).catch((error) => {
+          if (window.gqlError) window.gqlError(error);
+        });
+      }
     },
   },
 };

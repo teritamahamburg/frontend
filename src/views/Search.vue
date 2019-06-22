@@ -21,6 +21,9 @@ export default {
   components: { ItemsView },
   apollo: {
     searchItems: {
+      skip() {
+        return !this.$store.state.online;
+      },
       throttle: 1000,
       query: searchItemsQuery,
       variables() {

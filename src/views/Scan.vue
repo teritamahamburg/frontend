@@ -77,7 +77,9 @@ export default {
   components: { DatePicker, ItemCard, QrcodeStream },
   apollo: {
     item: {
-      skip: true,
+      skip() {
+        return !(this.$store.state.online && this.id);
+      },
       query: itemQuery,
       variables() {
         return {
@@ -118,13 +120,11 @@ export default {
   computed: {
     showApplyButton() {
       if (!this.applyDialog.editUser) return false;
-      if (
+      return !(
         (this.applyDialog.editRoom === this.applyDialog.editCheckedAt && !this.applyDialog.editRoom)
         || (this.applyDialog.editRoom && !this.applyDialog.room)
-        || (this.applyDialog.editCheckedAt && !this.applyDialog.checkedAt)) {
-        return false;
-      }
-      return true;
+        || (this.applyDialog.editCheckedAt && !this.applyDialog.checkedAt)
+      );
     },
     editItem() {
       if (!this.item || !this.applyChange) return this.item;
@@ -171,7 +171,6 @@ export default {
       const start = `${this.$t('qrcode.verify')}:`;
       if (!content.startsWith(start)) return;
       this.id = Number(content.substring(start.length));
-      this.$apollo.queries.item.skip = false;
       this.changed = false;
       this.mutateEditItem();
     },

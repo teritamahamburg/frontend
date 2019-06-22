@@ -32,6 +32,9 @@ export default {
   },
   apollo: {
     items: {
+      skip() {
+        return !this.$store.state.online;
+      },
       query: itemsQuery,
       variables() {
         return {
