@@ -1,23 +1,32 @@
 <template>
-  <v-app :dark="$state.dark">
+  <v-app :dark="$store.state.dark">
     <div class="overlay--graphql"
-         v-show="$route.meta.overlay !== false &&$state.loading !== 0">
+         v-show="$route.meta.overlay !== false &&$store.state.loading !== 0">
       <!-- ignore undefined ↑-->
       <v-progress-circular
         :size="70" :width="7" color="white" indeterminate />
     </div>
 
     <div class="app-toolbar--overlay"></div>
-    <div class="app-toolbar--offline" v-show="offline">{{ $t('general.offlineMode') }}</div>
+    <div class="app-toolbar--offline" v-show="offline">
+      <span>{{ $t('general.offlineMode') }}</span>
+    </div>
+    <v-snackbar :value="true" :timeout="0" top multi-line class="app-snackbar--offline"
+      v-if="$store.state.online && $store.state.apollo.offlineQueries.length > 0">
+      <v-btn dark outline v-html="$t('general.applyOfflineChanges')"
+        @click="$store.state.dialogs.reflect.show = true" />
+    </v-snackbar>
 
-    <v-toolbar app dense class="app-toolbar" :class="{ offline }">
+    <v-toolbar app dense class="app-toolbar"
+               :class="{ offline, 'bottom--btn': paddingToolbar }">
       <template v-slot>
-        <v-btn :color="$state.dark ? 'white black--text' : 'black white--text'"
+        <v-btn :color="$store.state.dark ? 'white black--text' : 'black white--text'"
                class="create-button--add" v-if="$route.path === '/home'"
-               @click="$state.dialogs.add.show = true" absolute>
+               @click="$store.state.dialogs.add.show = true" absolute>
           <v-icon>add</v-icon>
           {{$t('general.createItem')}}
         </v-btn>
+
         <v-btn icon @click="clickBack" v-show="showBack">
           <v-icon>keyboard_arrow_left</v-icon>
         </v-btn>
@@ -31,7 +40,7 @@
           {{ $t('general.search') }}
         </v-btn>
 
-        <v-text-field v-if="$route.path === '/search'" v-model="$state.searchText"
+        <v-text-field v-if="$route.path === '/search'" v-model="$store.state.searchText"
                       append-icon="search" />
 
         <v-menu offset-y>
@@ -42,15 +51,15 @@
           </template>
 
           <v-list>
-            <v-list-tile @click="$state.dark = !$state.dark">
+            <v-list-tile @click="$store.commit('setDark', !$store.state.dark)">
               <v-list-tile-action>
-                <v-icon>brightness_{{$state.dark ? 7 : 3}}</v-icon>
+                <v-icon>brightness_{{$store.state.dark ? 7 : 3}}</v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
-                {{$state.dark ? 'Light Mode' : 'Dark Mode'}}
+                {{$store.state.dark ? 'Light Mode' : 'Dark Mode'}}
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile v-show="showControl" @click="$state.dialogs.csv.show = true">
+            <v-list-tile v-show="showControl" @click="$store.state.dialogs.csv.show = true">
               <v-list-tile-action>
                 <v-icon left>cloud_download</v-icon>
               </v-list-tile-action>
@@ -58,8 +67,8 @@
                 {{ $t('general.csv') }}
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile v-show="$route.path === '/home'"
-                         @click="$state.dialogs.restore.show = true">
+            <v-list-tile v-show="$route.path === '/home' && $store.state.online"
+                         @click="$store.state.dialogs.restore.show = true">
               <v-list-tile-action>
                 <v-icon left>restore_page</v-icon>
               </v-list-tile-action>
@@ -81,65 +90,73 @@
 
       <template v-slot:extension v-if="showControl">
         <items-view-controller
-          :view-type="$state.itemsView.viewType"
-          @change:viewType="v => $state.itemsView.viewType = v"
-          :sort-type="$state.itemsView.sortType"
-          @change:sortType="v => $state.itemsView.sortType = v"
-          :sort-order="$state.itemsView.sortOrder"
-          @change:sortOrder="v => $state.itemsView.sortOrder = v" />
+          :view-type="$store.state.itemsView.viewType"
+          @change:viewType="v => $store.commit('setViewType', v)"
+          :sort-type="$store.state.itemsView.sortType"
+          @change:sortType="v => $store.commit('setSortType', v)"
+          :sort-order="$store.state.itemsView.sortOrder"
+          @change:sortOrder="v => $store.commit('setSortOrder', v)" />
       </template>
     </v-toolbar>
 
-    <v-content :class="{expand: showControl}">
+    <v-content :class="{expand: showControl, paddingToolbar, offline }">
       <keep-alive include="Home">
         <router-view />
       </keep-alive>
+    </v-content>
 
+    <!-- dialogs -->
+    <template>
       <item-remove-dialog
-        v-model="$state.dialogs.remove.show"
-        :ids="$state.dialogs.remove.ids"
-        @click:cancel="$state.dialogs.remove.ids = []"
-        @removed="$state.$emit('items:removed')" />
+          v-model="$store.state.dialogs.remove.show"
+          :ids="$store.state.dialogs.remove.ids"
+          @click:cancel="$store.state.dialogs.remove.ids = []"
+          @removed="$broadcast.$emit('items:removed')" />
 
       <item-add-dialog
-        v-model="$state.dialogs.add.show"
-        @added="$state.$emit('items:refetch')"/>
+          v-model="$store.state.dialogs.add.show"
+          @added="$broadcast.$emit('items:refetch')"/>
 
       <item-edit-dialog
-        v-model="$state.dialogs.edit.show"
-        :item="$state.dialogs.edit.item"
-        @edited="$state.$emit('items:refetch')"/>
+          v-model="$store.state.dialogs.edit.show"
+          :item="$store.state.dialogs.edit.item"
+          @edited="$broadcast.$emit('items:refetch')"/>
 
       <item-edit-history-dialog
-        v-model="$state.dialogs.editHistory.show"
-        :id="$state.dialogs.editHistory.id"/>
+          v-model="$store.state.dialogs.editHistory.show"
+          :id="$store.state.dialogs.editHistory.id"/>
 
       <qr-code-dialog
-        v-model="$state.dialogs.qrCode.show"
-        :verify="$state.dialogs.qrCode.verify"
-        :text="$state.dialogs.qrCode.text"/>
+          v-model="$store.state.dialogs.qrCode.show"
+          :verify="$store.state.dialogs.qrCode.verify"
+          :text="$store.state.dialogs.qrCode.text"/>
 
       <part-dialog
-        v-model="$state.dialogs.part.show"
-        :item="$state.dialogs.part.item"
-        :add="$state.dialogs.part.add"
-        @added="$state.$emit('items:refetch')"
-        @edited="$state.$emit('items:refetch')"/>
+          v-model="$store.state.dialogs.part.show"
+          :item="$store.state.dialogs.part.item"
+          :add="$store.state.dialogs.part.add"
+          @added="$broadcast.$emit('items:refetch')"
+          @edited="$broadcast.$emit('items:refetch')"/>
 
-      <download-csv-dialog v-model="$state.dialogs.csv.show" />
+      <download-csv-dialog v-model="$store.state.dialogs.csv.show" />
 
-      <restore-item-dialog v-model="$state.dialogs.restore.show"
-        @restored="$state.$emit('items:refetch')"/>
-    </v-content>
+      <restore-item-dialog v-model="$store.state.dialogs.restore.show"
+                           @restored="$broadcast.$emit('items:refetch')"/>
+
+      <apply-offline-dialog v-model="$store.state.dialogs.reflect.show" />
+
+      <seal-dialog v-model="$store.state.dialogs.seal.show"
+        :image="$store.state.dialogs.seal.image" />
+    </template>
 
     <v-snackbar v-model="showError" bottom>
       {{ gqlError }}
     </v-snackbar>
 
-    <v-alert :value="showReloadAlert">
+    <v-snackbar :value="showReloadAlert" color="error" bottom>
       <div>{{ $t('general.updateArrived') }}</div>
       <v-btn color="primary" @click="locationReload(true)">Reload</v-btn>
-    </v-alert>
+    </v-snackbar>
   </v-app>
 </template>
 
@@ -154,10 +171,13 @@ import PartDialog from '@/components/PartDialog.vue';
 import ItemRemoveDialog from '@/components/ItemRemoveDialog.vue';
 import DownloadCsvDialog from '@/components/DownloadCSVDialog.vue';
 import RestoreItemDialog from '@/components/RestoreItemDialog.vue';
+import ApplyOfflineDialog from '@/components/ApplyOfflineDialog.vue';
+import SealDialog from '@/components/SealDialog.vue';
 
 export default {
   name: 'App',
   components: {
+    ApplyOfflineDialog,
     RestoreItemDialog,
     DownloadCsvDialog,
     ItemsViewController,
@@ -167,24 +187,33 @@ export default {
     ItemEditHistoryDialog,
     ItemEditDialog,
     ItemAddDialog,
+    SealDialog,
   },
   data() {
     return {
       showError: false,
       gqlError: undefined,
       showReloadAlert: false,
-      online: window.navigator.onLine,
     };
   },
+  watch: {
+    // eslint-disable-next-line
+    '$store.state.online': function (val, oldVal) {
+      if (!oldVal && val
+        && this.$store.state.apollo.offlineQueries.length > 0) {
+        this.$store.state.dialogs.reflect.show = true;
+      }
+    },
+  },
   created() {
-    this.$state.dialogs.qrCode.verify = this.$t('qrcode.verify');
+    this.$store.state.dialogs.qrCode.verify = this.$t('qrcode.verify');
 
     window.addEventListener('offline', () => {
-      this.online = false;
+      this.$store.state.online = false;
     });
 
     window.addEventListener('online', () => {
-      this.online = true;
+      this.$store.state.online = true;
     });
   },
   mounted() {
@@ -199,11 +228,12 @@ export default {
         this.showReloadAlert = available;
       });
     }
+    this.$store.commit('setDark', this.$store.state.dark);
   },
   methods: {
     locationReload: val => window.location.reload(val),
     clickBack() {
-      this.$state.searchText = '';
+      this.$store.state.searchText = '';
       this.$router.back();
     },
   },
@@ -213,10 +243,13 @@ export default {
         && this.$route.meta.priority > 1; // 1 is '/home' priority
     },
     showControl() {
-      return this.$route.meta.itemsControl && this.$state.itemsView.showControl;
+      return this.$route.meta.itemsControl && this.$store.state.itemsView.showControl;
     },
     offline() {
-      return !this.online;
+      return !this.$store.state.online;
+    },
+    paddingToolbar() {
+      return this.$route.path === '/home' && this.$vuetify.breakpoint.width <= 470;
     },
   },
 };
@@ -224,7 +257,7 @@ export default {
 
 <style lang="scss">
 .application .overlay--graphql {
-  z-index: 9999;
+  z-index: 999;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -237,21 +270,13 @@ export default {
 }
 
 .create-button--add {
-  z-index: 10;
+  z-index: 5;
   bottom: -16px;
   border-radius: 18px;
   padding: 0 10px;
 }
 
-$toolbar-height: 48px;
-
-.app-toolbar--offline {
-  width: 100%;
-  height: #{$toolbar-height / 2};
-  background-color: purple;
-  color: white;
-  text-align: center;
-}
+$toolbar-button-pad: 16px;
 
 //noinspection CssInvalidFunction, CssOverwrittenProperties
 .app-toolbar {
@@ -261,6 +286,10 @@ $toolbar-height: 48px;
 
   &.offline {
     margin-top: 24px !important;
+  }
+
+  &.bottom--btn {
+    padding-bottom: $toolbar-button-pad;
   }
 }
 
@@ -275,16 +304,96 @@ $toolbar-height: 48px;
     padding: calc(#{$toolbar-height * 2} + constant(safe-area-inset-top)) 0 0 !important;
     padding: calc(#{$toolbar-height * 2} + env(safe-area-inset-top)) 0 0 !important;
   }
+
+  &.paddingToolbar {
+    padding: calc(#{$toolbar-height} + #{$toolbar-button-pad}
+      + constant(safe-area-inset-top)) 0 0 !important;
+    padding: calc(#{$toolbar-height} + #{$toolbar-button-pad}
+      + env(safe-area-inset-top)) 0 0 !important;
+
+    &.expand {
+      padding: calc(#{$toolbar-height * 2} + #{$toolbar-button-pad}
+        + constant(safe-area-inset-top)) 0 0 !important;
+      padding: calc(#{$toolbar-height * 2} + #{$toolbar-button-pad}
+        + env(safe-area-inset-top)) 0 0 !important;
+    }
+  }
+
+  &.offline {
+    padding: calc(#{$toolbar-height * 1.5} + constant(safe-area-inset-top)) 0 0 !important;
+    padding: calc(#{$toolbar-height * 1.5} + env(safe-area-inset-top)) 0 0 !important;
+
+    &.expand {
+      padding: calc(#{$toolbar-height * 2.5} + constant(safe-area-inset-top)) 0 0 !important;
+      padding: calc(#{$toolbar-height * 2.5} + env(safe-area-inset-top)) 0 0 !important;
+
+      &.paddingToolbar {
+        padding: calc(#{$toolbar-height * 2.5} + #{$toolbar-button-pad}
+        + constant(safe-area-inset-top)) 0 0 !important;
+        padding: calc(#{$toolbar-height * 2.5} + #{$toolbar-button-pad}
+        + env(safe-area-inset-top)) 0 0 !important;
+      }
+    }
+  }
 }
 
 //noinspection CssInvalidFunction, CssOverwrittenProperties
-.app-toolbar--overlay {
-  z-index: 999;
+.app-toolbar--overlay { /* ios bar */
+  z-index: 10;
   height: constant(safe-area-inset-top);
   height: env(safe-area-inset-top);
   width: 100%;
   position: fixed;
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+$offline-color: purple;
+
+//noinspection CssInvalidFunction, CssOverwrittenProperties
+.app-toolbar--offline {
+  z-index: 11;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: #{$toolbar-height / 2};
+  height: calc(constant(safe-area-inset-top) + #{$toolbar-height / 2});
+  height: calc(env(safe-area-inset-top) + #{$toolbar-height / 2});
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  background-color: $offline-color;
+  color: white;
+}
+
+//noinspection CssInvalidFunction, CssOverwrittenProperties
+.app-snackbar--offline {
+  z-index: 50;
+
+  .v-snack__wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    background-color: $offline-color;
+    padding-top: 35px;
+    padding-top: calc(constant(safe-area-inset-top) + 35px);
+    padding-top: calc(env(safe-area-inset-top) + 35px);
+
+    .v-snack__content {
+      padding-top: 36px;
+      padding-bottom: 12px;
+      justify-content: center;
+
+      .v-btn {
+        margin: 0;
+      }
+    }
+  }
+}
+
+//noinspection CssInvalidFunction, CssOverwrittenProperties
+.v-dialog--fullscreen {
+  padding-top: constant(safe-area-inset-top) !important;
+  padding-top: env(safe-area-inset-top) !important;
 }
 </style>
 

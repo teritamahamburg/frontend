@@ -1,0 +1,6 @@
+query ($paranoid: Boolean) {
+    csv(paranoid: $paranoid) {
+        columns
+        rows
+    }
+}

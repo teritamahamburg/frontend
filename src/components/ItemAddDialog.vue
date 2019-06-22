@@ -1,5 +1,6 @@
 <template>
-  <v-dialog :value="show" persistent max-width="600" class="add-dialog">
+  <v-dialog :value="show" persistent max-width="600"
+   :fullscreen="$vuetify.breakpoint.xsOnly">
     <template v-slot:activator="{ on }">
       <slot name="activator" :on="on" />
     </template>
@@ -11,8 +12,8 @@
       <v-card-text>
         <v-form ref="form">
           <template>
-            <v-text-field prepend-icon="attach_file" readonly :label="$t('general.sealImage')"
-              @click="$refs.image.click()" :value="sealImage.name"
+            <v-text-field prepend-icon="attach_file" readonly :label="$t('general.seal')"
+              @click="$refs.image.click()" :value="(sealImage.file || {}).name"
               append-icon="clear" @click:append="clearSealImage"/>
             <input
               type="file"
@@ -47,7 +48,7 @@
           </v-layout>
           <v-layout>
             <v-combobox :label="$t('item.course')+'*'" v-model="formData.course"
-                          :items="$state.courses"
+                          :items="$store.getters.courses"
                           :rules="[rules.required($t('validation.required'))]"/>
             <v-text-field :label="$t('item.room')+'*'"
                           type="number" class="room-input" v-model="formData.room"
@@ -80,8 +81,6 @@
 </template>
 
 <script>
-import addItemMutation from '@/mutations/addItem.gql';
-
 import DatePicker from '@/components/DatePicker.vue';
 import validationRules from '@/ValidationRules';
 
@@ -106,9 +105,7 @@ export default {
   data() {
     return {
       sealImage: {
-        name: '',
         file: undefined,
-        url: '',
       },
       formData: {
         schoolName: 'ss',
@@ -128,7 +125,6 @@ export default {
     };
   },
   computed: {
-    addItemMutation: () => addItemMutation,
     rules: () => validationRules,
     defaultFormData: () => ({
       schoolName: 'ss',
@@ -157,8 +153,7 @@ export default {
         data.amount = Number(data.amount);
         data.room = Number(data.room);
         data.sealImage = this.sealImage.file;
-        this.$apollo.mutate({
-          mutation: addItemMutation,
+        this.$mutate('addItem', {
           variables: { data },
         }).then((formData) => {
           this.$emit('added', formData);
@@ -182,22 +177,19 @@ export default {
       const { files } = e.target;
       if (files[0] !== undefined) {
         const file = files[0];
-        this.sealImage.name = file.name;
-        if (this.sealImage.name.lastIndexOf('.') <= 0) return;
+        if (file.name.lastIndexOf('.') <= 0) return;
         const fr = new FileReader();
         fr.readAsDataURL(file);
         fr.addEventListener('load', () => {
-          this.sealImage.url = fr.result;
           this.sealImage.file = file;
+          this.sealImage.file.url = fr.result;
         });
       } else {
         this.clearSealImage();
       }
     },
     clearSealImage() {
-      this.sealImage.name = '';
       this.sealImage.file = undefined;
-      this.sealImage.url = '';
     },
   },
 };

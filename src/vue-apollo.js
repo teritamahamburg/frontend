@@ -1,81 +1,144 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { InMemoryCache } from 'apollo-cache-inmemory';
+import { persistCache } from 'apollo-cache-persist';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { createApolloClient } from 'vue-cli-plugin-apollo/graphql-client';
 
-// Install the vue plugin
+import mutations from '@/apollo/mutations';
+import offlineMutations from '@/apolloOffline/mutations';
+
 Vue.use(VueApollo);
 
-// Name of the localStorage item
-const AUTH_TOKEN = 'apollo-token';
+Vue.mixin({
+  methods: {
+    $mutate(mutationName, options) {
+      if (this.$store.state.online) {
+        return this.$apollo.mutate({
+          ...options,
+          mutation: mutations[mutationName],
+        });
+      }
+      this.$store.commit('addOfflineQuery', {
+        ...options,
+        mutationName,
+      });
+      return Promise.resolve({
+        data: {
+          [mutationName]: {
+            success: true,
+          },
+        },
+      });
+    },
+  },
+});
 
-// Http endpoint
-const httpEndpoint = `${window.location.protocol}//${window.location.host}/graphql`;
+// INFO: https://github.com/Akryum/vue-apollo/issues/631
+const cache = new InMemoryCache({ freezeResults: false });
 
-// Config
-const defaultOptions = {
-  // You can use `https` for secure connection (recommended in production)
-  httpEndpoint,
-  // You can use `wss` for secure connection (recommended in production)
-  // Use `null` to disable subscriptions
-  // wsEndpoint: process.env.VUE_APP_GRAPHQL_WS || 'ws://localhost:4000/graphql',
-  // LocalStorage token
-  tokenName: AUTH_TOKEN,
-  // Enable Automatic Query persisting with Apollo Engine
-  persisting: false,
-  // Use websockets for everything (no HTTP)
-  // You need to pass a `wsEndpoint` for this to work
-  websocketsOnly: false,
-  // Is being rendered on the server?
-  ssr: false,
+export const waitOnCache = persistCache({
+  cache,
+  key: 'apollo',
+  storage: window.localStorage,
+});
 
-  // INFO: https://github.com/Akryum/vue-apollo/issues/631
-  cache: new InMemoryCache({ freezeResults: false }),
 
-  // Override default apollo link
-  // note: don't override httpLink here, specify httpLink options in the
-  // httpLinkOptions property of defaultOptions.
-  // link: myLink
+const { apolloClient, wsClient } = createApolloClient({
+  httpEndpoint: `${window.location.protocol}//${window.location.host}/graphql`,
+  cache,
+});
+apolloClient.wsClient = wsClient;
 
-  // Override default cache
-  // cache: myCache
+const apolloProvider = new VueApollo({
+  defaultClient: apolloClient,
+  defaultOptions: {
+    $query: {
+      fetchPolicy: 'cache-and-network',
+    },
+  },
+  errorHandler(error) {
+    if (window.gqlError) window.gqlError(error);
+  },
+  watchLoading(isLoading, countModifier) {
+    this.$store.state.loading += countModifier;
+  },
+});
 
-  // Override the way the Authorization header is set
-  // getAuth: (tokenName) => ...
+export default apolloProvider;
 
-  // Additional ApolloClient options
-  // apollo: { ... }
-
-  // Client local data (see apollo-link-state)
-  // clientState: { resolvers: { ... }, defaults: { ... } }
+/* eslint-disable no-param-reassign */
+// TODO: <OFFLINE> all mutation support
+export const storeMutate = (state, query) => {
+  if (offlineMutations[query.mutationName]) {
+    offlineMutations[query.mutationName].storeMutate(state, query);
+  } else if (window.gqlError) {
+    window.gqlError({
+      message: 'その操作はできません',
+    });
+  }
 };
 
-// eslint-disable-next-line import/prefer-default-export
-export function createProvider(options = {}) {
-  // Create apollo client
-  const { apolloClient, wsClient } = createApolloClient({
-    ...defaultOptions,
-    ...options,
-  });
-  apolloClient.wsClient = wsClient;
+export const commitMutate = async (self) => {
+  const { offlineQueries } = self.$store.state.apollo;
+  await offlineQueries.reduce((promise, query) => promise.then(
+    () => offlineMutations[query.mutationName].commitMutate(self, {
+      ...query,
+      mutation: mutations[query.mutationName],
+    }, self.$store.state),
+  ), Promise.resolve());
+  self.$store.commit('clearOfflineQueries');
+  self.$broadcast.$emit('items:refetch');
+};
 
-  // Create vue apollo provider
-  const apolloProvider = new VueApollo({
-    defaultClient: apolloClient,
-    defaultOptions: {
-      $query: {
-        fetchPolicy: 'cache-and-network',
-      },
-    },
-    errorHandler(error) {
-      if (window.gqlError) window.gqlError(error);
-    },
-    watchLoading(isLoading, countModifier) {
-      this.$state.loading += countModifier;
-    },
+export const patchOfflineChanges = (self, items) => {
+  const { offlineItem } = self.$store.state.apollo;
+  const patchItems = [...items, ...offlineItem.items.map((item) => {
+    if (item.sealImage) {
+      // eslint-disable-next-line no-param-reassign
+      item.sealImage = item.sealImage.substring(item.sealImage.indexOf('|') + 1); // apolloOffline/mutations/addItem#nameSeparator
+    }
+    return item;
+  })];
+  offlineItem.parts.forEach((part) => {
+    const i = patchItems.findIndex(item => item.internalId === part.internalId);
+    if (i !== -1) {
+      const item = patchItems[i];
+      if (!patchItems.parts) item.parts = [];
+      item.parts.push(part);
+    }
   });
-
-  return apolloProvider;
-}
+  offlineItem.removeIds.filter((id) => {
+    const i = patchItems.findIndex(item => item.id === id);
+    if (i !== -1) {
+      patchItems.splice(i, 1);
+    }
+    return i !== -1;
+  }).forEach((id) => {
+    patchItems.forEach((item) => {
+      const i = item.parts.findIndex(part => part.id === id);
+      if (i !== -1) delete item.parts[i];
+    });
+  });
+  offlineItem.itemEdits.forEach((edit) => {
+    const i = patchItems.findIndex(({ id }) => id === edit.id);
+    if (i !== -1) {
+      patchItems[i] = {
+        ...patchItems[i],
+        ...edit,
+      };
+    }
+  });
+  offlineItem.partEdits.forEach((edit) => {
+    patchItems.forEach(({ parts }) => {
+      const i = parts.findIndex(({ id }) => id === edit.id);
+      if (i !== -1) {
+        parts[i] = {
+          ...parts[i],
+          ...edit,
+        };
+      }
+    });
+  });
+  return patchItems;
+};

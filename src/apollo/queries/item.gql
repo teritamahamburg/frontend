@@ -1,10 +1,12 @@
 query ($id: ID!){
     item(id: $id) {
         id
-        partId
+        internalId
+        seal
         schoolName
         name
         code
+        partId
         amount
         purchasedAt
         user {

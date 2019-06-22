@@ -2,7 +2,7 @@
   <v-dialog :value="value" persistent max-width="600">
     <v-card>
       <v-card-title>
-        <span class="headline">{{$t(`general.${add?'add':'edit'}${isPart?'Part':'Item'}`)}}</span>
+        <span class="headline">{{$t(`general.${add?'add':'edit'}Part`)}}</span>
       </v-card-title>
       <v-card-text>
         <v-form ref="form">
@@ -39,8 +39,6 @@
 <script>
 import DatePicker from '@/components/DatePicker.vue';
 import validationRules from '@/ValidationRules';
-import addPartMutation from '@/mutations/addPart.gql';
-import editPartMutation from '@/mutations/editPart.gql';
 
 export default {
   name: 'PartDialog',
@@ -121,8 +119,7 @@ export default {
         const variables = { data };
         if (this.add) variables.internalId = this.item.internalId;
         else variables.id = this.item.id;
-        this.$apollo.mutate({
-          mutation: this.add ? addPartMutation : editPartMutation,
+        this.$mutate(this.add ? 'addPart' : 'editPart', {
           variables,
         }).then((d) => {
           this.$emit(this.add ? 'added' : 'edited', d);

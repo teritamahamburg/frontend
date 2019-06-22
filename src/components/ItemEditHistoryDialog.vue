@@ -1,5 +1,6 @@
 <template>
-  <v-dialog :value="value" persistent max-width="600">
+  <v-dialog :value="value" persistent max-width="600"
+    :fullscreen="$vuetify.breakpoint.xsOnly">
     <v-card>
       <v-card-title>
         <span class="headline">{{ $t('general.editHistory') }}</span>
@@ -22,7 +23,7 @@
 </template>
 
 <script>
-import itemHistoriesQuery from '@/queries/itemHistories.gql';
+import itemHistoriesQuery from '@/apollo/queries/itemHistories.gql';
 
 export default {
   name: 'ItemEditHistoryDialog',
@@ -67,7 +68,7 @@ export default {
     value(val) {
       this.$apollo.queries.histories.skip = !val;
       this.$nextTick(() => {
-        this.$apollo.queries.histories.refetch();
+        if (this.$store.state.online) this.$apollo.queries.histories.refetch();
       });
     },
   },

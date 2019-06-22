@@ -1,6 +1,6 @@
 <template>
   <div class="items-view">
-    <slot name="empty" v-if="!items || items.length === 0">
+    <slot name="empty" v-if="empty">
       <div class="empty">
         <v-icon :size="emptyIconSize">devices</v-icon>
         <div class="headline">{{$t('general.emptyAndAdd')}}</div>
@@ -9,17 +9,18 @@
     <slot name="grid" v-else-if="viewType === 'grid'">
       <div class="item-card-grid">
         <item-card v-for="item in items" :key="item.id" :item="item"
-          :show-actions="showActions" :entry="showProps.map(p => p.value)"
-          @select="(val, { id }) => {selectItem(id, val)}"
-          @remove="i => $emit('remove', i)"
-          @edit="i => $emit('edit', i)"
-          @editHistory="i => $emit('editHistory', i)"
-          @qrCode="i => $emit('qrCode', i)"
-          @addPart="i => $emit('addPart', i)"/>
+                   :show-actions="showActions" :entry="showProps.map(p => p.value)"
+                   @select="(val, { id }) => {selectItem(id, val)}"
+                   @remove="i => $emit('remove', i)"
+                   @edit="i => $emit('edit', i)"
+                   @editHistory="i => $emit('editHistory', i)"
+                   @qrCode="i => $emit('qrCode', i)"
+                   @addPart="i => $emit('addPart', i)"/>
       </div>
     </slot>
     <slot name="list" v-else>
-      <v-data-table hide-actions :headers="tableHeaderWithCheck" :items="items">
+      <v-data-table hide-actions class="items-view--list"
+                    :headers="tableHeaderWithCheck" :items="items">
         <template v-slot:items="{ item }">
           <tr @click="$emit('click:row', item)">
             <template v-for="(a) in listAttrs">
@@ -31,8 +32,9 @@
                   <v-checkbox hide-details color="error" @change="v => selectItem(item.id, v)"/>
                 </td>
                 <td v-else :key="a.key">
-                  <v-btn icon @click="$emit(a.key, item)">
-                    <v-icon v-text="$vuetify.icons[a.key]" />
+                  <v-btn icon v-if="a.key !== 'seal' || item.seal || item.sealImage"
+                         @click="a.key === 'seal' ? showSealDialog(item) : $emit(a.key, item)">
+                    <v-icon v-text="$vuetify.icons[a.key]"/>
                   </v-btn>
                 </td>
               </template>
@@ -76,9 +78,16 @@ export default {
   data() {
     return {
       selectedItems: [],
+      sealDialog: {
+        show: false,
+        item: {},
+      },
     };
   },
   computed: {
+    empty() {
+      return !this.items || this.items.length === 0;
+    },
     emptyIconSize() {
       return Math.min(
         this.$vuetify.breakpoint.width / 2,
@@ -118,12 +127,17 @@ export default {
       }
       this.$emit('select', val, id, this.selectedItems);
     },
+    showSealDialog(item) {
+      this.$store.state.dialogs.seal.image = item.sealImage
+        || `seal/${item.internalId}${item.seal}`;
+      this.$store.state.dialogs.seal.show = true;
+    },
   },
 };
 
 export const viewTypes = [
   { type: 'list', icon: 'view_list' },
-  { type: 'grid', icon: 'view_comfy' },
+  { type: 'grid', icon: 'view_module' },
 ];
 </script>
 
@@ -150,6 +164,16 @@ export const viewTypes = [
       row-gap: 10px;
       justify-content: center;
       align-items: start;
+    }
+  }
+</style>
+
+<style lang="scss">
+  .items-view--list {
+    .v-table__overflow {
+      .v-table {
+        max-width: none;
+      }
     }
   }
 </style>
