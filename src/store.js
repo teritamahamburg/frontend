@@ -101,6 +101,10 @@ const store = new Vuex.Store({
       reflect: {
         show: false,
       },
+      seal: {
+        show: false,
+        image: '',
+      },
     },
   },
   mutations: {

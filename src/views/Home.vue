@@ -63,7 +63,9 @@ export default {
   },
   created() {
     this.$broadcast.$on('items:refetch', () => {
-      if (this.$store.state.online) this.$apollo.queries.items.refetch();
+      if (this.$store.state.online && this.$apollo.queries.items) {
+        this.$apollo.queries.items.refetch();
+      }
     });
     this.$broadcast.$on('items:removed', () => {
       this.$store.state.dialogs.remove.ids = [];

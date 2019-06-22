@@ -103,45 +103,50 @@
       <keep-alive include="Home">
         <router-view />
       </keep-alive>
+    </v-content>
 
+    <template> <!-- dialogs -->
       <item-remove-dialog
-        v-model="$store.state.dialogs.remove.show"
-        :ids="$store.state.dialogs.remove.ids"
-        @click:cancel="$store.state.dialogs.remove.ids = []"
-        @removed="$broadcast.$emit('items:removed')" />
+          v-model="$store.state.dialogs.remove.show"
+          :ids="$store.state.dialogs.remove.ids"
+          @click:cancel="$store.state.dialogs.remove.ids = []"
+          @removed="$broadcast.$emit('items:removed')" />
 
       <item-add-dialog
-        v-model="$store.state.dialogs.add.show"
-        @added="$broadcast.$emit('items:refetch')"/>
+          v-model="$store.state.dialogs.add.show"
+          @added="$broadcast.$emit('items:refetch')"/>
 
       <item-edit-dialog
-        v-model="$store.state.dialogs.edit.show"
-        :item="$store.state.dialogs.edit.item"
-        @edited="$broadcast.$emit('items:refetch')"/>
+          v-model="$store.state.dialogs.edit.show"
+          :item="$store.state.dialogs.edit.item"
+          @edited="$broadcast.$emit('items:refetch')"/>
 
       <item-edit-history-dialog
-        v-model="$store.state.dialogs.editHistory.show"
-        :id="$store.state.dialogs.editHistory.id"/>
+          v-model="$store.state.dialogs.editHistory.show"
+          :id="$store.state.dialogs.editHistory.id"/>
 
       <qr-code-dialog
-        v-model="$store.state.dialogs.qrCode.show"
-        :verify="$store.state.dialogs.qrCode.verify"
-        :text="$store.state.dialogs.qrCode.text"/>
+          v-model="$store.state.dialogs.qrCode.show"
+          :verify="$store.state.dialogs.qrCode.verify"
+          :text="$store.state.dialogs.qrCode.text"/>
 
       <part-dialog
-        v-model="$store.state.dialogs.part.show"
-        :item="$store.state.dialogs.part.item"
-        :add="$store.state.dialogs.part.add"
-        @added="$broadcast.$emit('items:refetch')"
-        @edited="$broadcast.$emit('items:refetch')"/>
+          v-model="$store.state.dialogs.part.show"
+          :item="$store.state.dialogs.part.item"
+          :add="$store.state.dialogs.part.add"
+          @added="$broadcast.$emit('items:refetch')"
+          @edited="$broadcast.$emit('items:refetch')"/>
 
       <download-csv-dialog v-model="$store.state.dialogs.csv.show" />
 
       <restore-item-dialog v-model="$store.state.dialogs.restore.show"
-        @restored="$broadcast.$emit('items:refetch')"/>
+                           @restored="$broadcast.$emit('items:refetch')"/>
 
       <apply-offline-dialog v-model="$store.state.dialogs.reflect.show" />
-    </v-content>
+
+      <seal-dialog v-model="$store.state.dialogs.seal.show"
+        :image="$store.state.dialogs.seal.image" />
+    </template>
 
     <v-snackbar v-model="showError" bottom>
       {{ gqlError }}
@@ -166,6 +171,7 @@ import ItemRemoveDialog from '@/components/ItemRemoveDialog.vue';
 import DownloadCsvDialog from '@/components/DownloadCSVDialog.vue';
 import RestoreItemDialog from '@/components/RestoreItemDialog.vue';
 import ApplyOfflineDialog from '@/components/ApplyOfflineDialog.vue';
+import SealDialog from '@/components/SealDialog.vue';
 
 export default {
   name: 'App',
@@ -180,6 +186,7 @@ export default {
     ItemEditHistoryDialog,
     ItemEditDialog,
     ItemAddDialog,
+    SealDialog,
   },
   data() {
     return {
@@ -189,6 +196,7 @@ export default {
     };
   },
   watch: {
+    // eslint-disable-next-line
     '$store.state.online': function (val, oldVal) {
       if (!oldVal && val
         && this.$store.state.apollo.offlineQueries.length > 0) {

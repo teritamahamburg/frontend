@@ -7,7 +7,7 @@
       <item-card class="details-card" :item="editItem || {}"
         :entry="showEntries" first-column-width="170px"
         :class="{ bound }" @animationend.native="bound = false"
-        :show-actions="['addPart', 'qrCode', 'edit', 'editHistory', 'remove']"
+        :show-actions="['addPart', 'qrCode', 'edit', 'editHistory', 'remove', 'seal']"
         v-on="$store.getters.itemsViewMenuVOn">
 
         <template v-slot:expand:title>

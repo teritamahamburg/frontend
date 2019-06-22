@@ -43,13 +43,6 @@
         </template>
       </v-data-table>
     </slot>
-
-    <v-dialog v-model="sealDialog.show" max-width="600">
-      <v-card v-if="sealDialog.show">
-        <v-img :src="sealDialog.item.sealImage
-                          || `seal/${sealDialog.item.internalId}${sealDialog.item.seal}`"/>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -135,8 +128,9 @@ export default {
       this.$emit('select', val, id, this.selectedItems);
     },
     showSealDialog(item) {
-      this.sealDialog.item = item;
-      this.sealDialog.show = true;
+      this.$store.state.dialogs.seal.image = item.sealImage
+        || `seal/${item.internalId}${item.seal}`;
+      this.$store.state.dialogs.seal.show = true;
     },
   },
 };
@@ -174,8 +168,12 @@ export const viewTypes = [
   }
 </style>
 
-<style>
-  .items-view--list .v-table__overflow .v-table {
-    max-width: none;
+<style lang="scss">
+  .items-view--list {
+    .v-table__overflow {
+      .v-table {
+        max-width: none;
+      }
+    }
   }
 </style>

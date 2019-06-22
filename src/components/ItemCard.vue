@@ -1,35 +1,42 @@
 <template>
   <v-card max-width="350" class="item-card">
-    <slot name="expand:head" />
-    <img :src="item.sealImage || `/seal/${item.internalId}${item.seal}`" width="350" alt="seal"
-         v-if="showSealImg"/>
+    <slot name="expand:head"/>
+    <!-- <img :src="item.sealImage || `/seal/${item.internalId}${item.seal}`" width="350" alt="seal"
+         v-if="showSealImg"/> -->
+    <v-img :aspect-ratio="showSealImg ? 8/3 : undefined"
+           :src="showSealImg ? (item.sealImage || `/seal/${item.internalId}${item.seal}`)
+                             : undefined">
+      <div class="card-title--wrapper" :class="{ image: showSealImg }" >
+        <div style="height: 100%"
+             @click="clickImage(item.sealImage || `/seal/${item.internalId}${item.seal}`)"></div>
+        <v-card-title class="item-title" :class="{ image: showSealImg, dark: $store.state.dark }">
+          <div class="attr">
+            <div class="title">{{item.name}}</div>
+            <div class="grey--text code">{{item.code}}</div>
+          </div>
 
-    <v-card-title class="item-title">
-      <div class="attr">
-        <div class="title">{{item.name}}</div>
-        <div class="grey--text code">{{item.code}}</div>
+          <v-spacer/>
+          <v-checkbox color="error" hide-details class="select-check" height="18"
+                      @change="v => $emit('select', v, item)" v-if="!hideAction('select')"/>
+          <v-menu offset-y v-if="!hideAction('menu')">
+            <template v-slot:activator="{ on }">
+              <v-btn icon small style="margin: 0" v-on="on">
+                <v-icon>more_vert</v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <template v-for="m in menuItems">
+                <v-list-tile :key="m[0]" v-if="!hideAction(m[0])"
+                             @click="$emit(m[0], item)">
+                  <v-list-tile-title>{{ m[1] }}</v-list-tile-title>
+                </v-list-tile>
+              </template>
+            </v-list>
+          </v-menu>
+          <slot name="expand:title"/>
+        </v-card-title>
       </div>
-
-      <v-spacer/>
-      <v-checkbox color="error" hide-details class="select-check" height="18"
-                  @change="v => $emit('select', v, item)" v-if="!hideAction('select')"/>
-      <v-menu offset-y v-if="!hideAction('menu')">
-        <template v-slot:activator="{ on }">
-          <v-btn icon small style="margin: 0" v-on="on">
-            <v-icon>more_vert</v-icon>
-          </v-btn>
-        </template>
-        <v-list>
-          <template v-for="m in menuItems">
-            <v-list-tile :key="m[0]" v-if="!hideAction(m[0])"
-                         @click="$emit(m[0], item)">
-              <v-list-tile-title>{{ m[1] }}</v-list-tile-title>
-            </v-list-tile>
-          </template>
-        </v-list>
-      </v-menu>
-      <slot name="expand:title" />
-    </v-card-title>
+    </v-img>
 
     <template v-if="panel === 0">
       <div class="labels">
@@ -171,6 +178,10 @@ export default {
       if (name === 'menu') return false;
       return !this.showActions.includes(name);
     },
+    clickImage(image) {
+      this.$store.state.dialogs.seal.image = image;
+      this.$store.state.dialogs.seal.show = true;
+    },
   },
 };
 </script>
@@ -196,11 +207,31 @@ export default {
 
 <style scoped lang="scss">
   .item-card {
+    .card-title--wrapper.image {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
     .item-title {
       padding: 8px 16px 0;
 
-      .attr .code {
-        line-height: 1.2;
+      &.image {
+        padding: 4px 4px;
+        margin: 0 12px 8px;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.8);
+
+        &.dark {
+          background-color: rgba(0, 0, 0, 0.8);
+        }
+      }
+
+      .attr {
+        .code {
+          line-height: 1.2;
+        }
       }
     }
 
