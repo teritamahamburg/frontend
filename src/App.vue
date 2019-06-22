@@ -99,13 +99,14 @@
       </template>
     </v-toolbar>
 
-    <v-content :class="{expand: showControl, paddingToolbar }">
+    <v-content :class="{expand: showControl, paddingToolbar, offline }">
       <keep-alive include="Home">
         <router-view />
       </keep-alive>
     </v-content>
 
-    <template> <!-- dialogs -->
+    <!-- dialogs -->
+    <template>
       <item-remove-dialog
           v-model="$store.state.dialogs.remove.show"
           :ids="$store.state.dialogs.remove.ids"
@@ -275,7 +276,6 @@ export default {
   padding: 0 10px;
 }
 
-$toolbar-height: 48px;
 $toolbar-button-pad: 16px;
 
 //noinspection CssInvalidFunction, CssOverwrittenProperties
@@ -316,6 +316,23 @@ $toolbar-height: 48px;
         + constant(safe-area-inset-top)) 0 0 !important;
       padding: calc(#{$toolbar-height * 2} + #{$toolbar-button-pad}
         + env(safe-area-inset-top)) 0 0 !important;
+    }
+  }
+
+  &.offline {
+    padding: calc(#{$toolbar-height * 1.5} + constant(safe-area-inset-top)) 0 0 !important;
+    padding: calc(#{$toolbar-height * 1.5} + env(safe-area-inset-top)) 0 0 !important;
+
+    &.expand {
+      padding: calc(#{$toolbar-height * 2.5} + constant(safe-area-inset-top)) 0 0 !important;
+      padding: calc(#{$toolbar-height * 2.5} + env(safe-area-inset-top)) 0 0 !important;
+
+      &.paddingToolbar {
+        padding: calc(#{$toolbar-height * 2.5} + #{$toolbar-button-pad}
+        + constant(safe-area-inset-top)) 0 0 !important;
+        padding: calc(#{$toolbar-height * 2.5} + #{$toolbar-button-pad}
+        + env(safe-area-inset-top)) 0 0 !important;
+      }
     }
   }
 }
