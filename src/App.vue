@@ -364,6 +364,12 @@ $offline-color: purple;
     }
   }
 }
+
+//noinspection CssInvalidFunction, CssOverwrittenProperties
+.v-dialog--fullscreen {
+  padding-top: constant(safe-area-inset-top) !important;
+  padding-top: env(safe-area-inset-top) !important;
+}
 </style>
 
 <!--<style>
