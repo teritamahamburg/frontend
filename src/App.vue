@@ -61,8 +61,7 @@
                 {{$store.state.dark ? 'Light Mode' : 'Dark Mode'}}
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile v-show="showControl && $store.state.online"
-                         @click="$store.state.dialogs.csv.show = true">
+            <v-list-tile v-show="showControl" @click="$store.state.dialogs.csv.show = true">
               <v-list-tile-action>
                 <v-icon left>cloud_download</v-icon>
               </v-list-tile-action>

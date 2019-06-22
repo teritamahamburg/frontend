@@ -249,7 +249,7 @@ export default {
 
     .part-cards {
       overflow-y: auto;
-      height: 600px; // TODO: hard coding
+      height: 600px; /* TODO: hard coding */
       .v-card + .v-card {
         margin-top: 8px;
       }

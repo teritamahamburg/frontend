@@ -1,4 +1,5 @@
 /* eslint-disable no-param-reassign */
+import Vue from 'vue';
 
 const nameSeparator = '|';
 
@@ -23,16 +24,16 @@ export default {
     const { data } = query.variables;
     const id = `temp-id_${Date.now()}`;
     const internalId = `temp-internalId_${Date.now()}`;
-    state.apollo.offlineItem.temp.ids[id] = id;
-    state.apollo.offlineItem.temp.internalIds[internalId] = internalId;
+    Vue.set(state.offlineItem.temp.ids, id, id);
+    Vue.set(state.offlineItem.temp.internalIds, internalId, internalId);
     if (data.sealImage) {
       data.sealImage = `${data.sealImage.name}${nameSeparator}${data.sealImage.url}`;
     }
     data.id = id;
     data.internalId = internalId;
     data.partId = 0;
-    state.apollo.offlineItem.items.push(data);
-    state.apollo.offlineQueries.push(query);
+    state.offlineItem.items.push(data);
+    state.offlineQueries.push(query);
   },
   async commitMutate(vm, query, state) {
     const { data } = query.variables;
@@ -45,7 +46,7 @@ export default {
       data.sealImage = sealImageToFile(data.sealImage);
     }
     const { data: { addItem: { item: { id, internalId } } } } = await vm.$apollo.mutate(query);
-    state.apollo.offlineItem.temp.ids[beforeId] = id;
-    state.apollo.offlineItem.temp.internalIds[beforeInternalId] = internalId;
+    Vue.set(state.offlineItem.temp.ids, beforeId, id);
+    Vue.set(state.offlineItem.temp.internalIds, beforeInternalId, internalId);
   },
 };
