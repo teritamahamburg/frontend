@@ -6,9 +6,11 @@ query ($id: ID!){
             depreciationAt
             disposalAt
             editUser {
+                id
                 name
             }
             room {
+                id
                 number
             }
             createdAt

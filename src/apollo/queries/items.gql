@@ -10,18 +10,22 @@ query ($sort: [[String!]!]!) {
         amount
         purchasedAt
         user {
+            id
             name
         }
         course {
+            id
             name
         }
         checkedAt
         room {
+            id
             number
         }
         disposalAt
         depreciationAt
         editUser {
+            id
             name
         }
         createdAt
@@ -32,9 +36,11 @@ query ($sort: [[String!]!]!) {
             partId
             name
             editUser {
+                id
                 name
             }
             room {
+                id
                 number
             }
             checkedAt

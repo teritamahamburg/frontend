@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
-import { storeMutate } from '@/vue-apollo';
+import { storeMutate, patchOfflineChanges } from '@/vue-apollo';
 
 Vue.use(Vuex);
 
@@ -63,8 +63,9 @@ const store = new Vuex.Store({
         parts: [],
         itemEdits: [],
         partEdits: [],
-        removeIds: [],
+        removeIds: {},
       },
+      items: [],
     },
     dialogs: {
       add: {
@@ -140,9 +141,13 @@ const store = new Vuex.Store({
           parts: [],
           itemEdits: [],
           partEdits: [],
-          removeIds: [],
+          removeIds: {},
         },
+        items: state.apollo.items,
       };
+    },
+    setApolloItems(state, val) {
+      state.apollo.items = val;
     },
     showEditDialog(state, item) {
       if (`${item.partId}` === '0') {
@@ -189,6 +194,9 @@ const store = new Vuex.Store({
         qrCode: item => store.commit('showQRCodeDialog', item),
         remove: item => store.commit('showRemoveDialog', item),
       };
+    },
+    itemsWithOffline(state) {
+      return patchOfflineChanges(store, state.apollo.items || []);
     },
   },
 });

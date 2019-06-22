@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <items-view
-      :items="itemsInOffline" :view-type="$store.state.itemsView.viewType"
+      :items="items" :view-type="$store.state.itemsView.viewType"
       :attrs="$store.state.attrs"
       v-on="$store.getters.itemsViewMenuVOn"
       @select="(v, i, l) => $store.state.dialogs.remove.ids = l"/>
@@ -19,10 +19,11 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 import itemsQuery from '@/apollo/queries/items.gql';
 
 import ItemsView, { viewTypes } from '@/components/ItemsView.vue';
-import { patchOfflineChanges } from '@/vue-apollo';
 
 export default {
   name: 'Home',
@@ -39,25 +40,29 @@ export default {
           ],
         };
       },
-      update({ items }) {
-        if (!items || items.length === 0) return [];
-        return items.map((item) => {
-          const i = {
-            ...item,
-            user: item.user.name,
-            course: item.course.name,
-            room: item.room.number,
-            editUser: item.editUser.name,
-            parts: item.parts.map(part => ({
-              ...part,
-              room: part.room.number,
-              editUser: part.editUser.name,
-            })),
-          };
-          // eslint-disable-next-line no-underscore-dangle
-          delete i.__typename;
-          return i;
-        });
+      manual: true,
+      result({ data, loading }) {
+        const update = ({ items }) => {
+          if (!items || items.length === 0) return [];
+          return items.map((item) => {
+            const i = {
+              ...item,
+              user: item.user.name,
+              course: item.course.name,
+              room: item.room.number,
+              editUser: item.editUser.name,
+              parts: item.parts.map(part => ({
+                ...part,
+                room: part.room.number,
+                editUser: part.editUser.name,
+              })),
+            };
+            // eslint-disable-next-line no-underscore-dangle
+            delete i.__typename;
+            return i;
+          });
+        };
+        if (!loading) this.$store.commit('setApolloItems', update(data));
       },
     },
   },
@@ -92,9 +97,9 @@ export default {
     },
   },
   computed: {
-    itemsInOffline() {
-      return patchOfflineChanges(this, this.items || []);
-    },
+    ...mapGetters({
+      items: 'itemsWithOffline',
+    }),
   },
 };
 </script>

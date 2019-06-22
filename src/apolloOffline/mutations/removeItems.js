@@ -3,7 +3,9 @@
 export default {
   storeMutate(state, query) {
     const { ids } = query.variables;
-    state.apollo.offlineItem.removeIds.push(...ids);
+    ids.forEach((id) => {
+      state.apollo.offlineItem.removeIds[id] = new Date().toISOString();
+    });
     state.apollo.offlineQueries.push(query);
   },
   async commitMutate(vm, query, state) {

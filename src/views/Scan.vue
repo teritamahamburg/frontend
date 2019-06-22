@@ -159,6 +159,12 @@ export default {
     item() {
       this.bound = true;
     },
+    // eslint-disable-next-line
+    '$store.state.online': function (val, oldVal) {
+      if (oldVal && !val) {
+        this.$router.push('/home');
+      }
+    },
   },
   methods: {
     onDecode(content) {

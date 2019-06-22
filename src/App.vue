@@ -31,11 +31,13 @@
           <v-icon>keyboard_arrow_left</v-icon>
         </v-btn>
         <v-spacer />
-        <v-btn outline to="/scan" v-show="($route.meta.priority || 999) <= 1">
+        <v-btn outline to="/scan" v-show="($route.meta.priority || 999) <= 1"
+          v-if="$store.state.online">
           <v-icon>scanner</v-icon>
           {{ $t('general.scan') }}
         </v-btn>
-        <v-btn outline to="/search" v-show="($route.meta.priority || 999) <= 1">
+        <v-btn outline to="/search" v-show="($route.meta.priority || 999) <= 1"
+          v-if="$store.state.online">
           <v-icon>search</v-icon>
           {{ $t('general.search') }}
         </v-btn>
@@ -59,7 +61,8 @@
                 {{$store.state.dark ? 'Light Mode' : 'Dark Mode'}}
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile v-show="showControl" @click="$store.state.dialogs.csv.show = true">
+            <v-list-tile v-show="showControl && $store.state.online"
+                         @click="$store.state.dialogs.csv.show = true">
               <v-list-tile-action>
                 <v-icon left>cloud_download</v-icon>
               </v-list-tile-action>

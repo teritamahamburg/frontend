@@ -7,18 +7,22 @@ query ($text: String!){
         amount
         purchasedAt
         user {
+            id
             name
         }
         course {
+            id
             name
         }
         checkedAt
         room {
+            id
             number
         }
         disposalAt
         depreciationAt
         editUser {
+            id
             name
         }
         createdAt

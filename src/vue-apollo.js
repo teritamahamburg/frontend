@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { persistCache } from 'apollo-cache-persist';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { createApolloClient } from 'vue-cli-plugin-apollo/graphql-client';
 
@@ -36,13 +35,6 @@ Vue.mixin({
 
 // INFO: https://github.com/Akryum/vue-apollo/issues/631
 const cache = new InMemoryCache({ freezeResults: false });
-
-export const waitOnCache = persistCache({
-  cache,
-  key: 'apollo',
-  storage: window.localStorage,
-});
-
 
 const { apolloClient, wsClient } = createApolloClient({
   httpEndpoint: `${window.location.protocol}//${window.location.host}/graphql`,
@@ -91,8 +83,8 @@ export const commitMutate = async (self) => {
   self.$broadcast.$emit('items:refetch');
 };
 
-export const patchOfflineChanges = (self, items) => {
-  const { offlineItem } = self.$store.state.apollo;
+export const patchOfflineChanges = (store, items) => {
+  const { offlineItem } = store.state.apollo;
   const patchItems = [...items, ...offlineItem.items.map((item) => {
     if (item.sealImage) {
       // eslint-disable-next-line no-param-reassign
@@ -108,7 +100,7 @@ export const patchOfflineChanges = (self, items) => {
       item.parts.push(part);
     }
   });
-  offlineItem.removeIds.filter((id) => {
+  Object.keys(offlineItem.removeIds).filter((id) => {
     const i = patchItems.findIndex(item => item.id === id);
     if (i !== -1) {
       patchItems.splice(i, 1);
