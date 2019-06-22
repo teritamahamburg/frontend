@@ -17,7 +17,7 @@ type Course {
 
 type HistoryItem {
     checkedAt: Date
-    createdAt: Date!
+    createdAt: DateTime!
     depreciationAt: Date
     disposalAt: Date
     editUser: User!
@@ -48,9 +48,15 @@ type Item {
     user: User!
 }
 
+type ItemResult {
+    item: Item!
+    message: String
+    success: Boolean!
+}
+
 type Mutation {
-    addItem(data: ItemInput!): Result!
-    addPart(data: PartItemInput!, internalId: ID!): Result!
+    addItem(data: ItemInput!): ItemResult!
+    addPart(data: PartItemInput!, internalId: ID!): ItemResult!
     editItem(data: EditItemInput!, id: ID!): Result!
     editPart(data: PartItemInput!, id: ID!): Result!
     removeItems(ids: [ID!]!): Result!
@@ -112,6 +118,7 @@ input ItemInput {
     checkedAt: Date
     code: String!
     course: String!
+    createdAt: DateTime
     depreciationAt: Date
     disposalAt: Date
     editUser: String!
@@ -125,6 +132,7 @@ input ItemInput {
 
 input PartItemInput {
     checkedAt: Date
+    createdAt: DateTime
     editUser: String!
     name: String
     room: Int

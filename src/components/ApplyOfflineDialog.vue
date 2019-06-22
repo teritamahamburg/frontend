@@ -40,7 +40,7 @@ export default {
       this.$emit('change', false);
     },
     async clickReflectInDialog() {
-      await commitMutate.bind(this);
+      await commitMutate(this);
       this.closeDialog();
     },
   },

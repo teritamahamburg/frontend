@@ -5,7 +5,8 @@ import { persistCache } from 'apollo-cache-persist';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { createApolloClient } from 'vue-cli-plugin-apollo/graphql-client';
 
-import gql from '@/mutations/index';
+import mutations from '@/apollo/mutations';
+import offlineMutations from '@/apolloOffline/mutations';
 
 Vue.use(VueApollo);
 
@@ -15,16 +16,19 @@ Vue.mixin({
       if (this.$store.state.online) {
         return this.$apollo.mutate({
           ...options,
-          mutation: gql[mutationName],
+          mutation: mutations[mutationName],
         });
       }
       this.$store.commit('addOfflineQuery', {
         ...options,
         mutationName,
-        mutation: gql[mutationName],
       });
       return Promise.resolve({
-        success: true,
+        data: {
+          [mutationName]: {
+            success: true,
+          },
+        },
       });
     },
   },
@@ -66,49 +70,75 @@ export default apolloProvider;
 /* eslint-disable no-param-reassign */
 // TODO: <OFFLINE> all mutation support
 export const storeMutate = (state, query) => {
-  switch (query.mutationName) {
-    case 'addItem': {
-      query.variables.data.createdAt = new Date().toISOString();
-      const { data } = query.variables;
-      const id = `temp-id_${Date.now()}`;
-      const internalId = `temp-internalId_${Date.now()}`;
-      state.apollo.offlineItem.temp.ids[id] = id;
-      state.apollo.offlineItem.temp.internalIds[internalId] = internalId;
-      state.apollo.offlineItem.items.push({
-        ...data,
-        id,
-        internalId,
-        partId: 0,
-      });
-      break;
-    }
-    default: {
-      if (window.gqlError) {
-        window.gqlError({
-          message: 'その操作はできません',
-        });
-      }
-    }
+  if (offlineMutations[query.mutationName]) {
+    offlineMutations[query.mutationName].storeMutate(state, query);
+  } else if (window.gqlError) {
+    window.gqlError({
+      message: 'その操作はできません',
+    });
   }
 };
 
-export const commitMutate = async () => {
-  const {
-    offlineQueries,
-    /* offlineItem: {
-      temp: {
-        ids,
-        internalIds,
-      },
-      items,
-    }, */
-  } = this.$store.state.apollo;
-  // eslint-disable-next-line no-restricted-syntax
-  for (const query of offlineQueries) {
-    delete query.mutationName;
-    // eslint-disable-next-line no-await-in-loop
-    await this.$apollo.mutate(query);
-  }
-  this.$store.commit('clearOfflineQueries');
-  this.$broadcast.$emit('items:refetch');
+export const commitMutate = async (self) => {
+  const { offlineQueries } = self.$store.state.apollo;
+  await offlineQueries.reduce((promise, query) => promise.then(
+    () => offlineMutations[query.mutationName].commitMutate(self, {
+      ...query,
+      mutation: mutations[query.mutationName],
+    }, self.$store.state),
+  ), Promise.resolve());
+  self.$store.commit('clearOfflineQueries');
+  self.$broadcast.$emit('items:refetch');
+};
+
+export const patchOfflineChanges = (self, items) => {
+  const { offlineItem } = self.$store.state.apollo;
+  const patchItems = [...items, ...offlineItem.items.map((item) => {
+    if (item.sealImage) {
+      // eslint-disable-next-line no-param-reassign
+      item.sealImage = item.sealImage.substring(item.sealImage.indexOf('|') + 1); // apolloOffline/mutations/addItem#nameSeparator
+    }
+    return item;
+  })];
+  offlineItem.parts.forEach((part) => {
+    const i = patchItems.findIndex(item => item.internalId === part.internalId);
+    if (i !== -1) {
+      const item = patchItems[i];
+      if (!patchItems.parts) item.parts = [];
+      item.parts.push(part);
+    }
+  });
+  offlineItem.removeIds.filter((id) => {
+    const i = patchItems.findIndex(item => item.id === id);
+    if (i !== -1) {
+      patchItems.splice(i, 1);
+    }
+    return i !== -1;
+  }).forEach((id) => {
+    patchItems.forEach((item) => {
+      const i = item.parts.findIndex(part => part.id === id);
+      if (i !== -1) delete item.parts[i];
+    });
+  });
+  offlineItem.itemEdits.forEach((edit) => {
+    const i = patchItems.findIndex(({ id }) => id === edit.id);
+    if (i !== -1) {
+      patchItems[i] = {
+        ...patchItems[i],
+        ...edit,
+      };
+    }
+  });
+  offlineItem.partEdits.forEach((edit) => {
+    patchItems.forEach(({ parts }) => {
+      const i = parts.findIndex(({ id }) => id === edit.id);
+      if (i !== -1) {
+        parts[i] = {
+          ...parts[i],
+          ...edit,
+        };
+      }
+    });
+  });
+  return patchItems;
 };

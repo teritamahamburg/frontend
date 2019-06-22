@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import csvQuery from '@/queries/csv.gql';
+import csvQuery from '@/apollo/queries/csv.gql';
 
 const csvDownload = (csv, filename = 'items.csv') => {
   const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], { type: 'text/csv' });

@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import RestoreItemsQuery from '@/queries/restoreItems.gql';
+import RestoreItemsQuery from '@/apollo/queries/restoreItems.gql';
 import ItemsView from '@/components/ItemsView.vue';
 
 export default {

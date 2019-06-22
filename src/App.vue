@@ -67,7 +67,7 @@
                 {{ $t('general.csv') }}
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile v-show="$route.path === '/home'"
+            <v-list-tile v-show="$route.path === '/home' && $store.state.online"
                          @click="$store.state.dialogs.restore.show = true">
               <v-list-tile-action>
                 <v-icon left>restore_page</v-icon>

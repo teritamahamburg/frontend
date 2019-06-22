@@ -9,13 +9,13 @@
     <slot name="grid" v-else-if="viewType === 'grid'">
       <div class="item-card-grid">
         <item-card v-for="item in items" :key="item.id" :item="item"
-          :show-actions="showActions" :entry="showProps.map(p => p.value)"
-          @select="(val, { id }) => {selectItem(id, val)}"
-          @remove="i => $emit('remove', i)"
-          @edit="i => $emit('edit', i)"
-          @editHistory="i => $emit('editHistory', i)"
-          @qrCode="i => $emit('qrCode', i)"
-          @addPart="i => $emit('addPart', i)"/>
+                   :show-actions="showActions" :entry="showProps.map(p => p.value)"
+                   @select="(val, { id }) => {selectItem(id, val)}"
+                   @remove="i => $emit('remove', i)"
+                   @edit="i => $emit('edit', i)"
+                   @editHistory="i => $emit('editHistory', i)"
+                   @qrCode="i => $emit('qrCode', i)"
+                   @addPart="i => $emit('addPart', i)"/>
       </div>
     </slot>
     <slot name="list" v-else>
@@ -32,9 +32,9 @@
                   <v-checkbox hide-details color="error" @change="v => selectItem(item.id, v)"/>
                 </td>
                 <td v-else :key="a.key">
-                  <v-btn icon v-if="a.key !== 'seal' || item.seal"
+                  <v-btn icon v-if="a.key !== 'seal' || item.seal || item.sealImage"
                          @click="a.key === 'seal' ? showSealDialog(item) : $emit(a.key, item)">
-                    <v-icon v-text="$vuetify.icons[a.key]" />
+                    <v-icon v-text="$vuetify.icons[a.key]"/>
                   </v-btn>
                 </td>
               </template>
@@ -46,7 +46,8 @@
 
     <v-dialog v-model="sealDialog.show" max-width="600">
       <v-card v-if="sealDialog.show">
-        <v-img :src="`seal/${sealDialog.item.internalId}${sealDialog.item.seal}`" />
+        <v-img :src="sealDialog.item.sealImage
+                          || `seal/${sealDialog.item.internalId}${sealDialog.item.seal}`"/>
       </v-card>
     </v-dialog>
   </div>

@@ -8,7 +8,7 @@ module.exports = {
     name: '物品名',
     code: '資産コード',
     amount: '数量',
-    purchasedAt: '購入日時',
+    purchasedAt: '購入日',
     user: '購入者',
     course: '所属',
     checkedAt: '最終確認日',

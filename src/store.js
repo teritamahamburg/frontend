@@ -60,6 +60,10 @@ const store = new Vuex.Store({
           ids: {},
         },
         items: [],
+        parts: [],
+        itemEdits: [],
+        partEdits: [],
+        removeIds: [],
       },
     },
     dialogs: {
@@ -119,7 +123,6 @@ const store = new Vuex.Store({
     },
     addOfflineQuery(state, query) {
       storeMutate(state, query);
-      state.apollo.offlineQueries.push(query);
     },
     clearOfflineQueries(state) {
       state.apollo = {
@@ -130,6 +133,10 @@ const store = new Vuex.Store({
             ids: {},
           },
           items: [],
+          parts: [],
+          itemEdits: [],
+          partEdits: [],
+          removeIds: [],
         },
       };
     },

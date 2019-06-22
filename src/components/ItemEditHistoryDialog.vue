@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import itemHistoriesQuery from '@/queries/itemHistories.gql';
+import itemHistoriesQuery from '@/apollo/queries/itemHistories.gql';
 
 export default {
   name: 'ItemEditHistoryDialog',

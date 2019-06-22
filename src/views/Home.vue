@@ -19,9 +19,10 @@
 </template>
 
 <script>
-import itemsQuery from '@/queries/items.gql';
+import itemsQuery from '@/apollo/queries/items.gql';
 
 import ItemsView, { viewTypes } from '@/components/ItemsView.vue';
+import { patchOfflineChanges } from '@/vue-apollo';
 
 export default {
   name: 'Home',
@@ -89,7 +90,7 @@ export default {
   },
   computed: {
     itemsInOffline() {
-      return [...this.items, ...this.$store.state.apollo.offlineItem.items];
+      return patchOfflineChanges(this, this.items || []);
     },
   },
 };

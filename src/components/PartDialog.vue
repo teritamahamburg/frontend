@@ -2,7 +2,7 @@
   <v-dialog :value="value" persistent max-width="600">
     <v-card>
       <v-card-title>
-        <span class="headline">{{$t(`general.${add?'add':'edit'}${isPart?'Part':'Item'}`)}}</span>
+        <span class="headline">{{$t(`general.${add?'add':'edit'}Part`)}}</span>
       </v-card-title>
       <v-card-text>
         <v-form ref="form">

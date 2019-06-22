@@ -1,7 +1,7 @@
 <template>
   <v-card max-width="350" class="item-card">
     <slot name="expand:head" />
-    <img :src="`/seal/${item.internalId}${item.seal}`" width="350" alt="seal"
+    <img :src="item.sealImage || `/seal/${item.internalId}${item.seal}`" width="350" alt="seal"
          v-if="showSealImg"/>
 
     <v-card-title class="item-title">
@@ -156,7 +156,7 @@ export default {
       ];
     },
     showSealImg() {
-      return this.item.seal && this.panel === 0 && !this.hideAction('seal');
+      return (this.item.seal || this.item.sealImage) && this.panel === 0 && !this.hideAction('seal');
     },
   },
   methods: {

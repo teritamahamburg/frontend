@@ -13,7 +13,7 @@
         <v-form ref="form">
           <template>
             <v-text-field prepend-icon="attach_file" readonly :label="$t('general.seal')"
-              @click="$refs.image.click()" :value="sealImage.name"
+              @click="$refs.image.click()" :value="(sealImage.file || {}).name"
               append-icon="clear" @click:append="clearSealImage"/>
             <input
               type="file"
@@ -105,9 +105,7 @@ export default {
   data() {
     return {
       sealImage: {
-        name: '',
         file: undefined,
-        url: '',
       },
       formData: {
         schoolName: 'ss',
@@ -179,22 +177,19 @@ export default {
       const { files } = e.target;
       if (files[0] !== undefined) {
         const file = files[0];
-        this.sealImage.name = file.name;
-        if (this.sealImage.name.lastIndexOf('.') <= 0) return;
+        if (file.name.lastIndexOf('.') <= 0) return;
         const fr = new FileReader();
         fr.readAsDataURL(file);
         fr.addEventListener('load', () => {
-          this.sealImage.url = fr.result;
           this.sealImage.file = file;
+          this.sealImage.file.url = fr.result;
         });
       } else {
         this.clearSealImage();
       }
     },
     clearSealImage() {
-      this.sealImage.name = '';
       this.sealImage.file = undefined;
-      this.sealImage.url = '';
     },
   },
 };

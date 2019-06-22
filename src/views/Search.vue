@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import searchItemsQuery from '@/queries/searchItems.gql';
+import searchItemsQuery from '@/apollo/queries/searchItems.gql';
 import ItemsView from '@/components/ItemsView.vue';
 
 export default {

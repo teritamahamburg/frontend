@@ -70,7 +70,7 @@ import { QrcodeStream } from 'vue-qrcode-reader';
 
 import ItemCard from '@/components/ItemCard.vue';
 import DatePicker from '@/components/DatePicker.vue';
-import itemQuery from '@/queries/item.gql';
+import itemQuery from '@/apollo/queries/item.gql';
 
 export default {
   name: 'Scan',
