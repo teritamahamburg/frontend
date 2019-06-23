@@ -29,7 +29,6 @@ const store = new Vuex.Store({
     loading: 0,
     online: window.navigator.onLine,
     itemsView: {
-      showControl: false,
       viewType: 'grid',
       sortType: 'id',
       sortOrder: 'asc',

@@ -31,13 +31,11 @@
           <v-icon>keyboard_arrow_left</v-icon>
         </v-btn>
         <v-spacer />
-        <v-btn outline to="/scan" v-show="($route.meta.priority || 999) <= 1"
-          v-if="$store.state.online">
+        <v-btn outline to="/scan" v-show="($route.meta.priority || 999) <= 1">
           <v-icon>scanner</v-icon>
           {{ $t('general.scan') }}
         </v-btn>
-        <v-btn outline to="/search" v-show="($route.meta.priority || 999) <= 1"
-          v-if="$store.state.online">
+        <v-btn outline to="/search" v-show="($route.meta.priority || 999) <= 1">
           <v-icon>search</v-icon>
           {{ $t('general.search') }}
         </v-btn>
@@ -69,7 +67,7 @@
                 {{ $t('general.csv') }}
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile v-show="$route.path === '/home' && $store.state.online"
+            <v-list-tile v-show="$route.path === '/home'"
                          @click="$store.state.dialogs.restore.show = true">
               <v-list-tile-action>
                 <v-icon left>restore_page</v-icon>
@@ -245,7 +243,7 @@ export default {
         && this.$route.meta.priority > 1; // 1 is '/home' priority
     },
     showControl() {
-      return this.$route.meta.itemsControl && this.$store.state.itemsView.showControl;
+      return this.$route.meta.itemsControl && this.$store.getters.itemsWithOffline.length > 0;
     },
     offline() {
       return !this.$store.state.online;

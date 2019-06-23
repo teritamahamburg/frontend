@@ -1,7 +1,7 @@
 <template>
   <v-layout class="actions" align-center>
     <v-spacer/>
-    <div class="button-group" v-show="viewType === 'grid' && $store.state.online">
+    <div class="button-group" v-show="viewType === 'grid'">
       <v-menu offset-y>
         <template v-slot:activator="{on}">
           <v-btn flat v-on="on">

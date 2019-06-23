@@ -1,21 +1,25 @@
 <template>
   <div class="search">
-    <v-layout class="empty--no_text" v-if="!$store.state.searchText">
+    <v-layout class="empty--no_text" v-if="!text">
       <div class="headline">{{$t('general.searchHere')}}</div>
       <v-icon class="arrow-icon" :size="36">subdirectory_arrow_right</v-icon>
     </v-layout>
-    <v-layout class="empty" v-else-if="!searchItems || searchItems.length === 0">
+    <v-layout class="empty" v-else-if="!items || items.length === 0">
       <div class="headline">{{$t('general.noSearchResult')}}</div>
     </v-layout>
-    <items-view v-else :items="searchItems" class="items-view"
-                :attrs="$store.state.attrs" v-on="$store.getters.itemsViewMenuVOn" />
+    <items-view v-else :items="items" class="items-view"
+                :attrs="$store.state.attrs" v-on="$store.getters.itemsViewMenuVOn"/>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex';
+import { throttle } from 'lodash-es';
+
 import searchItemsQuery from '@/apollo/queries/searchItems.gql';
 import ItemsView from '@/components/ItemsView.vue';
 
+const throttleWait = 1000;
 export default {
   name: 'Search.vue',
   components: { ItemsView },
@@ -24,11 +28,11 @@ export default {
       skip() {
         return !this.$store.state.online;
       },
-      throttle: 1000,
+      throttle: throttleWait,
       query: searchItemsQuery,
       variables() {
         return {
-          text: this.$store.state.searchText,
+          text: this.text,
         };
       },
       update({ searchItems: items }) {
@@ -48,44 +52,67 @@ export default {
       },
     },
   },
+  data() {
+    return {
+      offlineItems: [],
+    };
+  },
   watch: {
-    // eslint-disable-next-line
-    '$store.state.online': function (val, oldVal) {
-      if (oldVal && !val) {
-        this.$router.push('/home');
-      }
+    text() {
+      this.computeOfflineItems();
+    },
+  },
+  methods: {
+    // eslint-disable-next-line func-names
+    computeOfflineItems: throttle(function () {
+      const text = this.text.toLowerCase();
+      this.offlineItems = this.$store.getters.itemsWithOfflineParanoid
+        .filter(item => ['name', 'code', 'schoolName', 'user', 'editUser', 'course', 'room']
+          .some((k) => {
+            if (!item[k]) return false;
+            return item[k].toString().toLowerCase().includes(text);
+          }));
+    }, throttleWait),
+  },
+  computed: {
+    ...mapState({
+      text: 'searchText',
+    }),
+    items() {
+      if (this.$store.state.online) return this.searchItems;
+      return this.offlineItems;
     },
   },
 };
 </script>
 
 <style scoped lang="scss">
-.search {
-  width: 100%;
-  height: 100%;
-
-  .empty {
+  .search {
+    width: 100%;
     height: 100%;
-    justify-content: center;
-    align-items: center;
-  }
 
-  .empty--no_text {
-    justify-content: flex-end;
-    align-items: center;
-
-    .headline {
-      margin-top: 16px;
+    .empty {
+      height: 100%;
+      justify-content: center;
+      align-items: center;
     }
 
-    .arrow-icon {
-      transform: rotate(-90deg);
-      margin-right: 96px;
+    .empty--no_text {
+      justify-content: flex-end;
+      align-items: center;
+
+      .headline {
+        margin-top: 16px;
+      }
+
+      .arrow-icon {
+        transform: rotate(-90deg);
+        margin-right: 96px;
+      }
+    }
+
+    .items-view {
+      padding: 16px 0;
     }
   }
-
-  .items-view {
-    padding: 16px 0;
-  }
-}
 </style>

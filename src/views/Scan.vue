@@ -102,7 +102,7 @@ export default {
   },
   data() {
     return {
-      id: undefined,
+      id: 1,
       applyChange: false,
       showApplyDialog: false,
       applyDialog: {
@@ -127,15 +127,15 @@ export default {
       );
     },
     editItem() {
-      if (!this.item || !this.applyChange) return this.item;
-      const item = { ...this.item };
+      if (!this.computedItem || !this.applyChange) return this.computedItem;
+      const computedItem = { ...this.computedItem };
       if (this.applyDialog.editRoom) {
-        item.room = `${item.room} (-> ${this.applyDialog.room})`;
+        computedItem.room = `${computedItem.room} (-> ${this.applyDialog.room})`;
       }
       if (this.applyDialog.editCheckedAt) {
-        item.checkedAt = `${item.checkedAt} (-> ${this.applyDialog.checkedAt})`;
+        computedItem.checkedAt = `${computedItem.checkedAt} (-> ${this.applyDialog.checkedAt})`;
       }
-      return item;
+      return computedItem;
     },
     defaultDialogValue() {
       return {
@@ -147,23 +147,22 @@ export default {
       };
     },
     showEntries() {
-      if (this.showAllEntry && this.item) {
+      if (this.showAllEntry && this.computedItem) {
         return this.$store.state.attrs
           .filter(({ type }) => type === 'value')
           .map(({ key }) => key);
       }
       return ['room', 'checkedAt'];
     },
+    computedItem() {
+      if (this.$store.state.online) return this.item;
+      return this.$store.getters.itemsWithOfflineParanoid
+        .find(({ id }) => id.toString() === this.id.toString());
+    },
   },
   watch: {
-    item() {
+    computedItem() {
       this.bound = true;
-    },
-    // eslint-disable-next-line
-    '$store.state.online': function (val, oldVal) {
-      if (oldVal && !val) {
-        this.$router.push('/home');
-      }
     },
   },
   methods: {
@@ -179,10 +178,11 @@ export default {
       const data = {
         editUser: this.applyDialog.editUser,
       };
-      if (this.applyDialog.editRoom && `${this.item.room}` !== `${this.applyDialog.room}`) {
+      if (this.applyDialog.editRoom && `${this.computedItem.room}` !== `${this.applyDialog.room}`) {
         data.room = Number(this.applyDialog.room);
       }
-      if (this.applyDialog.editCheckedAt && this.item.checkedAt !== this.applyDialog.checkedAt) {
+      if (this.applyDialog.editCheckedAt
+            && this.computedItem.checkedAt !== this.applyDialog.checkedAt) {
         data.checkedAt = this.applyDialog.checkedAt;
       }
       if (Object.keys(data).length <= 1) return;

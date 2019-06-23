@@ -4,7 +4,7 @@
       <v-card-title>
         <span class="headline">{{ $t('general.restoreItem') }}</span>
       </v-card-title>
-      <items-view view-type="list" :attrs="attrs" :items="restoreItems"
+      <items-view view-type="list" :attrs="attrs" :items="items"
                   @click:row="restoreItem" >
         <template v-slot:empty>
           <v-layout justify-center >
@@ -61,12 +61,16 @@ export default {
   },
   computed: {
     empty() {
-      return !this.restoreItems || this.restoreItems.length === 0;
+      return !this.items || this.items.length === 0;
     },
     attrs() {
-      if (this.empty) return [];
-      return Object.keys(this.restoreItems[0])
-        .map(key => ({ type: 'value', key }));
+      return ['id', 'name', 'code'].map(key => ({ type: 'value', key }));
+    },
+    items() {
+      if (this.$store.state.online) {
+        return this.restoreItems;
+      }
+      return this.$store.getters.itemsWithOfflineDeleted;
     },
   },
   methods: {
