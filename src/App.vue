@@ -67,7 +67,7 @@
                 {{ $t('general.csv') }}
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile v-show="$route.path === '/home' && $store.state.online"
+            <v-list-tile v-show="$route.path === '/home'"
                          @click="$store.state.dialogs.restore.show = true">
               <v-list-tile-action>
                 <v-icon left>restore_page</v-icon>
@@ -243,7 +243,7 @@ export default {
         && this.$route.meta.priority > 1; // 1 is '/home' priority
     },
     showControl() {
-      return this.$route.meta.itemsControl && this.$store.state.itemsView.showControl;
+      return this.$route.meta.itemsControl && this.$store.getters.itemsWithOffline.length > 0;
     },
     offline() {
       return !this.$store.state.online;

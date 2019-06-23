@@ -48,7 +48,7 @@
           </v-layout>
           <v-layout>
             <v-combobox :label="$t('item.course')+'*'" v-model="formData.course"
-                          :items="$store.getters.courses"
+                          :items="['デザイン学科', '電気工学科', '機械電子工学科', '情報工学科']"
                           :rules="[rules.required($t('validation.required'))]"/>
             <v-text-field :label="$t('item.room')+'*'"
                           type="number" class="room-input" v-model="formData.room"

@@ -29,7 +29,9 @@ export default {
   name: 'ItemEditHistoryDialog',
   apollo: {
     histories: {
-      skip: true,
+      skip() {
+        return !this.value;
+      },
       query: itemHistoriesQuery,
       variables() {
         return {
@@ -65,10 +67,9 @@ export default {
     },
   },
   watch: {
-    value(val) {
-      this.$apollo.queries.histories.skip = !val;
+    value() {
       this.$nextTick(() => {
-        if (this.$store.state.online) this.$apollo.queries.histories.refetch();
+        this.$apollo.queries.histories.refetch();
       });
     },
   },

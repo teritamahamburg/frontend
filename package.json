@@ -12,9 +12,9 @@
   "dependencies": {
     "@chenfengyuan/vue-qrcode": "^1.0.0",
     "apollo-cache-inmemory": "^1.6.2",
-    "apollo-cache-persist": "^0.1.1",
     "apollo-upload-client": "^10.0.1",
     "core-js": "^2.6.5",
+    "lodash-es": "^4.17.11",
     "material-design-icons-iconfont": "^5.0.1",
     "register-service-worker": "^1.6.2",
     "roboto-fontface": "^0.10.0",

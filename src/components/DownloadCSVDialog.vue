@@ -39,6 +39,27 @@ const csvDownload = (csv, filename = 'items.csv') => {
   a.dispatchEvent(event);
 };
 
+const csvColumns = [
+  'id',
+  'internalId',
+  'partId',
+  'seal',
+  'schoolName',
+  'name',
+  'code',
+  'amount',
+  'user',
+  'editUser',
+  'room',
+  'course',
+  'purchasedAt',
+  'checkedAt',
+  'disposalAt',
+  'depreciationAt',
+  'createdAt',
+  'deletedAt',
+];
+
 export default {
   name: 'DownloadCsvDialog',
   model: {
@@ -58,17 +79,28 @@ export default {
   },
   methods: {
     clickDownloadInDialog() {
-      this.$apollo.query({
-        query: csvQuery,
-        variables: {
-          paranoid: this.paranoid,
-        },
-      }).then(({ data: { csv: { columns, rows } } }) => {
-        csvDownload(`${columns.map(s => this.$t(`item.${s}`)).join(',')}\n${rows}`);
-        this.$emit('change', false);
-      }).catch((error) => {
-        if (window.gqlError) window.gqlError(error);
-      });
+      if (this.$store.state.online) {
+        this.$apollo.query({
+          query: csvQuery,
+          variables: {
+            paranoid: this.paranoid,
+          },
+        }).then(({ data: { csv: { columns, rows } } }) => {
+          this.queryResult(columns, rows);
+        }).catch((error) => {
+          if (window.gqlError) window.gqlError(error);
+        });
+      } else {
+        const items = this.paranoid
+          ? this.$store.getters.itemsWithOfflineParanoid
+          : this.$store.getters.itemsWithOffline;
+        const rows = items.map(item => csvColumns.map(k => `"${item[k] || ''}"`).join(',')).join('\n');
+        this.queryResult(csvColumns, rows);
+      }
+    },
+    queryResult(columns, rows) {
+      csvDownload(`${columns.map(s => this.$t(`item.${s}`)).join(',')}\n${rows}`);
+      this.$emit('change', false);
     },
   },
 };

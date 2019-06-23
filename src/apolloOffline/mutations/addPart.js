@@ -1,15 +1,16 @@
 /* eslint-disable no-param-reassign */
+import Vue from 'vue';
 
 export default {
   storeMutate(state, query) {
     const { data, internalId } = query.variables;
     data.createdAt = new Date().toISOString();
     data.id = `temp-id_${Date.now()}`;
-    state.apollo.offlineItem.temp.ids[data.id] = data.id;
+    Vue.set(state.offlineItem.temp.ids, data.id, data.id);
     data.partId = Date.now();
     data.internalId = internalId;
-    state.apollo.offlineItem.parts.push(data);
-    state.apollo.offlineQueries.push(query);
+    state.offlineItem.parts.push(data);
+    state.offlineQueries.push(query);
   },
   async commitMutate(vm, query, state) {
     const { data, internalId } = query.variables;
@@ -17,9 +18,9 @@ export default {
     delete data.id;
     delete data.partId;
     delete data.internalId;
-    query.variables.internalId = state.apollo.offlineItem.temp.internalIds[internalId]
+    query.variables.internalId = state.offlineItem.temp.internalIds[internalId]
       || internalId;
     const { data: { addPart: { item: { id } } } } = await vm.$apollo.mutate(query);
-    state.apollo.offlineItem.temp.ids[beforeId] = id;
+    Vue.set(state.offlineItem.temp.ids, beforeId, id);
   },
 };
