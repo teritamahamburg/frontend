@@ -10,6 +10,7 @@
       <div class="item-card-grid">
         <item-card v-for="item in items" :key="item.id" :item="item"
                    :show-actions="showActions" :entry="showProps.map(p => p.value)"
+                   :selected-items="selectedItems"
                    @select="(val, { id }) => {selectItem(id, val)}"
                    @remove="i => $emit('remove', i)"
                    @edit="i => $emit('edit', i)"
@@ -20,7 +21,7 @@
     </slot>
     <slot name="list" v-else>
       <v-data-table hide-actions class="items-view--list"
-                    :headers="tableHeaderWithCheck" :items="items">
+                    :headers="tableHeaderWithCheck" :items="listItems">
         <template v-slot:items="{ item }">
           <tr @click="$emit('click:row', item)">
             <template v-for="(a) in listAttrs">
@@ -29,7 +30,9 @@
               </td>
               <template v-else>
                 <td v-if="a.key === 'select'" :key="a.key" style="padding: 0 0 0 16px">
-                  <v-checkbox hide-details color="error" @change="v => selectItem(item.id, v)"/>
+                  <v-checkbox hide-details color="error"
+                              :input-value="selectedItems.includes(item.id)"
+                              @change="v => selectItem(item.id, v)"/>
                 </td>
                 <td v-else :key="a.key">
                   <v-btn icon v-if="a.key !== 'seal' || item.seal || item.sealImage"
@@ -65,6 +68,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    selectedItems: {
+      type: Array,
+      default: () => [],
+    },
   },
   /*
   event: [
@@ -77,7 +84,6 @@ export default {
   */
   data() {
     return {
-      selectedItems: [],
       sealDialog: {
         show: false,
         item: {},
@@ -117,15 +123,21 @@ export default {
           value: key,
         }));
     },
+    listItems() {
+      return this.items.flatMap(item => [
+        item,
+        ...item.parts.map(part => ({
+          ...item,
+          ...part,
+        })),
+      ]);
+    },
   },
   methods: {
     selectItem(id, val) {
-      this.selectedItems = this.selectedItems
-        .filter(i => i !== id);
-      if (val) {
-        this.selectedItems.push(id);
-      }
-      this.$emit('select', val, id, this.selectedItems);
+      const items = this.selectedItems.filter(i => i !== id);
+      if (val) items.push(id);
+      this.$emit('select', val, id, items);
     },
     showSealDialog(item) {
       this.$store.state.dialogs.seal.image = item.sealImage
@@ -143,6 +155,8 @@ export const viewTypes = [
 
 <style scoped lang="scss">
   .items-view {
+    padding: 8px 0;
+
     .empty {
       width: 100%;
       height: 100%;

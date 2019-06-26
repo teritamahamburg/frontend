@@ -297,8 +297,10 @@ $toolbar-height: 48px;
 
 //noinspection CssInvalidFunction, CssOverwrittenProperties
 .v-content {
-  padding: calc(#{$toolbar-height} + constant(safe-area-inset-top)) 0 0 !important;
-  padding: calc(#{$toolbar-height} + env(safe-area-inset-top)) 0 0 !important;
+  padding: calc(#{$toolbar-height} + constant(safe-area-inset-top)) 0
+    constant(safe-area-inset-bottom) 0 !important;
+  padding: calc(#{$toolbar-height} + env(safe-area-inset-top)) 0
+    env(safe-area-inset-bottom) 0 !important;
 
   &.expand {
     padding: calc(#{$toolbar-height * 2} + constant(safe-area-inset-top)) 0 0 !important;
