@@ -4,15 +4,16 @@
         :items="items" :view-type="$store.state.itemsView.viewType"
         :attrs="$store.state.attrs"
         v-on="$store.getters.itemsViewMenuVOn"
-        @select="(v, i, l) => $store.state.dialogs.remove.ids = l"/>
+        :selected-items="$store.state.dialogs.remove.ids"
+        @select="(v, i, l) => $store.commit('setRemoveIds', l)"/>
 
-    <v-btn fab fixed right bottom @click="$broadcast.$emit('items:refetch')"
-           :color="$store.state.dark ? 'white black--text' : 'black white--text'">
-      <v-icon>refresh</v-icon>
-    </v-btn>
     <v-btn fab fixed right bottom color="error" v-if="$store.state.dialogs.remove.ids.length > 0"
            @click="$store.state.dialogs.remove.show = true">
       <v-icon>delete</v-icon>
+    </v-btn>
+    <v-btn fab fixed right bottom @click="$broadcast.$emit('items:refetch')" v-else
+           :color="$store.state.dark ? 'white black--text' : 'black white--text'">
+      <v-icon>refresh</v-icon>
     </v-btn>
   </div>
 </template>
@@ -73,7 +74,7 @@ export default {
       }
     });
     this.$broadcast.$on('items:removed', () => {
-      this.$store.state.dialogs.remove.ids = [];
+      this.$store.commit('setRemoveIds', []);
       if (this.$store.state.online) this.$apollo.queries.items.refetch();
     });
   },
@@ -90,7 +91,6 @@ export default {
     // eslint-disable-next-line func-names
     '$store.state.itemsView.viewType': function (val) {
       window.location.hash = `#${val}`;
-      this.$store.state.dialogs.remove.ids = [];
     },
   },
   computed: {
@@ -130,9 +130,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+  //noinspection CssInvalidFunction, CssOverwrittenProperties
   .home {
     width: 100%;
     height: 100%;
-    padding-top: 32px;
+    padding: 16px 0;
   }
 </style>

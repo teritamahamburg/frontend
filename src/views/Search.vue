@@ -8,7 +8,8 @@
       <div class="headline">{{$t('general.noSearchResult')}}</div>
     </v-layout>
     <items-view v-else :items="items" class="items-view"
-                :attrs="$store.state.attrs" v-on="$store.getters.itemsViewMenuVOn"/>
+                :attrs="$store.state.attrs.filter(({ key }) => key !== 'select')"
+                v-on="$store.getters.itemsViewMenuVOn"/>
   </div>
 </template>
 

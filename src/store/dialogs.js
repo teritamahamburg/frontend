@@ -69,5 +69,8 @@ export default {
       state.remove.ids = [id];
       state.remove.show = true;
     },
+    setRemoveIds(state, ids) {
+      state.remove.ids = ids;
+    },
   },
 };
