@@ -54,6 +54,10 @@
         </template>
       </v-card-text>
       <v-card-actions>
+        <v-btn outline color="error"
+               v-show="canRemove && filteredItems.length > 0" @click="clickRemove">
+          {{ $t('general.remove') }}
+        </v-btn>
         <v-spacer/>
         <v-btn outline @click="clickCancel">
           {{ $t('general.cancel') }}
@@ -85,6 +89,10 @@ export default {
       default: () => [],
     },
     value: {
+      type: Boolean,
+      default: false,
+    },
+    canRemove: {
       type: Boolean,
       default: false,
     },
@@ -144,6 +152,10 @@ export default {
   methods: {
     closeDialog() {
       this.$emit('change', false);
+    },
+    clickRemove() {
+      this.closeDialog();
+      this.$store.state.dialogs.remove.show = true;
     },
     clickCancel() {
       this.$emit('click:cancel');

@@ -120,6 +120,7 @@
       <item-edit-dialog
           v-model="$store.state.dialogs.edit.show"
           :items="$store.state.dialogs.selectItems"
+          :can-remove="$store.state.dialogs.edit.canRemove"
           @click:cancel="$store.commit('setSelectItems', [])"
           @edited="$broadcast.$emit('items:edited')"/>
 
@@ -136,6 +137,7 @@
           v-model="$store.state.dialogs.part.show"
           :item="$store.state.dialogs.part.item"
           :add="$store.state.dialogs.part.add"
+          :can-remove="$store.state.dialogs.part.canRemove"
           @added="$broadcast.$emit('items:refetch')"
           @edited="$broadcast.$emit('items:refetch')"/>
 

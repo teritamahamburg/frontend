@@ -16,7 +16,7 @@
         </v-btn>
       </template>
       <v-btn fab small color="green" dark
-             @click="$store.state.dialogs.edit.show = true">
+             @click="$store.commit('showEditDialog')">
         <v-icon>edit</v-icon>
       </v-btn>
       <v-btn fab small color="error"

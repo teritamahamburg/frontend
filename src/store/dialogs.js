@@ -11,6 +11,7 @@ export default {
     },
     edit: {
       show: false,
+      canRemove: true,
     },
     editHistory: {
       show: false,
@@ -24,6 +25,7 @@ export default {
     part: {
       show: false,
       add: true,
+      canRemove: true,
       item: {},
     },
     csv: {
@@ -41,11 +43,16 @@ export default {
     },
   },
   mutations: {
-    showEditDialog(state, item) {
-      if (`${item.partId}` === '0') {
+    showEditDialog(state, item, canRemove = true) {
+      if (!item) {
+        state.edit.canRemove = true;
+        state.edit.show = true;
+      } else if (`${item.partId}` === '0') {
+        state.edit.canRemove = canRemove;
         state.selectItems = [item];
         state.edit.show = true;
       } else {
+        state.part.canRemove = canRemove;
         state.part.item = item;
         state.part.add = false;
         state.part.show = true;

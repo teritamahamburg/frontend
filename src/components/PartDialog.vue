@@ -24,6 +24,9 @@
         </v-form>
       </v-card-text>
       <v-card-actions>
+        <v-btn outline color="error" v-show="canRemove && !add" @click="clickRemove">
+          {{ $t('general.remove') }}
+        </v-btn>
         <v-spacer/>
         <v-btn outline @click="closeDialog">
           {{ $t('general.cancel') }}
@@ -57,6 +60,10 @@ export default {
       default: true,
     },
     value: {
+      type: Boolean,
+      default: false,
+    },
+    canRemove: {
       type: Boolean,
       default: false,
     },
@@ -98,9 +105,11 @@ export default {
   },
   methods: {
     closeDialog() {
-      Object.keys(this.editItem)
-        .forEach((k) => { this.editItem[k] = this.item[k]; });
       this.$emit('change', false);
+    },
+    clickRemove() {
+      this.closeDialog();
+      this.$store.commit('showRemoveDialog', this.item);
     },
     clickEditInDialog() {
       if (this.$refs.form.validate()) {
