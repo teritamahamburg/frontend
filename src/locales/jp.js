@@ -40,7 +40,7 @@ module.exports = {
     searchHere: 'ここから検索',
     noSearchResult: '見つかりませんでした',
     qrCode: 'QRコード',
-    enableMutationInScan: '値の更新を許可',
+    enableMutationInScan: '値を更新する',
     apply: '許可',
     change: '変更する',
     addPart: '小分類の追加',
