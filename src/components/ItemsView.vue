@@ -11,7 +11,7 @@
         <item-card v-for="item in items" :key="item.id" :item="item"
                    :show-actions="showActions" :entry="showProps.map(p => p.value)"
                    :selected-items="selectedItems"
-                   @select="(val, { id }) => {selectItem(id, val)}"
+                   @select="(val, item) => {selectItem(item, val)}"
                    @remove="i => $emit('remove', i)"
                    @edit="i => $emit('edit', i)"
                    @editHistory="i => $emit('editHistory', i)"
@@ -31,8 +31,8 @@
               <template v-else>
                 <td v-if="a.key === 'select'" :key="a.key" style="padding: 0 0 0 16px">
                   <v-checkbox hide-details color="error"
-                              :input-value="selectedItems.includes(item.id)"
-                              @change="v => selectItem(item.id, v)"/>
+                              :input-value="selectedItems.find(({ id }) => id === item.id)"
+                              @change="v => selectItem(item, v)"/>
                 </td>
                 <td v-else :key="a.key">
                   <v-btn icon v-if="a.key !== 'seal' || item.seal || item.sealImage"
@@ -134,10 +134,10 @@ export default {
     },
   },
   methods: {
-    selectItem(id, val) {
-      const items = this.selectedItems.filter(i => i !== id);
-      if (val) items.push(id);
-      this.$emit('select', val, id, items);
+    selectItem(item, val) {
+      const items = this.selectedItems.filter(({ id }) => id !== item.id);
+      if (val) items.push(item);
+      this.$emit('select', val, item, items);
     },
     showSealDialog(item) {
       this.$store.state.dialogs.seal.image = item.sealImage

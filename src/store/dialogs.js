@@ -5,13 +5,12 @@ export default {
     add: {
       show: false,
     },
+    selectItems: [],
     remove: {
       show: false,
-      ids: [],
     },
     edit: {
       show: false,
-      item: {},
     },
     editHistory: {
       show: false,
@@ -44,7 +43,7 @@ export default {
   mutations: {
     showEditDialog(state, item) {
       if (`${item.partId}` === '0') {
-        state.edit.item = item;
+        state.selectItems = [item];
         state.edit.show = true;
       } else {
         state.part.item = item;
@@ -66,11 +65,11 @@ export default {
       state.part.show = true;
     },
     showRemoveDialog(state, { id }) {
-      state.remove.ids = [id];
+      state.selectItems = [id];
       state.remove.show = true;
     },
-    setRemoveIds(state, ids) {
-      state.remove.ids = ids;
+    setSelectItems(state, ids) {
+      state.selectItems = ids;
     },
   },
 };

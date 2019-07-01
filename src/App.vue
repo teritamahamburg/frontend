@@ -109,8 +109,8 @@
     <template>
       <item-remove-dialog
           v-model="$store.state.dialogs.remove.show"
-          :ids="$store.state.dialogs.remove.ids"
-          @click:cancel="$store.state.dialogs.remove.ids = []"
+          :ids="$store.state.dialogs.selectItems.map(i => i.id)"
+          @click:cancel="$store.commit('setSelectItems', [])"
           @removed="$broadcast.$emit('items:removed')" />
 
       <item-add-dialog
@@ -119,8 +119,9 @@
 
       <item-edit-dialog
           v-model="$store.state.dialogs.edit.show"
-          :item="$store.state.dialogs.edit.item"
-          @edited="$broadcast.$emit('items:refetch')"/>
+          :items="$store.state.dialogs.selectItems"
+          @click:cancel="$store.commit('setSelectItems', [])"
+          @edited="$broadcast.$emit('items:edited')"/>
 
       <item-edit-history-dialog
           v-model="$store.state.dialogs.editHistory.show"
