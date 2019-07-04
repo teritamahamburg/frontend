@@ -8,7 +8,8 @@
         @select="(v, i, l) => $store.commit('setSelectItems', l)"/>
 
     <v-speed-dial fixed right bottom v-model="showDial"
-                  v-show="$store.state.dialogs.selectItems.length > 0">
+                  v-show="$store.state.dialogs.selectItems.length > 0"
+                  class="no--print">
       <template v-slot:activator>
         <v-btn v-model="showDial" fab>
           <v-icon>build</v-icon>
@@ -26,7 +27,8 @@
     </v-speed-dial>
     <v-btn fab fixed right bottom @click="$broadcast.$emit('items:refetch')"
            v-show="$store.state.dialogs.selectItems.length === 0"
-           :color="$store.state.dark ? 'white black--text' : 'black white--text'">
+           :color="$store.state.dark ? 'white black--text' : 'black white--text'"
+           class="no--print">
       <v-icon>refresh</v-icon>
     </v-btn>
   </div>

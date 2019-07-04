@@ -25,6 +25,7 @@ const store = new Vuex.Store({
   },
   state: {
     dark: false,
+    printQR: false,
     searchText: '',
     loading: 0,
     online: window.navigator.onLine,
@@ -75,6 +76,9 @@ const store = new Vuex.Store({
     },
     setAttrs(state, val) {
       state.attrs = val;
+    },
+    setPrintQR(state, val) {
+      state.printQR = !!val;
     },
   },
   getters: {

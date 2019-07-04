@@ -1,10 +1,10 @@
 <template>
-  <v-app :dark="$store.state.dark">
+  <v-app :dark="$store.state.dark" :class="{ printQR }">
     <div class="overlay--graphql"
          v-show="$route.meta.overlay !== false &&$store.state.loading !== 0">
       <!-- ignore undefined ↑-->
       <v-progress-circular
-        :size="70" :width="7" color="white" indeterminate />
+        :size="70" :width="7" color="white" indeterminate/>
     </div>
 
     <div class="app-toolbar--overlay"></div>
@@ -12,9 +12,9 @@
       <span>{{ $t('general.offlineMode') }}</span>
     </div>
     <v-snackbar :value="true" :timeout="0" top multi-line class="app-snackbar--offline"
-      v-if="$store.state.online && $store.state.apollo.offlineQueries.length > 0">
+                v-if="$store.state.online && $store.state.apollo.offlineQueries.length > 0">
       <v-btn dark outline v-html="$t('general.applyOfflineChanges')"
-        @click="$store.state.dialogs.reflect.show = true" />
+             @click="$store.state.dialogs.reflect.show = true"/>
     </v-snackbar>
 
     <v-toolbar app dense class="app-toolbar"
@@ -30,7 +30,7 @@
         <v-btn icon @click="clickBack" v-show="showBack">
           <v-icon>keyboard_arrow_left</v-icon>
         </v-btn>
-        <v-spacer />
+        <v-spacer/>
         <v-btn outline to="/scan" v-show="($route.meta.priority || 999) <= 1">
           <v-icon>scanner</v-icon>
           {{ $t('general.scan') }}
@@ -41,7 +41,7 @@
         </v-btn>
 
         <v-text-field v-if="$route.path === '/search'" v-model="$store.state.searchText"
-                      append-icon="search" />
+                      append-icon="search"/>
 
         <v-menu offset-y>
           <template v-slot:activator="{ on }">
@@ -95,61 +95,61 @@
           :sort-type="$store.state.itemsView.sortType"
           @change:sortType="v => $store.commit('setSortType', v)"
           :sort-order="$store.state.itemsView.sortOrder"
-          @change:sortOrder="v => $store.commit('setSortOrder', v)" />
+          @change:sortOrder="v => $store.commit('setSortOrder', v)"/>
       </template>
     </v-toolbar>
 
     <v-content :class="{expand: showControl, paddingToolbar, offline }">
       <keep-alive include="Home">
-        <router-view />
+        <router-view/>
       </keep-alive>
     </v-content>
 
     <!-- dialogs -->
     <template>
       <item-remove-dialog
-          v-model="$store.state.dialogs.remove.show"
-          :ids="$store.state.dialogs.selectItems.map(i => i.id)"
-          @click:cancel="$store.commit('setSelectItems', [])"
-          @removed="$broadcast.$emit('items:removed')" />
+        v-model="$store.state.dialogs.remove.show"
+        :ids="$store.state.dialogs.selectItems.map(i => i.id)"
+        @click:cancel="$store.commit('setSelectItems', [])"
+        @removed="$broadcast.$emit('items:removed')"/>
 
       <item-add-dialog
-          v-model="$store.state.dialogs.add.show"
-          @added="$broadcast.$emit('items:refetch')"/>
+        v-model="$store.state.dialogs.add.show"
+        @added="$broadcast.$emit('items:refetch')"/>
 
       <item-edit-dialog
-          v-model="$store.state.dialogs.edit.show"
-          :items="$store.state.dialogs.selectItems"
-          :can-remove="$store.state.dialogs.edit.canRemove"
-          @click:cancel="$store.commit('setSelectItems', [])"
-          @edited="$broadcast.$emit('items:edited')"/>
+        v-model="$store.state.dialogs.edit.show"
+        :items="$store.state.dialogs.selectItems"
+        :can-remove="$store.state.dialogs.edit.canRemove"
+        @click:cancel="$store.commit('setSelectItems', [])"
+        @edited="$broadcast.$emit('items:edited')"/>
 
       <item-edit-history-dialog
-          v-model="$store.state.dialogs.editHistory.show"
-          :id="$store.state.dialogs.editHistory.id"/>
+        v-model="$store.state.dialogs.editHistory.show"
+        :id="$store.state.dialogs.editHistory.id"/>
 
       <qr-code-dialog
-          v-model="$store.state.dialogs.qrCode.show"
-          :verify="$store.state.dialogs.qrCode.verify"
-          :text="$store.state.dialogs.qrCode.text"/>
+        v-model="$store.state.dialogs.qrCode.show"
+        :verify="$store.state.dialogs.qrCode.verify"
+        :text="$store.state.dialogs.qrCode.text"/>
 
       <part-dialog
-          v-model="$store.state.dialogs.part.show"
-          :item="$store.state.dialogs.part.item"
-          :add="$store.state.dialogs.part.add"
-          :can-remove="$store.state.dialogs.part.canRemove"
-          @added="$broadcast.$emit('items:refetch')"
-          @edited="$broadcast.$emit('items:refetch')"/>
+        v-model="$store.state.dialogs.part.show"
+        :item="$store.state.dialogs.part.item"
+        :add="$store.state.dialogs.part.add"
+        :can-remove="$store.state.dialogs.part.canRemove"
+        @added="$broadcast.$emit('items:refetch')"
+        @edited="$broadcast.$emit('items:refetch')"/>
 
-      <download-csv-dialog v-model="$store.state.dialogs.csv.show" />
+      <download-csv-dialog v-model="$store.state.dialogs.csv.show"/>
 
       <restore-item-dialog v-model="$store.state.dialogs.restore.show"
                            @restored="$broadcast.$emit('items:refetch')"/>
 
-      <apply-offline-dialog v-model="$store.state.dialogs.reflect.show" />
+      <apply-offline-dialog v-model="$store.state.dialogs.reflect.show"/>
 
       <seal-dialog v-model="$store.state.dialogs.seal.show"
-        :image="$store.state.dialogs.seal.image" />
+                   :image="$store.state.dialogs.seal.image"/>
     </template>
 
     <v-snackbar v-model="showError" bottom>
@@ -164,6 +164,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 import ItemsViewController from '@/components/ItemsViewController.vue';
 
 import ItemAddDialog from '@/components/ItemAddDialog.vue';
@@ -241,6 +243,7 @@ export default {
     },
   },
   computed: {
+    ...mapState(['printQR']),
     showBack() {
       return this.$route.meta.priority
         && this.$route.meta.priority > 1; // 1 is '/home' priority
@@ -259,147 +262,190 @@ export default {
 </script>
 
 <style lang="scss">
-.application .overlay--graphql {
-  z-index: 999;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.create-button--add {
-  z-index: 5;
-  bottom: -16px;
-  border-radius: 18px;
-  padding: 0 10px;
-}
-
-$toolbar-button-pad: 16px;
-
-//noinspection CssInvalidFunction, CssOverwrittenProperties
-.app-toolbar {
-  height: auto;
-  padding-top: constant(safe-area-inset-top);
-  padding-top: env(safe-area-inset-top);
-
-  &.offline {
-    margin-top: 24px !important;
+  .application .overlay--graphql {
+    z-index: 999;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
-  &.bottom--btn {
-    padding-bottom: $toolbar-button-pad;
-  }
-}
-
-$toolbar-height: 48px;
-
-//noinspection CssInvalidFunction, CssOverwrittenProperties
-.v-content {
-  padding: calc(#{$toolbar-height} + constant(safe-area-inset-top)) 0
-    constant(safe-area-inset-bottom) 0 !important;
-  padding: calc(#{$toolbar-height} + env(safe-area-inset-top)) 0
-    env(safe-area-inset-bottom) 0 !important;
-
-  &.expand {
-    padding: calc(#{$toolbar-height * 2} + constant(safe-area-inset-top)) 0 0 !important;
-    padding: calc(#{$toolbar-height * 2} + env(safe-area-inset-top)) 0 0 !important;
+  .create-button--add {
+    z-index: 5;
+    bottom: -16px;
+    border-radius: 18px;
+    padding: 0 10px;
   }
 
-  &.paddingToolbar {
-    padding: calc(#{$toolbar-height} + #{$toolbar-button-pad}
+  $toolbar-button-pad: 16px;
+
+  //noinspection CssInvalidFunction, CssOverwrittenProperties
+  .app-toolbar {
+    height: auto;
+    padding-top: constant(safe-area-inset-top);
+    padding-top: env(safe-area-inset-top);
+
+    &.offline {
+      margin-top: 24px !important;
+    }
+
+    &.bottom--btn {
+      padding-bottom: $toolbar-button-pad;
+    }
+  }
+
+  $toolbar-height: 48px;
+
+  //noinspection CssInvalidFunction, CssOverwrittenProperties
+  .v-content {
+    padding: calc(#{$toolbar-height} + constant(safe-area-inset-top))
+      0 constant(safe-area-inset-bottom) 0 !important;
+    padding: calc(#{$toolbar-height} + env(safe-area-inset-top))
+      0 env(safe-area-inset-bottom) 0 !important;
+
+    &.expand {
+      padding: calc(#{$toolbar-height * 2} + constant(safe-area-inset-top)) 0 0 !important;
+      padding: calc(#{$toolbar-height * 2} + env(safe-area-inset-top)) 0 0 !important;
+    }
+
+    &.paddingToolbar {
+      padding: calc(#{$toolbar-height} + #{$toolbar-button-pad}
       + constant(safe-area-inset-top)) 0 0 !important;
-    padding: calc(#{$toolbar-height} + #{$toolbar-button-pad}
+      padding: calc(#{$toolbar-height} + #{$toolbar-button-pad}
       + env(safe-area-inset-top)) 0 0 !important;
 
-    &.expand {
-      padding: calc(#{$toolbar-height * 2} + #{$toolbar-button-pad}
+      &.expand {
+        padding: calc(#{$toolbar-height * 2} + #{$toolbar-button-pad}
         + constant(safe-area-inset-top)) 0 0 !important;
-      padding: calc(#{$toolbar-height * 2} + #{$toolbar-button-pad}
-        + env(safe-area-inset-top)) 0 0 !important;
-    }
-  }
-
-  &.offline {
-    padding: calc(#{$toolbar-height * 1.5} + constant(safe-area-inset-top)) 0 0 !important;
-    padding: calc(#{$toolbar-height * 1.5} + env(safe-area-inset-top)) 0 0 !important;
-
-    &.expand {
-      padding: calc(#{$toolbar-height * 2.5} + constant(safe-area-inset-top)) 0 0 !important;
-      padding: calc(#{$toolbar-height * 2.5} + env(safe-area-inset-top)) 0 0 !important;
-
-      &.paddingToolbar {
-        padding: calc(#{$toolbar-height * 2.5} + #{$toolbar-button-pad}
-        + constant(safe-area-inset-top)) 0 0 !important;
-        padding: calc(#{$toolbar-height * 2.5} + #{$toolbar-button-pad}
+        padding: calc(#{$toolbar-height * 2} + #{$toolbar-button-pad}
         + env(safe-area-inset-top)) 0 0 !important;
       }
     }
+
+    &.offline {
+      padding: calc(#{$toolbar-height * 1.5} + constant(safe-area-inset-top)) 0 0 !important;
+      padding: calc(#{$toolbar-height * 1.5} + env(safe-area-inset-top)) 0 0 !important;
+
+      &.expand {
+        padding: calc(#{$toolbar-height * 2.5} + constant(safe-area-inset-top)) 0 0 !important;
+        padding: calc(#{$toolbar-height * 2.5} + env(safe-area-inset-top)) 0 0 !important;
+
+        &.paddingToolbar {
+          padding: calc(#{$toolbar-height * 2.5} + #{$toolbar-button-pad}
+          + constant(safe-area-inset-top)) 0 0 !important;
+          padding: calc(#{$toolbar-height * 2.5} + #{$toolbar-button-pad}
+          + env(safe-area-inset-top)) 0 0 !important;
+        }
+      }
+    }
   }
-}
 
-//noinspection CssInvalidFunction, CssOverwrittenProperties
-.app-toolbar--overlay { /* ios bar */
-  z-index: 10;
-  height: constant(safe-area-inset-top);
-  height: env(safe-area-inset-top);
-  width: 100%;
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-$offline-color: purple;
-
-//noinspection CssInvalidFunction, CssOverwrittenProperties
-.app-toolbar--offline {
-  z-index: 11;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: #{$toolbar-height / 2};
-  height: calc(constant(safe-area-inset-top) + #{$toolbar-height / 2});
-  height: calc(env(safe-area-inset-top) + #{$toolbar-height / 2});
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  background-color: $offline-color;
-  color: white;
-}
-
-//noinspection CssInvalidFunction, CssOverwrittenProperties
-.app-snackbar--offline {
-  z-index: 50;
-
-  .v-snack__wrapper {
+  //noinspection CssInvalidFunction, CssOverwrittenProperties
+  .app-toolbar--overlay { /* ios bar */
+    z-index: 10;
+    height: constant(safe-area-inset-top);
+    height: env(safe-area-inset-top);
     width: 100%;
-    max-width: 100%;
-    margin: 0;
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  $offline-color: purple;
+
+  //noinspection CssInvalidFunction, CssOverwrittenProperties
+  .app-toolbar--offline {
+    z-index: 11;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: #{$toolbar-height / 2};
+    height: calc(constant(safe-area-inset-top) + #{$toolbar-height / 2});
+    height: calc(env(safe-area-inset-top) + #{$toolbar-height / 2});
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
     background-color: $offline-color;
-    padding-top: 35px;
-    padding-top: calc(constant(safe-area-inset-top) + 35px);
-    padding-top: calc(env(safe-area-inset-top) + 35px);
+    color: white;
+  }
 
-    .v-snack__content {
-      padding-top: 36px;
-      padding-bottom: 12px;
-      justify-content: center;
+  //noinspection CssInvalidFunction, CssOverwrittenProperties
+  .app-snackbar--offline {
+    z-index: 50;
 
-      .v-btn {
-        margin: 0;
+    .v-snack__wrapper {
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      background-color: $offline-color;
+      padding-top: 35px;
+      padding-top: calc(constant(safe-area-inset-top) + 35px);
+      padding-top: calc(env(safe-area-inset-top) + 35px);
+
+      .v-snack__content {
+        padding-top: 36px;
+        padding-bottom: 12px;
+        justify-content: center;
+
+        .v-btn {
+          margin: 0;
+        }
       }
     }
   }
-}
 
-//noinspection CssInvalidFunction, CssOverwrittenProperties
-.v-dialog--fullscreen {
-  padding-top: constant(safe-area-inset-top) !important;
-  padding-top: env(safe-area-inset-top) !important;
-}
+  //noinspection CssInvalidFunction, CssOverwrittenProperties
+  .v-dialog--fullscreen {
+    padding-top: constant(safe-area-inset-top) !important;
+    padding-top: env(safe-area-inset-top) !important;
+  }
+</style>
+
+<style lang="scss">
+  @media print {
+    .no--print {
+      display: none;
+    }
+
+    body {
+      background-color: white !important;
+    }
+
+    .application {
+      background-color: white !important;
+
+      &.printQR {
+        .v-content {
+          display: none;
+        }
+      }
+
+      &:not(.printQR) {
+        .v-dialog__content {
+          display: none;
+        }
+      }
+
+      .v-overlay--active {
+        display: none;
+      }
+
+      .application--wrap {
+        .v-toolbar,
+        .overlay--graphql, .app-toolbar--overlay, .app-toolbar--offline {
+          display: none;
+        }
+
+        .v-content {
+          padding: 0 !important;
+        }
+      }
+    }
+  }
 </style>
 
 <!--<style>

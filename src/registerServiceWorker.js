@@ -27,6 +27,7 @@ if (process.env.NODE_ENV === 'production') {
       console.log('New content is downloading.');
     },
     updated(reg) {
+      reg.update();
       window[isUpdateAvailable](reg);
       console.log('New content is available; please refresh.');
     },
