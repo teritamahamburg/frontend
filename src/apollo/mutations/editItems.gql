@@ -1,0 +1,6 @@
+mutation ($data: EditItemInput!, $ids: [ID!]!) {
+    editItems(data: $data ids: $ids) {
+        success
+        message
+    }
+}

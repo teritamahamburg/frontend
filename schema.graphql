@@ -58,6 +58,7 @@ type Mutation {
     addItem(data: ItemInput!): ItemResult!
     addPart(data: PartItemInput!, internalId: ID!): ItemResult!
     editItem(data: EditItemInput!, id: ID!): Result!
+    editItems(data: EditItemInput!, ids: [ID!]!): Result!
     editPart(data: PartItemInput!, id: ID!): Result!
     removeItems(ids: [ID!]!): Result!
     restoreItem(id: ID!): Result!

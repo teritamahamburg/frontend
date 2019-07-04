@@ -16,8 +16,8 @@
           </div>
 
           <v-spacer/>
-          <v-checkbox color="error" hide-details class="select-check" height="18"
-                      :input-value="selectedItems.includes(item.id)"
+          <v-checkbox color="black" hide-details class="select-check" height="18"
+                      :input-value="selectedItems.find(({ id }) => id === item.id)"
                       @change="v => $emit('select', v, item)" v-if="!hideAction('select')"/>
           <v-menu offset-y v-if="!hideAction('menu')">
             <template v-slot:activator="{ on }">
@@ -69,9 +69,11 @@
           <v-card-title class="item-title">
             <span class="title">{{ part.name }}</span>
             <v-spacer/>
+            <!--
             <v-checkbox color="error" hide-details class="select-check" height="18"
-                        :input-value="selectedItems.includes(part.id)"
+                        :input-value="selectedItems.find(({ id }) => id === part.id)"
                         @change="v => $emit('select', v, part)" v-if="!hideAction('select')"/>
+            -->
             <v-menu offset-y v-if="!hideAction('menu')">
               <template v-slot:activator="{ on }">
                 <v-btn icon small style="margin: 0" v-on="on">
@@ -165,7 +167,6 @@ export default {
         ['qrCode', this.$t('general.qrCode')],
         ['editHistory', this.$t('general.editHistory')],
         ['edit', this.$t('general.edit')],
-        ['remove', this.$t('general.remove')],
       ];
     },
     showSealImg() {

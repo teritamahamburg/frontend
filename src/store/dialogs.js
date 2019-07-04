@@ -5,13 +5,13 @@ export default {
     add: {
       show: false,
     },
+    selectItems: [],
     remove: {
       show: false,
-      ids: [],
     },
     edit: {
       show: false,
-      item: {},
+      canRemove: true,
     },
     editHistory: {
       show: false,
@@ -25,6 +25,7 @@ export default {
     part: {
       show: false,
       add: true,
+      canRemove: true,
       item: {},
     },
     csv: {
@@ -42,11 +43,16 @@ export default {
     },
   },
   mutations: {
-    showEditDialog(state, item) {
-      if (`${item.partId}` === '0') {
-        state.edit.item = item;
+    showEditDialog(state, item, canRemove = true) {
+      if (!item) {
+        state.edit.canRemove = true;
+        state.edit.show = true;
+      } else if (`${item.partId}` === '0') {
+        state.edit.canRemove = canRemove;
+        state.selectItems = [item];
         state.edit.show = true;
       } else {
+        state.part.canRemove = canRemove;
         state.part.item = item;
         state.part.add = false;
         state.part.show = true;
@@ -66,11 +72,11 @@ export default {
       state.part.show = true;
     },
     showRemoveDialog(state, { id }) {
-      state.remove.ids = [id];
+      state.selectItems = [id];
       state.remove.show = true;
     },
-    setRemoveIds(state, ids) {
-      state.remove.ids = ids;
+    setSelectItems(state, ids) {
+      state.selectItems = ids;
     },
   },
 };

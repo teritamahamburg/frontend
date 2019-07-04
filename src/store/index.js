@@ -25,6 +25,7 @@ const store = new Vuex.Store({
   },
   state: {
     dark: false,
+    printQR: false,
     searchText: '',
     loading: 0,
     online: window.navigator.onLine,
@@ -76,12 +77,15 @@ const store = new Vuex.Store({
     setAttrs(state, val) {
       state.attrs = val;
     },
+    setPrintQR(state, val) {
+      state.printQR = !!val;
+    },
   },
   getters: {
-    itemsViewMenuVOn() {
+    itemsViewMenuVOn(state) {
       return {
         addPart: item => store.commit('showAddPartDialog', item),
-        edit: item => store.commit('showEditDialog', item),
+        edit: item => store.commit('showEditDialog', item, state.attrs.find(({ type, key }) => (type === 'action' && key === 'remove'))),
         editHistory: item => store.commit('showEditHistoryDialog', item),
         qrCode: item => store.commit('showQRCodeDialog', item),
         remove: item => store.commit('showRemoveDialog', item),

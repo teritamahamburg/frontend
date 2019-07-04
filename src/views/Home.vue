@@ -4,15 +4,31 @@
         :items="items" :view-type="$store.state.itemsView.viewType"
         :attrs="$store.state.attrs"
         v-on="$store.getters.itemsViewMenuVOn"
-        :selected-items="$store.state.dialogs.remove.ids"
-        @select="(v, i, l) => $store.commit('setRemoveIds', l)"/>
+        :selected-items="$store.state.dialogs.selectItems"
+        @select="(v, i, l) => $store.commit('setSelectItems', l)"/>
 
-    <v-btn fab fixed right bottom color="error" v-if="$store.state.dialogs.remove.ids.length > 0"
-           @click="$store.state.dialogs.remove.show = true">
-      <v-icon>delete</v-icon>
-    </v-btn>
-    <v-btn fab fixed right bottom @click="$broadcast.$emit('items:refetch')" v-else
-           :color="$store.state.dark ? 'white black--text' : 'black white--text'">
+    <v-speed-dial fixed right bottom v-model="showDial"
+                  v-show="$store.state.dialogs.selectItems.length > 0"
+                  class="no--print">
+      <template v-slot:activator>
+        <v-btn v-model="showDial" fab>
+          <v-icon>build</v-icon>
+          <v-icon>clear</v-icon>
+        </v-btn>
+      </template>
+      <v-btn fab small color="green" dark
+             @click="$store.commit('showEditDialog')">
+        <v-icon>edit</v-icon>
+      </v-btn>
+      <v-btn fab small color="error"
+             @click="$store.state.dialogs.remove.show = true">
+        <v-icon>delete</v-icon>
+      </v-btn>
+    </v-speed-dial>
+    <v-btn fab fixed right bottom @click="$broadcast.$emit('items:refetch')"
+           v-show="$store.state.dialogs.selectItems.length === 0"
+           :color="$store.state.dark ? 'white black--text' : 'black white--text'"
+           class="no--print">
       <v-icon>refresh</v-icon>
     </v-btn>
   </div>
@@ -74,7 +90,11 @@ export default {
       }
     });
     this.$broadcast.$on('items:removed', () => {
-      this.$store.commit('setRemoveIds', []);
+      this.$store.commit('setSelectItems', []);
+      if (this.$store.state.online) this.$apollo.queries.items.refetch();
+    });
+    this.$broadcast.$on('items:edited', () => {
+      this.$store.commit('setSelectItems', []);
       if (this.$store.state.online) this.$apollo.queries.items.refetch();
     });
   },
@@ -92,6 +112,11 @@ export default {
     '$store.state.itemsView.viewType': function (val) {
       window.location.hash = `#${val}`;
     },
+  },
+  data() {
+    return {
+      showDial: false,
+    };
   },
   computed: {
     items() {
