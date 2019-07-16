@@ -7,24 +7,12 @@
         :selected-items="$store.state.dialogs.selectItems"
         @select="(v, i, l) => $store.commit('setSelectItems', l)"/>
 
-    <v-speed-dial fixed right bottom v-model="showDial"
-                  v-show="$store.state.dialogs.selectItems.length > 0"
-                  class="no--print">
-      <template v-slot:activator>
-        <v-btn v-model="showDial" fab>
-          <v-icon>build</v-icon>
-          <v-icon>clear</v-icon>
-        </v-btn>
-      </template>
-      <v-btn fab small color="green" dark
-             @click="$store.commit('showEditDialog')">
-        <v-icon>edit</v-icon>
-      </v-btn>
-      <v-btn fab small color="error"
-             @click="$store.state.dialogs.remove.show = true">
-        <v-icon>delete</v-icon>
-      </v-btn>
-    </v-speed-dial>
+    <v-btn fab fixed right bottom
+           color="green" dark class="no--print"
+           v-show="$store.state.dialogs.selectItems.length > 0"
+           @click="$store.commit('showEditDialog')">
+      <v-icon>edit</v-icon>
+    </v-btn>
     <v-btn fab fixed right bottom @click="$broadcast.$emit('items:refetch')"
            v-show="$store.state.dialogs.selectItems.length === 0"
            :color="$store.state.dark ? 'white black--text' : 'black white--text'"
@@ -64,14 +52,12 @@ export default {
           return items.map((item) => {
             const i = {
               ...item,
-              user: item.user.name,
+              admin: item.admin.name,
               course: item.course.name,
               room: item.room.number,
-              editUser: item.editUser.name,
-              parts: item.parts.map(part => ({
-                ...part,
-                room: part.room.number,
-                editUser: part.editUser.name,
+              children: item.children.map(child => ({
+                ...child,
+                room: child.room ? child.room.number : item.room.number,
               })),
             };
             // eslint-disable-next-line no-underscore-dangle
@@ -112,11 +98,6 @@ export default {
     '$store.state.itemsView.viewType': function (val) {
       window.location.hash = `#${val}`;
     },
-  },
-  data() {
-    return {
-      showDial: false,
-    };
   },
   computed: {
     items() {

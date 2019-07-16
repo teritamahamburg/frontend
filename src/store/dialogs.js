@@ -17,16 +17,9 @@ export default {
       show: false,
       id: undefined,
     },
-    qrCode: {
+    code: {
       show: false,
       text: undefined,
-      verify: undefined,
-    },
-    part: {
-      show: false,
-      add: true,
-      canRemove: true,
-      item: {},
     },
     csv: {
       show: false,
@@ -44,35 +37,26 @@ export default {
   },
   mutations: {
     showEditDialog(state, item, canRemove = true) {
-      if (!item) {
-        state.edit.canRemove = true;
-        state.edit.show = true;
-      } else if (`${item.partId}` === '0') {
-        state.edit.canRemove = canRemove;
-        state.selectItems = [item];
-        state.edit.show = true;
-      } else {
-        state.part.canRemove = canRemove;
-        state.part.item = item;
-        state.part.add = false;
-        state.part.show = true;
-      }
+      state.edit.canRemove = canRemove;
+      if (item) state.selectItems = [item];
+      state.edit.show = true;
     },
     showEditHistoryDialog(state, { id }) {
       state.editHistory.id = id;
       state.editHistory.show = true;
     },
-    showQRCodeDialog(state, { id }) {
-      state.qrCode.text = `${id}`;
-      state.qrCode.show = true;
+    showCodeDialog(state, { id }) {
+      state.code.text = `${id}`;
+      state.code.show = true;
     },
-    showAddPartDialog(state, item) {
-      state.part.item = item;
-      state.part.add = true;
-      state.part.show = true;
-    },
-    showRemoveDialog(state, { id }) {
-      state.selectItems = [id];
+    showRemoveDialog(state, items) {
+      if (items) {
+        if (Array.isArray(items)) {
+          state.selectItems = items;
+        } else {
+          state.selectItems = [items];
+        }
+      }
       state.remove.show = true;
     },
     setSelectItems(state, ids) {

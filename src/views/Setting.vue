@@ -44,16 +44,12 @@ import Draggable from 'vuedraggable';
 
 export const attributes = [
   'id',
-  'internalId',
-  'partId',
-  'schoolName',
   'name',
   'code',
   'amount',
-  'user',
+  'admin',
   'course',
   'room',
-  'editUser',
   'purchasedAt',
   'checkedAt',
   'disposalAt',
@@ -63,12 +59,11 @@ export const attributes = [
 ];
 export const attributeActions = [
   'select',
-  'addPart',
   'qrCode',
   'editHistory',
   'edit',
   'remove',
-  'part',
+  'child',
   'seal',
 ];
 

@@ -24,6 +24,7 @@
 
 <script>
 import RestoreItemsQuery from '@/apollo/queries/restoreItems.gql';
+import RestoreChildrenQuery from '@/apollo/queries/restoreChildren.gql';
 import ItemsView from '@/components/ItemsView.vue';
 
 export default {
@@ -42,8 +43,21 @@ export default {
         });
       },
     },
+    restoreChildren: {
+      skip() {
+        return !(this.show && this.$store.state.online);
+      },
+      query: RestoreChildrenQuery,
+      update({ restoreChildren }) {
+        return restoreChildren.map((i) => {
+          // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+          delete i.__typename;
+          return i;
+        });
+      },
+    },
   },
-  name: 'RestoreItemDialog',
+  name: 'ItemRestoreDialog',
   model: {
     prop: 'show',
     event: 'change',
@@ -57,6 +71,7 @@ export default {
   watch: {
     show() {
       this.$apollo.queries.restoreItems.refetch();
+      this.$apollo.queries.restoreChildren.refetch();
     },
   },
   computed: {
@@ -68,27 +83,40 @@ export default {
     },
     items() {
       if (this.$store.state.online) {
-        return this.restoreItems;
+        return [...(this.restoreItems || []), ...(this.restoreChildren || [])];
       }
       return this.$store.getters.itemsWithOfflineDeleted;
     },
   },
   methods: {
     restoreItem({ id }) {
-      this.$mutate('restoreItem', {
-        variables: { id },
-      }).then(({ data: { restoreItem: { success } } }) => {
-        if (success) {
-          this.$emit('change', false);
-          this.$emit('restored');
-        } else if (window.gqlError) {
-          window.gqlError({
-            message: '復元失敗',
-          });
-        }
-      }).catch((error) => {
-        if (window.gqlError) window.gqlError(error);
-      });
+      if (!id.includes(',')) {
+        this.$mutate('restoreItem', {
+          variables: { id },
+        }).then(({ data: { restoreItem: { success, message } } }) => {
+          if (success) {
+            this.$emit('change', false);
+            this.$emit('restored');
+          } else if (window.gqlError) {
+            window.gqlError({ message });
+          }
+        }).catch((error) => {
+          if (window.gqlError) window.gqlError(error);
+        });
+      } else {
+        this.$mutate('restoreChild', {
+          variables: { childId: id },
+        }).then(({ data: { restoreChild: { success, message } } }) => {
+          if (success) {
+            this.$emit('change', false);
+            this.$emit('restored');
+          } else if (window.gqlError) {
+            window.gqlError({ message });
+          }
+        }).catch((error) => {
+          if (window.gqlError) window.gqlError(error);
+        });
+      }
     },
   },
 };

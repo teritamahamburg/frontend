@@ -1,0 +1,6 @@
+mutation ($childIds: [ID!]!) {
+    removeChildren(childIds: $childIds) {
+        success
+        message
+    }
+}

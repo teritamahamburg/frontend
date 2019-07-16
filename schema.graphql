@@ -10,9 +10,35 @@ type CSV {
     rows: String!
 }
 
+type ChildItem {
+    checkedAt: Date
+    childId: ID!
+    createdAt: DateTime!
+    deletedAt: DateTime
+    histories: [HistoryChildItem!]!
+    id: ID!
+    internalId: ID!
+    item: Item!
+    itemId: ID!
+    name: String
+    room: Room
+}
+
 type Course {
     id: ID!
     name: String!
+}
+
+type HistoryChildItem {
+    checkedAt: Date
+    childId: ID!
+    createdAt: DateTime!
+    deletedAt: DateTime
+    id: ID!
+    internalId: ID!
+    itemId: ID!
+    name: String
+    room: Room
 }
 
 type HistoryItem {
@@ -20,64 +46,56 @@ type HistoryItem {
     createdAt: DateTime!
     depreciationAt: Date
     disposalAt: Date
-    editUser: User!
     id: ID!
-    room: Room
+    room: Room!
+    seal: String
 }
 
 type Item {
+    admin: User!
     amount: Int!
     checkedAt: Date
+    children: [ChildItem!]!
     code: String!
     course: Course!
     createdAt: DateTime!
     deletedAt: DateTime
     depreciationAt: Date
     disposalAt: Date
-    editUser: User!
     histories: [HistoryItem!]!
     id: ID!
-    internalId: ID!
     name: String!
-    partId: ID!
-    parts: [PartItem!]!
     purchasedAt: Date!
     room: Room!
-    schoolName: String!
     seal: String
-    user: User!
 }
 
 type ItemResult {
-    item: Item!
+    item: Item
     message: String
     success: Boolean!
 }
 
 type Mutation {
     addItem(data: ItemInput!): ItemResult!
-    addPart(data: PartItemInput!, internalId: ID!): ItemResult!
+    addItems(data: [ItemInput!]!): Result!
+    editChild(childId: ID!, data: EditChildItemInput!): Result!
+    editChildren(childIds: [ID!]!, data: EditChildItemInput!): Result!
     editItem(data: EditItemInput!, id: ID!): Result!
     editItems(data: EditItemInput!, ids: [ID!]!): Result!
-    editPart(data: PartItemInput!, id: ID!): Result!
+    removeChildren(childIds: [ID!]!): Result!
     removeItems(ids: [ID!]!): Result!
+    restoreChild(childId: ID!): Result!
     restoreItem(id: ID!): Result!
 }
 
-type PartItem {
-    checkedAt: Date
-    editUser: User!
-    id: ID!
-    internalId: String!
-    name: String!
-    partId: String!
-    room: Room!
-}
-
 type Query {
+    child(childId: ID!): ChildItem
+    children(childEnum: ChildEnum = NORMAL, search: String): [ChildItem!]!
     csv(paranoid: Boolean = false): CSV!
     item(id: ID!): Item
     items(itemEnum: ItemEnum = NORMAL, search: String, sort: [[String!]!] = [["id", "asc"]]): [Item!]!
+    users: [User!]!
 }
 
 type Result {
@@ -100,21 +118,34 @@ enum CacheControlScope {
     PUBLIC
 }
 
+enum ChildEnum {
+    NORMAL
+    ONLY_DELETED
+}
+
 enum ItemEnum {
     ALL
     NORMAL
     ONLY_DELETED
 }
 
+input EditChildItemInput {
+    checkedAt: Date
+    createdAt: DateTime
+    name: String
+    room: Int
+}
+
 input EditItemInput {
     checkedAt: Date
     depreciationAt: Date
     disposalAt: Date
-    editUser: String!
     room: Int
+    seal: Upload
 }
 
 input ItemInput {
+    admin: String!
     amount: Int = 1
     checkedAt: Date
     code: String!
@@ -122,21 +153,10 @@ input ItemInput {
     createdAt: DateTime
     depreciationAt: Date
     disposalAt: Date
-    editUser: String!
     name: String!
     purchasedAt: Date!
     room: Int!
-    schoolName: String = "ss"
-    sealImage: Upload
-    user: String!
-}
-
-input PartItemInput {
-    checkedAt: Date
-    createdAt: DateTime
-    editUser: String!
-    name: String
-    room: Int
+    seal: Upload
 }
 
 

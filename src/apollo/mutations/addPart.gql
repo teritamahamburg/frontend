@@ -1,9 +1,0 @@
-mutation ($internalId:ID!, $data:PartItemInput!){
-    addPart(internalId: $internalId, data: $data) {
-        success
-        message
-        item {
-            id
-        }
-    }
-}

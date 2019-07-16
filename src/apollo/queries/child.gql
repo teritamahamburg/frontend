@@ -1,0 +1,18 @@
+query ($childId: ID!) {
+    child(childId: $childId) {
+        id
+        name
+        room {
+            number
+        }
+        checkedAt
+
+        item {
+            name
+            room {
+                number
+            }
+            checkedAt
+        }
+    }
+}

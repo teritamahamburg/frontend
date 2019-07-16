@@ -1,15 +1,12 @@
 query ($sort: [[String!]!]!) {
     items(sort: $sort) {
         id
-        internalId
         seal
-        schoolName
         name
         code
-        partId
         amount
         purchasedAt
-        user {
+        admin {
             id
             name
         }
@@ -24,21 +21,13 @@ query ($sort: [[String!]!]!) {
         }
         disposalAt
         depreciationAt
-        editUser {
-            id
-            name
-        }
         createdAt
         deletedAt
 
-        parts {
+        children {
             id
-            partId
+            childId
             name
-            editUser {
-                id
-                name
-            }
             room {
                 id
                 number

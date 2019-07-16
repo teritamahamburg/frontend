@@ -109,7 +109,7 @@
     <template>
       <item-remove-dialog
         v-model="$store.state.dialogs.remove.show"
-        :ids="$store.state.dialogs.selectItems.map(i => i.id)"
+        :items="$store.state.dialogs.selectItems"
         @click:cancel="$store.commit('setSelectItems', [])"
         @removed="$broadcast.$emit('items:removed')"/>
 
@@ -128,22 +128,13 @@
         v-model="$store.state.dialogs.editHistory.show"
         :id="$store.state.dialogs.editHistory.id"/>
 
-      <qr-code-dialog
-        v-model="$store.state.dialogs.qrCode.show"
-        :verify="$store.state.dialogs.qrCode.verify"
-        :text="$store.state.dialogs.qrCode.text"/>
-
-      <part-dialog
-        v-model="$store.state.dialogs.part.show"
-        :item="$store.state.dialogs.part.item"
-        :add="$store.state.dialogs.part.add"
-        :can-remove="$store.state.dialogs.part.canRemove"
-        @added="$broadcast.$emit('items:refetch')"
-        @edited="$broadcast.$emit('items:refetch')"/>
+      <code-dialog
+        v-model="$store.state.dialogs.code.show"
+        :text="$store.state.dialogs.code.text"/>
 
       <download-csv-dialog v-model="$store.state.dialogs.csv.show"/>
 
-      <restore-item-dialog v-model="$store.state.dialogs.restore.show"
+      <item-restore-dialog v-model="$store.state.dialogs.restore.show"
                            @restored="$broadcast.$emit('items:refetch')"/>
 
       <apply-offline-dialog v-model="$store.state.dialogs.reflect.show"/>
@@ -168,27 +159,25 @@ import { mapState } from 'vuex';
 
 import ItemsViewController from '@/components/ItemsViewController.vue';
 
-import ItemAddDialog from '@/components/ItemAddDialog.vue';
-import ItemEditDialog from '@/components/ItemEditDialog.vue';
-import ItemEditHistoryDialog from '@/components/ItemEditHistoryDialog.vue';
-import QrCodeDialog from '@/components/QrCodeDialog.vue';
-import PartDialog from '@/components/PartDialog.vue';
-import ItemRemoveDialog from '@/components/ItemRemoveDialog.vue';
-import DownloadCsvDialog from '@/components/DownloadCSVDialog.vue';
-import RestoreItemDialog from '@/components/RestoreItemDialog.vue';
-import ApplyOfflineDialog from '@/components/ApplyOfflineDialog.vue';
-import SealDialog from '@/components/SealDialog.vue';
+import ItemAddDialog from '@/components/dialogs/ItemAddDialog.vue';
+import ItemEditDialog from '@/components/dialogs/ItemEditDialog.vue';
+import ItemEditHistoryDialog from '@/components/dialogs/ItemEditHistoryDialog.vue';
+import CodeDialog from '@/components/dialogs/CodeDialog.vue';
+import ItemRemoveDialog from '@/components/dialogs/ItemRemoveDialog.vue';
+import DownloadCsvDialog from '@/components/dialogs/DownloadCSVDialog.vue';
+import ItemRestoreDialog from '@/components/dialogs/ItemRestoreDialog.vue';
+import ApplyOfflineDialog from '@/components/dialogs/ApplyOfflineDialog.vue';
+import SealDialog from '@/components/dialogs/SealDialog.vue';
 
 export default {
   name: 'App',
   components: {
     ApplyOfflineDialog,
-    RestoreItemDialog,
+    ItemRestoreDialog,
     DownloadCsvDialog,
     ItemsViewController,
     ItemRemoveDialog,
-    PartDialog,
-    QrCodeDialog,
+    CodeDialog,
     ItemEditHistoryDialog,
     ItemEditDialog,
     ItemAddDialog,
@@ -211,8 +200,6 @@ export default {
     },
   },
   created() {
-    this.$store.state.dialogs.qrCode.verify = this.$t('qrcode.verify');
-
     window.addEventListener('offline', () => {
       this.$store.state.online = false;
     });

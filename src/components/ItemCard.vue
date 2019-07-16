@@ -1,14 +1,14 @@
 <template>
-  <v-card max-width="350" class="item-card">
+  <v-card max-width="350" class="item-card" ref="itemCard">
     <slot name="expand:head"/>
     <!-- <img :src="item.sealImage || `/seal/${item.internalId}${item.seal}`" width="350" alt="seal"
          v-if="showSealImg"/> -->
     <v-img :aspect-ratio="showSealImg ? 8/3 : undefined"
-           :src="showSealImg ? (item.sealImage || `/seal/${item.internalId}${item.seal}`)
+           :src="showSealImg ? (item.sealImage || `/seal/${item.code}${item.seal}`)
                              : undefined">
       <div class="card-title--wrapper" :class="{ image: showSealImg }" >
         <div style="height: 100%"
-             @click="clickImage(item.sealImage || `/seal/${item.internalId}${item.seal}`)"></div>
+             @click="clickImage(item.sealImage || `/seal/${item.code}${item.seal}`)"></div>
         <v-card-title class="item-title" :class="{ image: showSealImg, dark: $store.state.dark }">
           <div class="attr">
             <div class="title">{{item.name}}</div>
@@ -46,34 +46,36 @@
         <slot name="expand:labels"/>
       </div>
 
-      <v-list>
+      <v-list ref="itemAttrList">
         <v-list-tile v-for="k in Object.keys(listEntry)" :key="k">
           <v-list-tile-title :style="{width:firstColumnWidth}">
             {{ $t(`item.${k}`) }}
           </v-list-tile-title>
           <v-list-tile-sub-title>{{listEntry[k]}}</v-list-tile-sub-title>
         </v-list-tile>
-        <v-btn outline small class="parts-btn"
-               v-if="!hideAction('part') && item.parts && item.parts.length > 0"
-               @click="incrementPanel">
-          {{$t('general.parts')}}
-          <v-icon>keyboard_arrow_right</v-icon>
-        </v-btn>
+
         <slot name="expand:list"/>
       </v-list>
+
+      <v-card-actions
+        v-if="!hideAction('child') && item.children && item.children.length > 0">
+        <v-spacer />
+        <v-btn outline small @click="incrementPanel">
+          {{$t('general.children')}}
+          <v-icon>keyboard_arrow_right</v-icon>
+        </v-btn>
+      </v-card-actions>
     </template>
 
     <template v-else-if="panel === 1">
-      <v-card-text class="part-cards">
-        <v-card v-for="part in item.parts" :key="part.id">
+      <v-card-text class="child-cards" :style="{ height: `${childrenHeight}px` }">
+        <v-card v-for="child in item.children" :key="child.id">
           <v-card-title class="item-title">
-            <span class="title">{{ part.name }}</span>
+            <span class="title">{{ child.name || item.name }}</span>
             <v-spacer/>
-            <!--
-            <v-checkbox color="error" hide-details class="select-check" height="18"
-                        :input-value="selectedItems.find(({ id }) => id === part.id)"
-                        @change="v => $emit('select', v, part)" v-if="!hideAction('select')"/>
-            -->
+            <v-checkbox color="black" hide-details class="select-check" height="18"
+                        :input-value="selectedItems.find(({ id }) => id === child.id)"
+                        @change="v => $emit('select', v, child)" v-if="!hideAction('select')"/>
             <v-menu offset-y v-if="!hideAction('menu')">
               <template v-slot:activator="{ on }">
                 <v-btn icon small style="margin: 0" v-on="on">
@@ -81,25 +83,28 @@
                 </v-btn>
               </template>
               <v-list>
-                <v-list-tile v-for="m in menuItems.slice(1)" :key="m[0]" @click="$emit(m[0], part)">
+                <v-list-tile v-for="m in menuItems" :key="m[0]" @click="$emit(m[0], child)">
                   <v-list-tile-title>{{ m[1] }}</v-list-tile-title>
                 </v-list-tile>
               </v-list>
             </v-menu>
           </v-card-title>
           <v-list>
-            <v-list-tile v-for="k in ['editUser', 'room', 'checkedAt']" :key="k">
+            <v-list-tile v-for="k in ['id', 'room', 'checkedAt']" :key="k">
               <v-list-tile-title>{{$t(`item.${k}`)}}</v-list-tile-title>
-              <v-list-tile-sub-title>{{part[k]}}</v-list-tile-sub-title>
+              <v-list-tile-sub-title>{{child[k]}}</v-list-tile-sub-title>
             </v-list-tile>
           </v-list>
         </v-card>
       </v-card-text>
 
-      <v-btn outline small class="parts-btn" @click="decrementPanel">
-        <v-icon left>keyboard_arrow_left</v-icon>
-        {{ $t('general.close') }}
-      </v-btn>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn outline small @click="decrementPanel">
+          <v-icon left>keyboard_arrow_left</v-icon>
+          {{ $t('general.close') }}
+        </v-btn>
+      </v-card-actions>
     </template>
   </v-card>
 </template>
@@ -139,6 +144,7 @@ export default {
   data() {
     return {
       panel: 0,
+      childrenHeight: 600,
     };
   },
   computed: {
@@ -163,7 +169,6 @@ export default {
     },
     menuItems() {
       return [
-        ['addPart', this.$t('general.addPart')],
         ['qrCode', this.$t('general.qrCode')],
         ['editHistory', this.$t('general.editHistory')],
         ['edit', this.$t('general.edit')],
@@ -175,6 +180,9 @@ export default {
   },
   methods: {
     incrementPanel() {
+      let { marginBottom } = window.getComputedStyle(this.$refs.itemCard.$el);
+      marginBottom = Number(marginBottom.substr(0, marginBottom.length - 2));
+      this.childrenHeight = this.$refs.itemAttrList.$el.clientHeight + marginBottom;
       this.panel = this.panel + 1;
     },
     decrementPanel() {
@@ -214,6 +222,8 @@ export default {
 
 <style scoped lang="scss">
   .item-card {
+    margin-bottom: auto;
+
     .card-title--wrapper.image {
       height: 100%;
       display: flex;
@@ -248,15 +258,8 @@ export default {
       flex: none;
     }
 
-    .parts-btn {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-    }
-
-    .part-cards {
+    .child-cards {
       overflow-y: auto;
-      height: 600px; /* TODO: hard coding */
       .v-card + .v-card {
         margin-top: 8px;
       }

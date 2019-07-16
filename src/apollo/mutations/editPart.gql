@@ -1,6 +1,0 @@
-mutation ($id:ID!, $data:PartItemInput!){
-    editPart(id: $id, data: $data) {
-        success
-        message
-    }
-}

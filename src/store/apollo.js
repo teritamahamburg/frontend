@@ -15,12 +15,12 @@ const patchOfflineChanges = (state, paranoidType = 'NORMAL') => {
     }
     return item;
   })];
-  offlineItem.parts.forEach((part) => {
-    const i = patchItems.findIndex(item => item.internalId === part.internalId);
+  offlineItem.children.forEach((child) => {
+    const i = patchItems.findIndex(item => item.internalId === child.internalId);
     if (i !== -1) {
       const item = patchItems[i];
-      if (!patchItems.parts) item.parts = [];
-      item.parts.push(part);
+      if (!patchItems.children) item.children = [];
+      item.children.push(child);
     }
   });
 
@@ -31,16 +31,16 @@ const patchOfflineChanges = (state, paranoidType = 'NORMAL') => {
     patchItems.forEach((item) => {
       if (ids.includes(item.id)) {
         item.deletedAt = new Date().toISOString();
-        const pParts = [];
-        item.parts.forEach((part) => {
-          if (ids.includes(part.id)) {
-            part.deletedAt = new Date().toISOString();
-            pParts.push(part);
+        const pChildren = [];
+        item.children.forEach((child) => {
+          if (ids.includes(child.id)) {
+            child.deletedAt = new Date().toISOString();
+            pChildren.push(child);
           }
         });
         pItems.push({
           ...item,
-          parts: pParts,
+          children: pChildren,
         });
       }
     });
@@ -53,20 +53,20 @@ const patchOfflineChanges = (state, paranoidType = 'NORMAL') => {
           patchItems.splice(i, 1);
         } else if (paranoidType === 'ALL') {
           patchItems[i].deletedAt = offlineItem.removeIds[id];
-          patchItems[i].parts.forEach((part) => {
-            part.deletedAt = offlineItem.removeIds[id];
+          patchItems[i].children.forEach((child) => {
+            child.deletedAt = offlineItem.removeIds[id];
           });
         }
       }
       return i !== -1;
     }).forEach((id) => {
       patchItems.forEach((item) => {
-        const i = item.parts.findIndex(part => part.id === id);
+        const i = item.children.findIndex(child => child.id === id);
         if (i !== -1) {
           if (paranoidType === 'NORMAL') {
-            item.parts.splice(i, 1);
+            item.children.splice(i, 1);
           } else if (paranoidType === 'ALL') {
-            item.parts[i].deletedAt = offlineItem.removeIds[id];
+            item.children[i].deletedAt = offlineItem.removeIds[id];
           }
         }
       });
@@ -83,12 +83,12 @@ const patchOfflineChanges = (state, paranoidType = 'NORMAL') => {
       };
     }
   });
-  offlineItem.partEdits.forEach((edit) => {
-    patchItems.forEach(({ parts }) => {
-      const i = parts.findIndex(({ id }) => id === edit.id);
+  offlineItem.childEdits.forEach((edit) => {
+    patchItems.forEach(({ children }) => {
+      const i = children.findIndex(({ id }) => id === edit.id);
       if (i !== -1) {
-        parts[i] = {
-          ...parts[i],
+        children[i] = {
+          ...children[i],
           ...edit,
         };
       }
@@ -106,9 +106,9 @@ export default {
         ids: {},
       },
       items: [],
-      parts: [],
+      children: [],
       itemEdits: [],
-      partEdits: [],
+      childEdits: [],
       removeIds: {},
     },
     items: [],
@@ -127,9 +127,9 @@ export default {
             ids: {},
           },
           items: [],
-          parts: [],
+          children: [],
           itemEdits: [],
-          partEdits: [],
+          childEdits: [],
           removeIds: {},
         },
         items,

@@ -11,19 +11,7 @@
       </v-card-title>
       <v-card-text>
         <v-form ref="form">
-          <template>
-            <v-text-field prepend-icon="attach_file" readonly :label="$t('general.seal')"
-              @click="$refs.image.click()" :value="(sealImage.file || {}).name"
-              append-icon="clear" @click:append="clearSealImage"/>
-            <input
-              type="file"
-              style="display: none"
-              ref="image"
-              accept="image/*"
-              @change="onFilePicked">
-          </template>
-          <v-text-field :label="$t('item.schoolName')+'*'" v-model="formData.schoolName"
-                        :rules="[rules.required($t('validation.required'))]"/>
+          <file-input v-model="formData.seal" />
           <v-text-field :label="$t('item.name')+'*'" v-model="formData.name"
                         :rules="[rules.required($t('validation.required'))]"/>
           <v-layout>
@@ -36,35 +24,23 @@
                             rules.min(1, $tc('validation.above', formData.amount, {n:1}))]"/>
             </div>
           </v-layout>
-          <v-text-field :label="$t('item.user')+'*'" v-model="formData.user"
-                        :rules="[rules.required($t('validation.required'))]"/>
-          <v-layout>
-            <v-checkbox :label="$t('general.sameAsAbove')" color="black"
-                        class="edit-user-check" v-model="formData.sameUser"/>
-            <v-text-field :label="$t('item.editUser')+'*'" :disabled="formData.sameUser"
-                          :value="formData.sameUser ? formData.user : formData.editUser"
-                          @input="s => formData.editUser = s"
-                          :rules="[rules.required($t('validation.required'))]"/>
-          </v-layout>
-          <v-layout>
+          <v-combobox :label="$t('item.admin')+'*'" v-model="formData.admin"
+                      :items="users" :rules="[rules.required($t('validation.required'))]"/>
+          <div class="details-grid">
             <v-combobox :label="$t('item.course')+'*'" v-model="formData.course"
-                          :items="['デザイン学科', '電気工学科', '機械電子工学科', '情報工学科']"
-                          :rules="[rules.required($t('validation.required'))]"/>
+                        :items="['デザイン科', '電気工学科', '機械電子工学科', '情報工学科']"
+                        :rules="[rules.required($t('validation.required'))]"/>
             <v-text-field :label="$t('item.room')+'*'"
                           type="number" class="room-input" v-model="formData.room"
                           :rules="[rules.required($t('validation.required')),
                           rules.number($t('validation.number')),
                           rules.min(1, $tc('validation.above', formData.room, {n:1}))]"/>
-          </v-layout>
-          <v-layout>
             <date-picker :label="$t('item.purchasedAt')+'*'" v-model="formData.purchasedAt"
                          :rules="[rules.required($t('validation.required'))]"/>
             <date-picker :label="$t('item.checkedAt')" v-model="formData.checkedAt"/>
-          </v-layout>
-          <v-layout>
             <date-picker :label="$t('item.disposalAt')" v-model="formData.disposalAt"/>
             <date-picker :label="$t('item.depreciationAt')" v-model="formData.depreciationAt"/>
-          </v-layout>
+          </div>
         </v-form>
       </v-card-text>
       <v-card-actions>
@@ -81,12 +57,15 @@
 </template>
 
 <script>
+import usersQuery from '@/apollo/queries/users.gql';
+
 import DatePicker from '@/components/DatePicker.vue';
 import validationRules from '@/ValidationRules';
+import FileInput from '@/components/FileInput.vue';
 
 export default {
   name: 'ItemAddDialog',
-  components: { DatePicker },
+  components: { FileInput, DatePicker },
   /*
   event:[
    added
@@ -96,6 +75,14 @@ export default {
     prop: 'show',
     event: 'change',
   },
+  apollo: {
+    users: {
+      query: usersQuery,
+      update({ users }) {
+        return users.map(u => u.name);
+      },
+    },
+  },
   props: {
     show: {
       type: Boolean,
@@ -104,92 +91,68 @@ export default {
   },
   data() {
     return {
-      sealImage: {
-        file: undefined,
-      },
+      users: [],
       formData: {
-        schoolName: 'ss',
         name: '',
         code: '',
         amount: 1,
-        user: '',
-        sameUser: true,
-        editUser: '',
+        admin: '',
         course: '',
         room: undefined,
         purchasedAt: undefined,
         checkedAt: undefined,
         disposalAt: undefined,
         depreciationAt: undefined,
+        seal: undefined,
       },
     };
   },
   computed: {
     rules: () => validationRules,
     defaultFormData: () => ({
-      schoolName: 'ss',
       name: '',
       code: '',
       amount: 1,
-      user: '',
-      sameUser: true,
-      editUser: '',
+      admin: '',
       course: '',
       room: undefined,
       purchasedAt: undefined,
       checkedAt: undefined,
       disposalAt: undefined,
       depreciationAt: undefined,
+      seal: undefined,
     }),
   },
+  watch: {
+    show() {
+      this.formData = this.defaultFormData;
+      this.$refs.form.resetValidation();
+    },
+  },
   methods: {
+    closeDialog() {
+      this.$emit('change', false);
+    },
     clickAdd() {
       if (this.$refs.form.validate()) {
         const data = { ...this.formData };
-        if (data.sameUser) {
-          data.editUser = data.user;
-        }
-        delete data.sameUser;
         data.amount = Number(data.amount);
         data.room = Number(data.room);
-        data.sealImage = this.sealImage.file;
         this.$mutate('addItem', {
           variables: { data },
-        }).then((formData) => {
-          this.$emit('added', formData);
+        }).then(({ data: { addItem: formData } }) => {
+          if (formData.success) {
+            this.$emit('added', formData);
+            this.closeDialog();
+          } else if (window.gqlError) {
+            window.gqlError({
+              message: formData.message,
+            });
+          }
         }).catch((error) => {
           if (window.gqlError) window.gqlError(error);
         });
-        this.closeDialog();
       }
-    },
-    closeDialog() {
-      this.$emit('change', false);
-      this.$nextTick(() => {
-        this.$refs.form.resetValidation();
-        this.$nextTick(() => {
-          this.formData = this.defaultFormData;
-          this.clearSealImage();
-        });
-      });
-    },
-    onFilePicked(e) {
-      const { files } = e.target;
-      if (files[0] !== undefined) {
-        const file = files[0];
-        if (file.name.lastIndexOf('.') <= 0) return;
-        const fr = new FileReader();
-        fr.readAsDataURL(file);
-        fr.addEventListener('load', () => {
-          this.sealImage.file = file;
-          this.sealImage.file.url = fr.result;
-        });
-      } else {
-        this.clearSealImage();
-      }
-    },
-    clearSealImage() {
-      this.sealImage.file = undefined;
     },
   },
 };
@@ -210,5 +173,13 @@ export default {
 
   .room-input {
     margin-left: 8px;
+  }
+
+  .details-grid {
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    row-gap: 8px;
+    column-gap: 8px;
   }
 </style>

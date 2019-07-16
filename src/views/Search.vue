@@ -4,12 +4,27 @@
       <div class="headline">{{$t('general.searchHere')}}</div>
       <v-icon class="arrow-icon" :size="36">subdirectory_arrow_right</v-icon>
     </v-layout>
-    <v-layout class="empty" v-else-if="!items || items.length === 0">
+    <v-layout class="empty" v-else-if="!items || items.length === 0
+                                        || !children || children.length === 0">
       <div class="headline">{{$t('general.noSearchResult')}}</div>
     </v-layout>
-    <items-view v-else :items="items" class="items-view"
-                :attrs="$store.state.attrs.filter(({ key }) => key !== 'select')"
-                v-on="$store.getters.itemsViewMenuVOn"/>
+    <template v-else>
+      <div class="control">
+        <v-spacer />
+        <v-btn-toggle :value="viewType" @change="v => { viewType = v }" mandatory>
+          <v-btn flat v-for="type in viewTypes" :key="type.type" :value="type.type">
+            <v-icon left>{{ type.icon }}</v-icon>
+            {{ type.type }}
+          </v-btn>
+        </v-btn-toggle>
+      </div>
+
+      <items-view :items="items" class="items-view" :viewType="viewType"
+                  :attrs="$store.state.attrs.filter(({ key }) => key !== 'select')"
+                  v-on="$store.getters.itemsViewMenuVOn"/>
+      <items-view :items="children" class="items-view" :viewType="viewType"
+                  :attrs="childAttr" v-on="$store.getters.itemsViewMenuVOn"/>
+    </template>
   </div>
 </template>
 
@@ -18,14 +33,14 @@ import { mapState } from 'vuex';
 import { throttle } from 'lodash-es';
 
 import searchItemsQuery from '@/apollo/queries/searchItems.gql';
-import ItemsView from '@/components/ItemsView.vue';
+import ItemsView, { viewTypes } from '@/components/ItemsView.vue';
 
 const throttleWait = 1000;
 export default {
-  name: 'Search.vue',
+  name: 'Search',
   components: { ItemsView },
   apollo: {
-    searchItems: {
+    list: {
       skip() {
         return !this.$store.state.online;
       },
@@ -36,31 +51,57 @@ export default {
           text: this.text,
         };
       },
-      update({ searchItems: items }) {
-        if (!items) return [];
-        return items.map((item) => {
-          const i = {
-            ...item,
-            user: item.user.name,
-            course: item.course.name,
-            room: item.room.number,
-            editUser: item.editUser.name,
-          };
-          // eslint-disable-next-line no-underscore-dangle
-          delete i.__typename;
-          return i;
-        });
+      update({ searchItems: items, searchChildren: children }) {
+        return {
+          /* eslint-disable no-param-reassign */
+          items: items.map((item) => {
+            item.admin = item.admin.name;
+            item.course = item.course.name;
+            item.room = item.room.number;
+            return item;
+          }),
+          children: children.map((child) => {
+            if (child.room) child.room = child.room.number;
+            if (!child.name) child.name = child.item.name;
+            return child;
+          }),
+        };
       },
     },
   },
   data() {
     return {
+      viewType: viewTypes[0].type,
       offlineItems: [],
+      list: {
+        items: [],
+        children: [],
+      },
     };
+  },
+  computed: {
+    viewTypes: () => viewTypes,
+    ...mapState({
+      text: 'searchText',
+    }),
+    items() {
+      if (this.$store.state.online) return this.list.items;
+      return this.offlineItems;
+    },
+    children() {
+      if (this.$store.state.online) return this.list.children;
+      return [];
+    },
+    childAttr() {
+      return this.$store.state.attrs.filter(({ type, key }) => {
+        if (type === 'action' && key !== 'select') return true;
+        return ['id', 'name', 'room', 'checkedAt'].includes(key);
+      });
+    },
   },
   watch: {
     text() {
-      this.computeOfflineItems();
+      if (!this.$store.state.online) this.computeOfflineItems();
     },
   },
   methods: {
@@ -68,21 +109,12 @@ export default {
     computeOfflineItems: throttle(function () {
       const text = this.text.toLowerCase();
       this.offlineItems = this.$store.getters.itemsWithOfflineParanoid
-        .filter(item => ['name', 'code', 'schoolName', 'user', 'editUser', 'course', 'room']
+        .filter(item => ['name', 'code', 'admin', 'course', 'room']
           .some((k) => {
             if (!item[k]) return false;
             return item[k].toString().toLowerCase().includes(text);
           }));
     }, throttleWait),
-  },
-  computed: {
-    ...mapState({
-      text: 'searchText',
-    }),
-    items() {
-      if (this.$store.state.online) return this.searchItems;
-      return this.offlineItems;
-    },
   },
 };
 </script>
@@ -114,6 +146,11 @@ export default {
 
     .items-view {
       padding: 16px 0;
+    }
+
+    .control {
+      display: flex;
+      margin: 8px 8px 0 0;
     }
   }
 </style>
