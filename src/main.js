@@ -1,7 +1,10 @@
 import 'roboto-fontface/css/roboto/roboto-fontface.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
+import 'izitoast/dist/css/iziToast.css';
 
 import Vue from 'vue';
+import VueIziToast from 'vue-izitoast';
+
 import './plugins/vuetify';
 import App from './App.vue';
 import router from './router';
@@ -21,6 +24,8 @@ Vue.mixin({
   },
 });
 
+Vue.use(VueIziToast);
+
 new Vue({
   router,
   apolloProvider,
@@ -28,3 +33,5 @@ new Vue({
   store,
   render: h => h(App),
 }).$mount('#app');
+
+// TODO: not test OFFLINE MODE

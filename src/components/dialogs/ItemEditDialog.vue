@@ -141,22 +141,16 @@ export default {
       this.closeDialog();
     },
     clickEditInDialog() {
+      let mutate;
       if (this.$refs.form.validate() && this.hasItem) {
         const data = { ...this.editItem };
         if (data.room) data.room = Number(data.room);
-        this.$mutate('editItems', {
+        mutate = this.$mutate('editItems', {
           variables: {
             ids: this.itemList.map(({ id }) => id),
             data,
           },
-        }).then(({ data: { editItems: { success, message } } }) => {
-          if (success) {
-            this.$emit('edited', { success, message });
-            this.closeDialog();
-          } else if (window.gqlError) window.gqlError({ message });
-        }).catch((error) => {
-          if (window.gqlError) window.gqlError(error);
-        });
+        }).then(({ data: { editItems } }) => Promise.resolve(editItems));
       }
 
       if (this.$refs.childForm.validate() && this.hasChildItem) {
@@ -167,11 +161,23 @@ export default {
             ids: this.childList.map(({ id }) => id),
             data,
           },
-        }).then(({ data: { editChildren: { success, message } } }) => {
-          if (success) {
-            this.$emit('edited', { success, message });
-            this.closeDialog();
-          } else if (window.gqlError) window.gqlError({ message });
+        }).then(({ data: { editChildren } }) => Promise.resolve(editChildren));
+      }
+
+      if (mutate) {
+        mutate.then((results) => {
+          let hasError = false;
+          results.forEach(({ success, message }) => {
+            if (success) {
+              this.$emit('edited', { success, message });
+            } else {
+              hasError = true;
+              if (window.gqlError) {
+                window.gqlError({ message });
+              }
+            }
+          });
+          if (!hasError) this.closeDialog();
         }).catch((error) => {
           if (window.gqlError) window.gqlError(error);
         });

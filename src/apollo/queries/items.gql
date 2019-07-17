@@ -33,6 +33,9 @@ query ($sort: [[String!]!]!) {
                 number
             }
             checkedAt
+
+            createdAt
+            deletedAt
         }
     }
 }

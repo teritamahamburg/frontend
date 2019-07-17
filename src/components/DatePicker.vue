@@ -20,6 +20,7 @@
           append-icon="event"
           @click:append="click"
           :disabled="disabled"
+          :rules="[...rules, dateRule]"
           mask="####-##-##"
           return-masked-value
         ></v-text-field>
@@ -57,6 +58,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    rules: {
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -71,6 +76,23 @@ export default {
       set(val) {
         this.$emit('change', val);
       },
+    },
+  },
+  methods: {
+    dateRule(value) {
+      if (!value || value.length === 0) return true;
+      if (!/^\d{4}-\d{1,2}-\d{1,2}$/.test(value)) return this.$t('validation.date.format');
+      const date = new Date(value);
+      const dateValue = value.split('-');
+      /* eslint-disable eqeqeq */
+      if (date.getFullYear() != dateValue[0]
+        || date.getMonth() != dateValue[1] - 1
+        || date.getDate() != dateValue[2]
+      ) {
+        return this.$t('validation.date.invalid');
+      }
+
+      return true;
     },
   },
 };

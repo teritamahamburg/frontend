@@ -22,6 +22,7 @@ module.exports = {
     emptyAndAdd: '物品がありません。 追加してください。',
     addItem: '物品の追加',
     add: '追加',
+    bulkAdd: '一括追加',
     cancel: 'キャンセル',
     sameAsAbove: '同上',
     scan: '読み取り',
@@ -66,10 +67,20 @@ module.exports = {
     applyOfflineChanges: 'オフラインの変更を反映',
     askOfflineChange: '変更をサーバーに反映しますか？',
     reflect: '反映',
+    back: '戻る',
+    csvTemplate: {
+      download: 'テンプレートCSVをダウンロード',
+      import: 'CSVをインポート',
+    },
   },
   validation: {
     required: '必須',
+    requiredData: 'データが指定されていません',
     above: '{n}以上',
     number: '数字必須',
+    date: {
+      format: '日付の形式が違います',
+      invalid: '日付が不正です',
+    },
   },
 };

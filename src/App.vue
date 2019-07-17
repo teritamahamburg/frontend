@@ -143,10 +143,6 @@
                    :image="$store.state.dialogs.seal.image"/>
     </template>
 
-    <v-snackbar v-model="showError" bottom>
-      {{ gqlError }}
-    </v-snackbar>
-
     <v-snackbar :value="showReloadAlert" color="error" bottom>
       <div>{{ $t('general.updateArrived') }}</div>
       <v-btn color="primary" @click="locationReload(true)">Reload</v-btn>
@@ -185,8 +181,6 @@ export default {
   },
   data() {
     return {
-      showError: false,
-      gqlError: undefined,
       showReloadAlert: false,
     };
   },
@@ -212,8 +206,7 @@ export default {
     window.gqlError = ({ message }) => {
       // eslint-disable-next-line no-console
       console.log('%cError', 'background: red; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;', message);
-      this.gqlError = message;
-      this.showError = true;
+      this.$toast.error(message, 'Error');
     };
     if (window.isUpdateAvailable) { // PWA用の更新処理
       window.isUpdateAvailable.then((available) => {

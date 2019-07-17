@@ -199,7 +199,8 @@ export default {
           ids: [this.id],
           data,
         },
-      }).then(({ data: { [mutateName]: { success, message } } }) => {
+      }).then(({ data: { [mutateName]: results } }) => {
+        const { success, message } = results[0];
         if (success) {
           this.changed = true;
         } else if (window.gqlError) window.gqlError({ message });
