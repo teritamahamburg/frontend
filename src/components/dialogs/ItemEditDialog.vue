@@ -142,7 +142,7 @@ export default {
     },
     clickEditInDialog() {
       let mutate;
-      if (this.$refs.form.validate() && this.hasItem) {
+      if (this.$refs.form && this.$refs.form.validate() && this.hasItem) {
         const data = { ...this.editItem };
         if (data.room) data.room = Number(data.room);
         mutate = this.$mutate('editItems', {
@@ -151,12 +151,10 @@ export default {
             data,
           },
         }).then(({ data: { editItems } }) => Promise.resolve(editItems));
-      }
-
-      if (this.$refs.childForm.validate() && this.hasChildItem) {
+      } else if (this.$refs.childForm && this.$refs.childForm.validate() && this.hasChildItem) {
         const data = { ...this.editChildItem };
         if (data.room) data.room = Number(data.room);
-        this.$mutate('editChildren', {
+        mutate = this.$mutate('editChildren', {
           variables: {
             ids: this.childList.map(({ id }) => id),
             data,

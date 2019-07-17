@@ -12,10 +12,12 @@
       <v-data-table hide-actions
                     :headers="headers"
                     :items="id && id.includes(',') ? childHistories : histories">
-        <template v-slot:items="{ item }">
-          <td v-for="k in Object.keys(item)" :key="k">
-            {{ item[k] }}
-          </td>
+        <template v-slot:items="props">
+          <tr :key="props.index">
+            <td v-for="k in Object.keys(props.item)" :key="`${props.index}-${k}`">
+              {{ props.item[k] }}
+            </td>
+          </tr>
         </template>
       </v-data-table>
     </v-card>
