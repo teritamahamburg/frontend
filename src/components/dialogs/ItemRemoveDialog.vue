@@ -1,6 +1,6 @@
 <template>
   <v-dialog :value="show" persistent max-width="250">
-    <v-card class="remove-dialog">
+    <v-card class="remove--dialog">
       <v-card-title class="headline" style="flex-direction:column;align-items:flex-start;">
         <div v-show="itemList.length !== 0">
           {{ $t('general.removeText.items', {n: itemList.length}) }}

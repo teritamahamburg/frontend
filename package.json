@@ -7,7 +7,8 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "generete:icon": "node scripts/generateIcon.js",
-    "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'"
+    "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'",
+    "test:e2e": "vue-cli-service test:e2e"
   },
   "dependencies": {
     "@chenfengyuan/vue-qrcode": "^1.0.1",
@@ -33,11 +34,13 @@
   "devDependencies": {
     "@kazupon/vue-i18n-loader": "^0.3.0",
     "@vue/cli-plugin-babel": "^3.9.2",
+    "@vue/cli-plugin-e2e-cypress": "^3.9.0",
     "@vue/cli-plugin-eslint": "^3.9.2",
     "@vue/cli-plugin-pwa": "^3.9.0",
     "@vue/cli-service": "^3.9.2",
     "@vue/eslint-config-airbnb": "^4.0.1",
     "babel-eslint": "^10.0.2",
+    "cypress": "^3.4.0",
     "eslint": "^6.0.1",
     "eslint-plugin-graphql": "^3.0.3",
     "eslint-plugin-vue": "^5.2.3",

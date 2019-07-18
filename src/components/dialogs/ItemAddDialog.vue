@@ -5,7 +5,7 @@
       <slot name="activator" :on="on" />
     </template>
 
-    <v-card v-if="panel === 0">
+    <v-card v-if="panel === 0" class="item-add--dialog">
       <v-card-title>
         <span class="headline">{{$t('general.addItem')}}</span>
       </v-card-title>
@@ -126,6 +126,9 @@ export default {
   },
   apollo: {
     users: {
+      skip() {
+        return !this.$store.state.online || !this.show;
+      },
       query: usersQuery,
       update({ users }) {
         return users.map(u => u.name);
@@ -160,27 +163,20 @@ export default {
   },
   computed: {
     rules: () => validationRules,
-    defaultFormData: () => ({
-      name: '',
-      code: '',
-      amount: 1,
-      admin: '',
-      course: '',
-      room: undefined,
-      purchasedAt: undefined,
-      checkedAt: undefined,
-      disposalAt: undefined,
-      depreciationAt: undefined,
-      seal: undefined,
-    }),
     bulkAddTableHeader() {
       return [...columns.required, ...columns.optional].map(k => ({ text: this.$t(`item.${k}`), value: k }));
     },
   },
   watch: {
     show() {
-      this.formData = this.defaultFormData;
-      if (this.$refs.form) this.$refs.form.resetValidation();
+      const form = ['', '', 1, '', ''];
+      Object.keys(this.formData).forEach((k, i) => {
+        this.formData[k] = form[i];
+      });
+
+      if (this.$refs.form) {
+        this.$refs.form.resetValidation();
+      }
     },
   },
   methods: {

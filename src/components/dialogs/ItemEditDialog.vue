@@ -1,7 +1,7 @@
 <template>
   <v-dialog :value="value" persistent max-width="600"
             :fullscreen="$vuetify.breakpoint.xsOnly">
-    <v-card>
+    <v-card class="item-edit--dialog">
       <template v-if="hasItem">
         <v-card-title>
           <span class="headline">{{$t('general.editItem')}}</span>

@@ -69,7 +69,7 @@
 
     <template v-else-if="panel === 1">
       <v-card-text class="child-cards" :style="{ height: `${childrenHeight}px` }">
-        <v-card v-for="child in item.children" :key="child.id">
+        <v-card v-for="child in item.children" :key="child.id" class="child-card">
           <v-card-title class="item-title">
             <span class="title">{{ child.name || item.name }}</span>
             <v-spacer/>

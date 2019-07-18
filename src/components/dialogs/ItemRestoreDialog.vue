@@ -1,6 +1,6 @@
 <template>
   <v-dialog max-width="300" :value="show" @input="v => $emit('change', val)">
-    <v-card>
+    <v-card class="item-restore--dialog">
       <v-card-title>
         <span class="headline">{{ $t('general.restoreItem') }}</span>
       </v-card-title>
