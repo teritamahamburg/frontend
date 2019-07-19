@@ -33,6 +33,7 @@ export default {
   apollo: {
     histories: {
       skip() {
+        if (!this.$store.state.online) return true;
         if (!this.value) return true;
         return !this.id || this.id.includes(',');
       },
@@ -57,6 +58,7 @@ export default {
     },
     childHistories: {
       skip() {
+        if (!this.$store.state.online) return true;
         if (!this.value) return true;
         return !this.id || !this.id.includes(',');
       },
@@ -103,7 +105,9 @@ export default {
   watch: {
     value() {
       this.$nextTick(() => {
-        this.$apollo.queries.histories.refetch();
+        if (this.$store.state.online) {
+          this.$apollo.queries.histories.refetch();
+        }
       });
     },
   },

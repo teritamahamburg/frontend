@@ -15,6 +15,7 @@
     </v-btn>
     <v-btn fab fixed right bottom @click="$broadcast.$emit('items:refetch')"
            v-show="$store.state.dialogs.selectItems.length === 0"
+           v-if="$store.state.online"
            :color="$store.state.dark ? 'white black--text' : 'black white--text'"
            class="no--print">
       <v-icon>refresh</v-icon>

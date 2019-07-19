@@ -26,6 +26,11 @@ Vue.mixin({
 
 Vue.use(VueIziToast);
 
+if (window.Cypress) {
+  window.store = store;
+  window.broadcast = $broadcast;
+}
+
 new Vue({
   router,
   apolloProvider,
@@ -33,5 +38,3 @@ new Vue({
   store,
   render: h => h(App),
 }).$mount('#app');
-
-// TODO: not test OFFLINE MODE

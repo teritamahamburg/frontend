@@ -30,15 +30,12 @@ export default {
       }
       data.id = id;
       const createdAt = new Date();
-      state.offlineItem.items.push({
-        ...data,
-        createdAt,
-      });
 
+      const children = [];
       if (data.amount > 1) {
         for (let childId = 1; childId <= data.amount; childId += 1) {
           Vue.set(state.offlineItem.temp.ids, `${id},${childId}`, `${id},${childId}`);
-          state.offlineItem.children.push({
+          children.push({
             id: `${id},${childId}`,
             itemId: id,
             childId,
@@ -49,7 +46,14 @@ export default {
           });
         }
       }
+
+      state.offlineItem.items.push({
+        ...data,
+        createdAt,
+        children,
+      });
     });
+
     state.offlineQueries.push(query);
   },
   async commitMutate(vm, query, state) {
@@ -61,6 +65,7 @@ export default {
       if (data.seal) {
         data.seal = sealImageToFile(data.seal);
       }
+      delete data.children;
     });
     const { data: { addItems } } = await vm.$apollo.mutate(query);
     addItems.forEach(({ item: { id } }, i) => {

@@ -10,90 +10,100 @@ const patchOfflineChanges = (state, paranoidType = 'NORMAL') => {
   const { offlineItem, items } = state;
   /* 追加 */
   let patchItems = [...(items || []), ...offlineItem.items.map((item) => {
-    if (item.sealImage) {
-      item.sealImage = item.sealImage.substring(item.sealImage.indexOf('|') + 1); // apolloOffline/mutations/addItem#nameSeparator
+    if (item.seal) {
+      item.seal = item.seal.substring(item.seal.indexOf('|') + 1); // apolloOffline/mutations/addItem#nameSeparator
     }
     return item;
   })];
-  offlineItem.children.forEach((child) => {
-    const i = patchItems.findIndex(item => item.internalId === child.internalId);
-    if (i !== -1) {
-      const item = patchItems[i];
-      if (!patchItems.children) item.children = [];
-      item.children.push(child);
-    }
-  });
 
   /* 削除 */
   const ids = Object.keys(offlineItem.removeIds);
-  if (paranoidType === 'ONLY_DELETED') {
-    const pItems = [];
-    patchItems.forEach((item) => {
-      if (ids.includes(item.id)) {
+  const pItems = [];
+  patchItems.forEach((item) => {
+    const removed = ids.includes(item.id);
+    let listIn = false;
+    switch (paranoidType) {
+      case 'ONLY_DELETED':
+        if (removed) {
+          item.deletedAt = new Date().toISOString();
+          pItems.push(item);
+        }
+        break;
+      // eslint-disable-next-line no-fallthrough
+      case 'ALL':
         item.deletedAt = new Date().toISOString();
-        const pChildren = [];
-        item.children.forEach((child) => {
-          if (ids.includes(child.id)) {
+        listIn = true;
+        break;
+      case 'NORMAL':
+      default:
+        if (!removed) listIn = true;
+        break;
+    }
+    if (!listIn && paranoidType !== 'ONLY_DELETED') return;
+    const pChildren = [];
+    item.children.forEach((child) => {
+      const childRemoved = ids.includes(child.id);
+      let childListIn = false;
+      switch (paranoidType) {
+        case 'ONLY_DELETED':
+          if (childRemoved) {
             child.deletedAt = new Date().toISOString();
-            pChildren.push(child);
+            pItems.push(child);
           }
-        });
-        pItems.push({
-          ...item,
-          children: pChildren,
-        });
+          break;
+        case 'ALL':
+          child.deletedAt = new Date().toISOString();
+          childListIn = true;
+          break;
+        case 'NORMAL':
+        default:
+          if (!childRemoved) childListIn = true;
+          break;
       }
+      if (childListIn) pChildren.push(child);
     });
-    patchItems = pItems;
-  } else {
-    ids.filter((id) => {
-      const i = patchItems.findIndex(item => item.id === id);
-      if (i !== -1) {
-        if (paranoidType === 'NORMAL') {
-          patchItems.splice(i, 1);
-        } else if (paranoidType === 'ALL') {
-          patchItems[i].deletedAt = offlineItem.removeIds[id];
-          patchItems[i].children.forEach((child) => {
-            child.deletedAt = offlineItem.removeIds[id];
-          });
-        }
-      }
-      return i !== -1;
-    }).forEach((id) => {
-      patchItems.forEach((item) => {
-        const i = item.children.findIndex(child => child.id === id);
-        if (i !== -1) {
-          if (paranoidType === 'NORMAL') {
-            item.children.splice(i, 1);
-          } else if (paranoidType === 'ALL') {
-            item.children[i].deletedAt = offlineItem.removeIds[id];
-          }
-        }
+    if (paranoidType !== 'ONLY_DELETED') {
+      pItems.push({
+        ...item,
+        children: pChildren,
       });
-    });
-  }
-
-  /* 編集 */
-  offlineItem.itemEdits.forEach((edit) => {
-    const i = patchItems.findIndex(({ id }) => id === edit.id);
-    if (i !== -1) {
-      patchItems[i] = {
-        ...patchItems[i],
-        ...edit,
-      };
     }
   });
-  offlineItem.childEdits.forEach((edit) => {
-    patchItems.forEach(({ children }) => {
-      const i = children.findIndex(({ id }) => id === edit.id);
+  patchItems = pItems;
+
+  /* 編集 */
+  if (paranoidType !== 'ONLY_DELETED') {
+    offlineItem.itemEdits.forEach((edit) => {
+      const i = patchItems.findIndex(({ id }) => id === edit.id);
       if (i !== -1) {
-        children[i] = {
-          ...children[i],
+        patchItems[i] = {
+          ...patchItems[i],
           ...edit,
         };
       }
     });
-  });
+    offlineItem.childEdits.forEach((edit) => {
+      patchItems.forEach(({ children }) => {
+        const i = children.findIndex(({ id }) => id === edit.id);
+        if (i !== -1) {
+          children[i] = {
+            ...children[i],
+            ...edit,
+          };
+        }
+      });
+    });
+  } else {
+    [...offlineItem.itemEdits, ...offlineItem.childEdits].forEach((edit) => {
+      const i = patchItems.findIndex(({ id }) => id === edit.id);
+      if (i !== -1) {
+        patchItems[i] = {
+          ...patchItems[i],
+          ...edit,
+        };
+      }
+    });
+  }
   return patchItems;
 };
 
@@ -102,11 +112,9 @@ export default {
     offlineQueries: [],
     offlineItem: {
       temp: {
-        internalIds: {},
         ids: {},
       },
       items: [],
-      children: [],
       itemEdits: [],
       childEdits: [],
       removeIds: {},
@@ -123,11 +131,9 @@ export default {
         offlineQueries: [],
         offlineItem: {
           temp: {
-            internalIds: {},
             ids: {},
           },
           items: [],
-          children: [],
           itemEdits: [],
           childEdits: [],
           removeIds: {},

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog max-width="300" :value="show" @input="v => $emit('change', val)">
+  <v-dialog max-width="300" :value="show" @input="val => $emit('change', val)">
     <v-card class="item-restore--dialog">
       <v-card-title>
         <span class="headline">{{ $t('general.restoreItem') }}</span>
@@ -32,7 +32,7 @@ export default {
   apollo: {
     restoreItems: {
       skip() {
-        return !(this.show && this.$store.state.online);
+        return !this.show || !this.$store.state.online;
       },
       query: RestoreItemsQuery,
       update({ restoreItems }) {
@@ -45,7 +45,7 @@ export default {
     },
     restoreChildren: {
       skip() {
-        return !(this.show && this.$store.state.online);
+        return !this.show || !this.$store.state.online;
       },
       query: RestoreChildrenQuery,
       update({ restoreChildren }) {
@@ -69,9 +69,11 @@ export default {
     },
   },
   watch: {
-    show() {
-      this.$apollo.queries.restoreItems.refetch();
-      this.$apollo.queries.restoreChildren.refetch();
+    show(val) {
+      if (val && this.$store.state.online) {
+        this.$apollo.queries.restoreItems.refetch();
+        this.$apollo.queries.restoreChildren.refetch();
+      }
     },
   },
   computed: {
