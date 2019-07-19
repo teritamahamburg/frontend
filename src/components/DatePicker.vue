@@ -1,29 +1,33 @@
 <template>
-  <v-menu
-    v-model="menu"
-    :close-on-content-click="false"
-    :nudge-right="40"
-    lazy
-    transition="scale-transition"
-    offset-y
-    full-width
-    min-width="290px"
-  >
-    <template v-slot:activator="{ on }">
-      <v-text-field
-        v-model="date"
-        :label="label"
-        :placeholder="placeholder"
-        :prepend-icon="prependIcon"
-        readonly
-        v-on="on"
-        :append-icon="appendIcon"
-        @click:append="$emit('change', undefined)"
-        :disabled="disabled"
-      ></v-text-field>
-    </template>
-    <v-date-picker v-model="date" @input="menu = false"></v-date-picker>
-  </v-menu>
+  <div>
+    <v-menu
+      v-model="menu"
+      :close-on-content-click="false"
+      :nudge-right="40"
+      lazy
+      transition="scale-transition"
+      offset-y
+      full-width
+      min-width="290px"
+    >
+      <template v-slot:activator="{ on: { click } }">
+        <v-text-field
+          v-model="date"
+          :label="label"
+          :placeholder="placeholder"
+          :append-outer-icon="appendIcon"
+          @click:append-outer="$emit('change', undefined)"
+          append-icon="event"
+          @click:append="click"
+          :disabled="disabled"
+          :rules="[...rules, dateRule]"
+          mask="####-##-##"
+          return-masked-value
+        ></v-text-field>
+      </template>
+      <v-date-picker v-model="date" @input="menu = false"></v-date-picker>
+    </v-menu>
+  </div>
 </template>
 
 <script>
@@ -46,10 +50,6 @@ export default {
       type: String,
       default: '',
     },
-    prependIcon: {
-      type: String,
-      default: 'event',
-    },
     appendIcon: {
       type: String,
       default: 'clear',
@@ -57,6 +57,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false,
+    },
+    rules: {
+      type: Array,
+      default: () => [],
     },
   },
   data() {
@@ -72,6 +76,23 @@ export default {
       set(val) {
         this.$emit('change', val);
       },
+    },
+  },
+  methods: {
+    dateRule(value) {
+      if (!value || value.length === 0) return true;
+      if (!/^\d{4}-\d{1,2}-\d{1,2}$/.test(value)) return this.$t('validation.date.format');
+      const date = new Date(value);
+      const dateValue = value.split('-');
+      /* eslint-disable eqeqeq */
+      if (date.getFullYear() != dateValue[0]
+        || date.getMonth() != dateValue[1] - 1
+        || date.getDate() != dateValue[2]
+      ) {
+        return this.$t('validation.date.invalid');
+      }
+
+      return true;
     },
   },
 };

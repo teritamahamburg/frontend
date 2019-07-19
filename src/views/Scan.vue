@@ -7,7 +7,7 @@
       <item-card class="details-card" :item="editItem || {}"
         :entry="showEntries" first-column-width="170px"
         :class="{ bound }" @animationend.native="bound = false"
-        :show-actions="['addPart', 'qrCode', 'edit', 'editHistory', 'remove', 'seal']"
+        :show-actions="['qrCode', 'edit', 'editHistory', 'remove', 'seal']"
         v-on="$store.getters.itemsViewMenuVOn">
 
         <template v-slot:expand:title>
@@ -21,10 +21,6 @@
         </template>
 
         <template v-slot:expand:list>
-          <v-list-tile v-show="applyChange">
-            <v-list-tile-title style="width:170px">{{$t('item.editUser')}}</v-list-tile-title>
-            <v-list-tile-sub-title>{{applyDialog.editUser}}</v-list-tile-sub-title>
-          </v-list-tile>
           <v-list-tile>
             <v-checkbox color="black" :label="$t('general.enableMutationInScan')"
                         :value="applyChange" @change="v => v ? showDialog() : clearDialog()" />
@@ -36,7 +32,6 @@
     <v-dialog v-model="showApplyDialog" persistent max-width="600">
       <v-card>
         <v-card-text>
-          <v-text-field :label="$t('item.editUser')+'*'" v-model="applyDialog.editUser" />
           <v-layout>
             <v-checkbox :label="$t('general.change')" color="black" v-model="applyDialog.editRoom"/>
             <v-text-field :label="$t('item.room')" v-model="applyDialog.room"
@@ -46,7 +41,7 @@
             <v-checkbox :label="$t('general.change')" color="black"
                         v-model="applyDialog.editCheckedAt"/>
             <date-picker :label="$t('item.checkedAt')" v-model="applyDialog.checkedAt"
-              :prepend-icon="null" :append-icon="null" :disabled="!applyDialog.editCheckedAt"/>
+              :append-icon="null" :disabled="!applyDialog.editCheckedAt"/>
           </v-layout>
         </v-card-text>
 
@@ -71,6 +66,7 @@ import { QrcodeStream } from 'vue-qrcode-reader';
 import ItemCard from '@/components/ItemCard.vue';
 import DatePicker from '@/components/DatePicker.vue';
 import itemQuery from '@/apollo/queries/item.gql';
+import childQuery from '@/apollo/queries/child.gql';
 
 export default {
   name: 'Scan',
@@ -78,7 +74,7 @@ export default {
   apollo: {
     item: {
       skip() {
-        return !(this.$store.state.online && this.id);
+        return !(this.$store.state.online && this.id && !this.id.includes(','));
       },
       query: itemQuery,
       variables() {
@@ -89,14 +85,32 @@ export default {
       update({ item }) {
         const i = {
           ...item,
-          user: item.user.name,
+          admin: item.admin.name,
           course: item.course.name,
           room: item.room.number,
-          editUser: item.editUser.name,
         };
         // eslint-disable-next-line no-underscore-dangle
         delete i.__typename;
         return i;
+      },
+    },
+    child: {
+      skip() {
+        return !(this.$store.state.online && this.id && this.id.includes(','));
+      },
+      query: childQuery,
+      variables() {
+        return {
+          childId: this.id,
+        };
+      },
+      update({ child }) {
+        /* eslint-disable no-param-reassign */
+        if (!child.name) child.name = child.item.name;
+        child.room = child.room ? child.room.number : !child.item.room.number;
+        if (!child.checkedAt) child.checkedAt = child.item.checkedAt;
+        delete child.item;
+        return child;
       },
     },
   },
@@ -106,7 +120,6 @@ export default {
       applyChange: false,
       showApplyDialog: false,
       applyDialog: {
-        editUser: '',
         editRoom: false,
         room: undefined,
         editCheckedAt: false,
@@ -119,7 +132,6 @@ export default {
   },
   computed: {
     showApplyButton() {
-      if (!this.applyDialog.editUser) return false;
       return !(
         (this.applyDialog.editRoom === this.applyDialog.editCheckedAt && !this.applyDialog.editRoom)
         || (this.applyDialog.editRoom && !this.applyDialog.room)
@@ -139,7 +151,6 @@ export default {
     },
     defaultDialogValue() {
       return {
-        editUser: '',
         editRoom: false,
         room: undefined,
         editCheckedAt: false,
@@ -167,17 +178,13 @@ export default {
   },
   methods: {
     onDecode(content) {
-      const start = `${this.$t('qrcode.verify')}:`;
-      if (!content.startsWith(start)) return;
-      this.id = Number(content.substring(start.length));
+      this.id = content;
       this.changed = false;
       this.mutateEditItem();
     },
     mutateEditItem() {
       if (!this.applyChange) return;
-      const data = {
-        editUser: this.applyDialog.editUser,
-      };
+      const data = {};
       if (this.applyDialog.editRoom && `${this.computedItem.room}` !== `${this.applyDialog.room}`) {
         data.room = Number(this.applyDialog.room);
       }
@@ -186,13 +193,17 @@ export default {
         data.checkedAt = this.applyDialog.checkedAt;
       }
       if (Object.keys(data).length <= 1) return;
-      this.$mutate('editItem', {
+      const mutateName = this.id.includes(',') ? 'editChildren' : 'editItems';
+      this.$mutate(mutateName, {
         variables: {
-          id: this.id,
+          ids: [this.id],
           data,
         },
-      }).then(() => {
-        this.changed = true;
+      }).then(({ data: { [mutateName]: results } }) => {
+        const { success, message } = results[0];
+        if (success) {
+          this.changed = true;
+        } else if (window.gqlError) window.gqlError({ message });
       }).catch((error) => {
         if (window.gqlError) window.gqlError(error);
       });

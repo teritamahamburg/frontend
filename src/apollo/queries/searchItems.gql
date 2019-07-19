@@ -1,12 +1,11 @@
-query ($text: String!){
+query ($text: String!) {
     searchItems: items(search: $text) {
         id
-        schoolName
         name
         code
         amount
         purchasedAt
-        user {
+        admin {
             id
             name
         }
@@ -21,11 +20,21 @@ query ($text: String!){
         }
         disposalAt
         depreciationAt
-        editUser {
-            id
-            name
-        }
         createdAt
         deletedAt
+    }
+    searchChildren: children(search: $text) {
+        id
+        name
+        room {
+            id
+            number
+        }
+        checkedAt
+        createdAt
+        deletedAt
+        item {
+            name
+        }
     }
 }

@@ -1,0 +1,6 @@
+{
+    restoreChildren: children(childEnum: ONLY_DELETED) {
+        id
+        name
+    }
+}

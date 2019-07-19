@@ -1,10 +1,9 @@
-query ($id: ID!){
-    item(id: $id) {
-        histories {
+query ($childId: ID!){
+    child(childId: $childId) {
+        childHistories: histories {
             id
+            name
             checkedAt
-            depreciationAt
-            disposalAt
             room {
                 id
                 number

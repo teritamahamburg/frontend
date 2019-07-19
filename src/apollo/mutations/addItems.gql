@@ -1,0 +1,6 @@
+mutation ($data: [ItemInput!]!){
+    addItems(data: $data) {
+        success
+        message
+    }
+}

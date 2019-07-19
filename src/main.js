@@ -1,7 +1,10 @@
 import 'roboto-fontface/css/roboto/roboto-fontface.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
+import 'izitoast/dist/css/iziToast.css';
 
 import Vue from 'vue';
+import VueIziToast from 'vue-izitoast';
+
 import './plugins/vuetify';
 import App from './App.vue';
 import router from './router';
@@ -20,6 +23,13 @@ Vue.mixin({
     $broadcast: () => $broadcast,
   },
 });
+
+Vue.use(VueIziToast);
+
+if (window.Cypress) {
+  window.store = store;
+  window.broadcast = $broadcast;
+}
 
 new Vue({
   router,

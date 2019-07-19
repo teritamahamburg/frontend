@@ -1,7 +1,7 @@
 <template>
   <v-dialog :value="show" @input="v => $emit('change', v)" max-width="250">
     <template v-slot:activator="{ on }">
-      <slot name="activator" :on="on" />
+      <slot name="activator" :on="on"/>
     </template>
 
     <v-card>
@@ -9,10 +9,10 @@
         <span class="headline">{{ $t('general.csvDownload') }}</span>
       </v-card-title>
       <v-card-text>
-        <v-checkbox color="black" :label="$t('general.includeDeleted')" v-model="paranoid" />
+        <v-checkbox color="black" :label="$t('general.includeDeleted')" v-model="paranoid"/>
       </v-card-text>
       <v-card-actions>
-        <v-spacer />
+        <v-spacer/>
         <v-btn outline @click="$emit('change', false)">
           {{ $t('general.cancel') }}
         </v-btn>
@@ -27,31 +27,17 @@
 <script>
 import csvQuery from '@/apollo/queries/csv.gql';
 
-const csvDownload = (csv, filename = 'items.csv') => {
-  const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.target = '_blank';
-  a.download = filename;
-  a.href = window.URL.createObjectURL(blob);
-  /* a.click(); // <- not working in firefox */
-  const event = document.createEvent('MouseEvents');
-  event.initEvent('click', true, true);
-  a.dispatchEvent(event);
-};
+import { csvDownload } from '@/util';
 
 const csvColumns = [
   'id',
-  'internalId',
-  'partId',
   'seal',
-  'schoolName',
   'name',
   'code',
   'amount',
-  'user',
-  'editUser',
-  'room',
+  'admin',
   'course',
+  'room',
   'purchasedAt',
   'checkedAt',
   'disposalAt',
@@ -85,6 +71,7 @@ export default {
           variables: {
             paranoid: this.paranoid,
           },
+          fetchPolicy: 'network-only',
         }).then(({ data: { csv: { columns, rows } } }) => {
           this.queryResult(columns, rows);
         }).catch((error) => {

@@ -1,0 +1,6 @@
+mutation ($childId: ID!) {
+    restoreChild(childId: $childId) {
+        success
+        message
+    }
+}

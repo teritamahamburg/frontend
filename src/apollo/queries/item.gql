@@ -1,15 +1,12 @@
 query ($id: ID!){
     item(id: $id) {
         id
-        internalId
         seal
-        schoolName
         name
         code
-        partId
         amount
         purchasedAt
-        user {
+        admin {
             id
             name
         }
@@ -24,10 +21,6 @@ query ($id: ID!){
         }
         disposalAt
         depreciationAt
-        editUser {
-            id
-            name
-        }
         createdAt
         deletedAt
     }

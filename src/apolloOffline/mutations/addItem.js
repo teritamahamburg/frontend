@@ -22,31 +22,52 @@ export default {
   storeMutate(state, query) {
     query.variables.data.createdAt = new Date().toISOString();
     const { data } = query.variables;
-    const id = `temp-id_${Date.now()}`;
-    const internalId = `temp-internalId_${Date.now()}`;
+    const id = `tid_${Date.now()}_${Math.ceil(Math.random() * 100)}`;
     Vue.set(state.offlineItem.temp.ids, id, id);
-    Vue.set(state.offlineItem.temp.internalIds, internalId, internalId);
-    if (data.sealImage) {
-      data.sealImage = `${data.sealImage.name}${nameSeparator}${data.sealImage.url}`;
+    if (data.seal) {
+      data.seal = `${data.seal.name}${nameSeparator}${data.seal.url}`;
     }
     data.id = id;
-    data.internalId = internalId;
-    data.partId = 0;
-    state.offlineItem.items.push(data);
+    const createdAt = new Date();
+
+    const children = [];
+    if (data.amount > 1) {
+      for (let childId = 1; childId <= data.amount; childId += 1) {
+        Vue.set(state.offlineItem.temp.ids, `${id},${childId}`, `${id},${childId}`);
+        children.push({
+          id: `${id},${childId}`,
+          itemId: id,
+          childId,
+          name: null,
+          room: null,
+          checkedAt: null,
+          createdAt,
+        });
+      }
+    }
+
+    state.offlineItem.items.push({
+      ...data,
+      createdAt,
+      children,
+    });
     state.offlineQueries.push(query);
   },
   async commitMutate(vm, query, state) {
     const { data } = query.variables;
     const beforeId = data.id;
     delete data.id;
-    const beforeInternalId = data.internalId;
-    delete data.internalId;
-    delete data.partId;
-    if (data.sealImage) {
-      data.sealImage = sealImageToFile(data.sealImage);
+    if (data.seal) {
+      data.seal = sealImageToFile(data.seal);
     }
-    const { data: { addItem: { item: { id, internalId } } } } = await vm.$apollo.mutate(query);
+    delete data.children;
+    const { data: { addItem: { item: { id } } } } = await vm.$apollo.mutate(query);
     Vue.set(state.offlineItem.temp.ids, beforeId, id);
-    Vue.set(state.offlineItem.temp.internalIds, beforeInternalId, internalId);
+    const bId = `${beforeId},`;
+    Object.keys(state.offlineItem.temp.ids).forEach((key) => {
+      if (key.startsWith(bId)) {
+        state.offlineItem.temp.ids[key] = `${id},${key.substr(bId.length)}`;
+      }
+    });
   },
 };

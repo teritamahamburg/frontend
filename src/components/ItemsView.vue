@@ -15,34 +15,62 @@
                    @remove="i => $emit('remove', i)"
                    @edit="i => $emit('edit', i)"
                    @editHistory="i => $emit('editHistory', i)"
-                   @qrCode="i => $emit('qrCode', i)"
-                   @addPart="i => $emit('addPart', i)"/>
+                   @qrCode="i => $emit('qrCode', i)" />
       </div>
     </slot>
     <slot name="list" v-else>
-      <v-data-table hide-actions class="items-view--list"
-                    :headers="tableHeaderWithCheck" :items="listItems">
-        <template v-slot:items="{ item }">
-          <tr @click="$emit('click:row', item)">
+      <v-data-table hide-actions expand class="items-view--list"
+                    :headers="tableHeaderWithCheck" :items="items">
+        <template v-slot:items="props">
+          <tr @click="() => {$emit('click:row', props.item); props.expanded = !props.expanded}">
             <template v-for="(a) in listAttrs">
-              <td v-if="a.type === 'value'" :key="a.key">
-                {{ item[a.key] }}
+              <td v-if="a.type === 'value'" :key="a.key" class="value--column">
+                {{ props.item[a.key] }}
               </td>
-              <template v-else>
-                <td v-if="a.key === 'select'" :key="a.key" style="padding: 0 0 0 16px">
-                  <v-checkbox hide-details color="error"
-                              :input-value="selectedItems.find(({ id }) => id === item.id)"
-                              @change="v => selectItem(item, v)"/>
-                </td>
-                <td v-else :key="a.key">
-                  <v-btn icon v-if="a.key !== 'seal' || item.seal || item.sealImage"
-                         @click="a.key === 'seal' ? showSealDialog(item) : $emit(a.key, item)">
-                    <v-icon v-text="$vuetify.icons[a.key]"/>
-                  </v-btn>
-                </td>
-              </template>
+              <td v-else-if="a.key === 'select'" :key="a.key" style="padding: 0 0 0 16px">
+                <v-checkbox hide-details color="error" @click.capture.stop
+                            :input-value="selectedItems.find(({ id }) => id === props.item.id)"
+                            @change="v => selectItem(props.item, v)"/>
+              </td>
+              <td v-else :key="a.key" class="action--column">
+                <v-btn icon v-if="a.key !== 'seal' || props.item.seal || props.item.sealImage"
+                       @click="a.key === 'seal' ? showSealDialog(props.item)
+                                             : $emit(a.key, props.item)">
+                  <v-icon v-text="$vuetify.icons[a.key]"/>
+                </v-btn>
+              </td>
             </template>
           </tr>
+        </template>
+        <template v-slot:expand="props">
+          <template v-if="props.item.children.length > 0">
+            <v-card class="elevation-1">
+              <v-data-table hide-actions class="child-table"
+                            :items="props.item.children" :headers="childTableHeaderWithCheck">
+                <template v-slot:items="{ item: child }">
+                  <tr @click="() => {$emit('click:row', child);}">
+                    <template v-for="(a) in childListAttrs">
+                      <td v-if="a.type === 'value'" :key="a.key" class="value--column">
+                        {{ child[a.key] }}
+                      </td>
+                      <td v-else-if="a.key === 'select'" :key="a.key" style="padding: 0 0 0 16px">
+                        <v-checkbox hide-details color="error"
+                                    :input-value="selectedItems.find(({ id }) => id === child.id)"
+                                    @change="v => selectItem(child, v)"/>
+                      </td>
+                      <td v-else :key="a.key" class="action--column">
+                        <v-btn icon v-if="a.key !== 'seal' || child.seal || child.sealImage"
+                               @click="a.key === 'seal' ? showSealDialog(child)
+                                             : $emit(a.key, child)">
+                          <v-icon v-text="$vuetify.icons[a.key]"/>
+                        </v-btn>
+                      </td>
+                    </template>
+                  </tr>
+                </template>
+              </v-data-table>
+            </v-card>
+          </template>
         </template>
       </v-data-table>
     </slot>
@@ -62,7 +90,7 @@ export default {
     },
     viewType: {
       type: String,
-      default: 'grid', // sort
+      default: 'grid', // list
     },
     attrs: {
       type: Array,
@@ -101,10 +129,22 @@ export default {
       );
     },
     listAttrs() {
-      return this.attrs.filter(({ type, key }) => !(type === 'action' && key === 'part'));
+      return this.attrs.filter(({ type, key }) => !(type === 'action' && key === 'child'));
+    },
+    childListAttrs() {
+      return this.listAttrs.filter(({ type, key }) => type === 'action'
+        || ['id', 'name', 'room', 'checkedAt', 'createdAt', 'deletedAt'].includes(key));
     },
     tableHeaderWithCheck() {
       return this.listAttrs.map(({ type, key }) => ({
+        text: type === 'value' ? key : undefined,
+        value: key,
+        sortable: type === 'value',
+        class: `${type}--column`,
+      }));
+    },
+    childTableHeaderWithCheck() {
+      return this.childListAttrs.map(({ type, key }) => ({
         text: type === 'value' ? key : undefined,
         value: key,
         sortable: type === 'value',
@@ -123,17 +163,9 @@ export default {
           value: key,
         }));
     },
-    listItems() {
-      return this.items.flatMap(item => [
-        item,
-        ...item.parts.map(part => ({
-          ...item,
-          ...part,
-        })),
-      ]);
-    },
   },
   methods: {
+    a: console.info,
     selectItem(item, val) {
       const items = this.selectedItems.filter(({ id }) => id !== item.id);
       if (val) items.push(item);
@@ -141,7 +173,7 @@ export default {
     },
     showSealDialog(item) {
       this.$store.state.dialogs.seal.image = item.sealImage
-        || `seal/${item.internalId}${item.seal}`;
+        || `seal/${item.code}${item.seal}`;
       this.$store.state.dialogs.seal.show = true;
     },
   },
@@ -178,6 +210,21 @@ export const viewTypes = [
       row-gap: 10px;
       justify-content: center;
       align-items: start;
+    }
+
+    .action--column {
+      padding: 0;
+      width: 32px;
+      max-width: 32px;
+      box-sizing: border-box;
+    }
+
+    [class$="--column"] {
+      white-space: nowrap;
+    }
+
+    .child-table {
+      margin-left: 48px;
     }
   }
 </style>
