@@ -1,9 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from './views/Home.vue';
-import Scan from '@/views/Scan.vue';
-import Search from '@/views/Search.vue';
-import Setting from '@/views/Setting.vue';
 import Error from '@/views/Error.vue';
 
 Vue.use(Router);
@@ -27,7 +23,7 @@ export default new Router({
     {
       path: '/home',
       name: 'home',
-      component: Home,
+      component: () => import(/* webpackChunkName: "home" */ '@/views/Home.vue'),
       meta: {
         priority: 1,
         itemsControl: true,
@@ -36,7 +32,7 @@ export default new Router({
     {
       path: '/scan',
       name: 'scan',
-      component: Scan,
+      component: () => import(/* webpackChunkName: "scan" */ '@/views/Scan.vue'),
       meta: {
         priority: 2,
       },
@@ -44,7 +40,7 @@ export default new Router({
     {
       path: '/search',
       name: 'search',
-      component: Search,
+      component: () => import(/* webpackChunkName: "search" */ '@/views/Search.vue'),
       meta: {
         priority: 2,
         overlay: false,
@@ -53,7 +49,7 @@ export default new Router({
     {
       path: '/setting',
       name: 'setting',
-      component: Setting,
+      component: () => import(/* webpackChunkName: "setting" */ '@/views/Setting.vue'),
       meta: {
         priority: 3,
         overlay: false,

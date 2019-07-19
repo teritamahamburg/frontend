@@ -39,9 +39,12 @@ export default {
     closeDialog() {
       this.$emit('change', false);
     },
-    async clickReflectInDialog() {
-      await commitMutate(this);
-      this.closeDialog();
+    clickReflectInDialog() {
+      commitMutate(this).then(() => {
+        this.closeDialog();
+      }).catch((e) => {
+        if (window.gqlError) window.gqlError(e);
+      });
     },
   },
 };

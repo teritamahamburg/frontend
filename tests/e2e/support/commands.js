@@ -1,4 +1,4 @@
-import locale from '../../../src/locales/jp';
+import locale from '../../../src/locales/ja';
 
 let ONLINE = true;
 Cypress.Commands.add('setOnline', (val) => {
