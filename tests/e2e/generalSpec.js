@@ -1,4 +1,4 @@
-import locale from '../../src/locales/jp';
+import locale from '../../src/locales/ja';
 
 export default (online = true) => {
   it('addItem(amount:1)', () => {

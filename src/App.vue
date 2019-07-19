@@ -154,29 +154,20 @@
 import { mapState } from 'vuex';
 
 import ItemsViewController from '@/components/ItemsViewController.vue';
-
-import ItemAddDialog from '@/components/dialogs/ItemAddDialog.vue';
-import ItemEditDialog from '@/components/dialogs/ItemEditDialog.vue';
-import ItemEditHistoryDialog from '@/components/dialogs/ItemEditHistoryDialog.vue';
-import CodeDialog from '@/components/dialogs/CodeDialog.vue';
-import ItemRemoveDialog from '@/components/dialogs/ItemRemoveDialog.vue';
-import DownloadCsvDialog from '@/components/dialogs/DownloadCSVDialog.vue';
-import ItemRestoreDialog from '@/components/dialogs/ItemRestoreDialog.vue';
-import ApplyOfflineDialog from '@/components/dialogs/ApplyOfflineDialog.vue';
 import SealDialog from '@/components/dialogs/SealDialog.vue';
 
 export default {
   name: 'App',
   components: {
-    ApplyOfflineDialog,
-    ItemRestoreDialog,
-    DownloadCsvDialog,
     ItemsViewController,
-    ItemRemoveDialog,
-    CodeDialog,
-    ItemEditHistoryDialog,
-    ItemEditDialog,
-    ItemAddDialog,
+    ApplyOfflineDialog: () => import(/* webpackChunkName: "offline-dialog" */ '@/components/dialogs/ApplyOfflineDialog.vue'),
+    ItemRestoreDialog: () => import(/* webpackChunkName: "restore-dialog" */ '@/components/dialogs/ItemRestoreDialog.vue'),
+    DownloadCsvDialog: () => import(/* webpackChunkName: "csv-dialog" */ '@/components/dialogs/DownloadCSVDialog.vue'),
+    ItemRemoveDialog: () => import(/* webpackChunkName: "remove-dialog" */ '@/components/dialogs/ItemRemoveDialog.vue'),
+    CodeDialog: () => import(/* webpackChunkName: "code-dialog" */ '@/components/dialogs/CodeDialog.vue'),
+    ItemEditHistoryDialog: () => import(/* webpackChunkName: "edit-history-dialog" */ '@/components/dialogs/ItemEditHistoryDialog.vue'),
+    ItemEditDialog: () => import(/* webpackChunkName: "edit-dialog" */ '@/components/dialogs/ItemEditDialog.vue'),
+    ItemAddDialog: () => import(/* webpackChunkName: "add-dialog" */ '@/components/dialogs/ItemAddDialog.vue'),
     SealDialog,
   },
   data() {
@@ -191,6 +182,10 @@ export default {
         && this.$store.state.apollo.offlineQueries.length > 0) {
         this.$store.state.dialogs.reflect.show = true;
       }
+    },
+    // eslint-disable-next-line
+    '$i18n.locale': function (val) {
+      document.getElementsByTagName('html')[0].lang = val;
     },
   },
   created() {
