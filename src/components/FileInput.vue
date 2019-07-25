@@ -1,8 +1,8 @@
 <template>
   <div>
-    <v-text-field prepend-icon="attach_file" readonly :label="$t('general.seal')"
+    <v-text-field prepend-icon="mdi-attachment" readonly :label="$t('general.seal')"
                   @click="$refs.image.click()" :value="value.name"
-                  append-icon="clear" @click:append="clearFile"/>
+                  append-icon="mdi-close" @click:append="clearFile"/>
     <input
       type="file"
       style="display: none"

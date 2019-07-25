@@ -6,10 +6,10 @@
         <v-card-actions class="no--print">
           <v-spacer/>
           <span style="margin-right: 8px">Print in: </span>
-          <v-btn outline small @click="clickPrintBrowser">
+          <v-btn outlined small @click="clickPrintBrowser">
             Browser
           </v-btn>
-          <v-btn outline small @click="clickPrintMachine">
+          <v-btn outlined small @click="clickPrintMachine">
             Machine
           </v-btn>
         </v-card-actions>
@@ -21,10 +21,10 @@
 
         <v-card-actions>
           <v-btn icon @click="clickBack" :disabled="transferring">
-            <v-icon>keyboard_arrow_left</v-icon>
+            <v-icon v-text="$vuetify.icons.values.custom.back" />
           </v-btn>
           <v-spacer/>
-          <v-btn outline v-show="text" @click="clickTransfer" :disabled="transferring">
+          <v-btn outlined v-show="text" @click="clickTransfer" :disabled="transferring">
             Transfer
           </v-btn>
         </v-card-actions>

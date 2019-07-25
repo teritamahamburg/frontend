@@ -5,9 +5,9 @@
         <span>{{ $t('general.attributeList') }}</span>
         <v-list>
           <draggable :value="attributes" group="attrs">
-            <v-list-tile v-for="a in attributes" :key="a.key">
-              <v-list-tile-title>{{ $t(`item.${a.key}`) }}</v-list-tile-title>
-            </v-list-tile>
+            <v-list-item v-for="a in attributes" :key="a.key">
+              <v-list-item-title>{{ $t(`item.${a.key}`) }}</v-list-item-title>
+            </v-list-item>
           </draggable>
         </v-list>
       </div>
@@ -15,9 +15,9 @@
         <span>{{ $t('general.actionAttributeList') }}</span>
         <v-list>
           <draggable :value="attributeActions" group="attrs">
-            <v-list-tile v-for="a in attributeActions" :key="a.key">
-              <v-list-tile-title>[ {{ $t(`general.${a.key}`) }} ]</v-list-tile-title>
-            </v-list-tile>
+            <v-list-item v-for="a in attributeActions" :key="a.key">
+              <v-list-item-title>[ {{ $t(`general.${a.key}`) }} ]</v-list-item-title>
+            </v-list-item>
           </draggable>
         </v-list>
       </div>
@@ -25,13 +25,13 @@
         <span>{{ $t('general.showAttributeList') }}</span>
         <v-list>
           <draggable v-model="attrs" group="attrs">
-            <v-list-tile v-for="(a, i) in attrs" :key="i">
-              <v-list-tile-title>
+            <v-list-item v-for="(a, i) in attrs" :key="i">
+              <v-list-item-title>
                 {{a.type === 'action' ? '[' : ''}}
                 {{ $t(`${a.type === 'value' ? 'item' : 'general'}.${a.key}`) }}
                 {{a.type === 'action' ? ']' : ''}}
-              </v-list-tile-title>
-            </v-list-tile>
+              </v-list-item-title>
+            </v-list-item>
           </draggable>
         </v-list>
       </div>

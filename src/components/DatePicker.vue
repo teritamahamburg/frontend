@@ -4,20 +4,20 @@
       v-model="menu"
       :close-on-content-click="false"
       :nudge-right="40"
-      lazy
       transition="scale-transition"
       offset-y
       full-width
       min-width="290px"
     >
       <template v-slot:activator="{ on: { click } }">
+        <!-- append-outer-icon without null -->
         <v-text-field
           v-model="date"
           :label="label"
           :placeholder="placeholder"
-          :append-outer-icon="appendIcon"
+          :append-outer-icon="$vuetify.icons.values.custom.close"
           @click:append-outer="$emit('change', undefined)"
-          append-icon="event"
+          :append-icon="$vuetify.icons.values.custom.inputDate"
           @click:append="click"
           :disabled="disabled"
           :rules="[...rules, dateRule]"
@@ -52,7 +52,6 @@ export default {
     },
     appendIcon: {
       type: String,
-      default: 'clear',
     },
     disabled: {
       type: Boolean,

@@ -9,7 +9,7 @@
           {{ $t('general.close') }}
         </v-btn>
       </v-card-title>
-      <v-data-table hide-actions
+      <v-data-table hide-default-footer
                     :headers="headers"
                     :items="id && id.includes(',') ? childHistories : histories">
         <template v-slot:items="props">

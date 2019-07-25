@@ -1,10 +1,11 @@
 <template>
   <div class="error--page">
-    <v-icon class="error--text" :size="iconSize">clear</v-icon>
+    <v-icon :size="iconSize"
+            v-text="$vuetify.icons.values.custom.close" />
 
     <span class="headline">Error</span>
 
-    <v-btn outline large to="/">
+    <v-btn outlined large to="/">
       {{ $t('general.backTop') }}
     </v-btn>
   </div>

@@ -4,24 +4,24 @@
     <div class="button-group" v-show="viewType === 'grid'">
       <v-menu offset-y>
         <template v-slot:activator="{on}">
-          <v-btn flat v-on="on">
+          <v-btn text v-on="on">
             {{ $t(`item.${sortType}`) }}
           </v-btn>
         </template>
         <v-list>
-          <v-list-tile v-for="i in sortItems" :key="i" @click="$emit('change:sortType', i)">
-            <v-list-tile-title>{{$t(`item.${i}`)}}</v-list-tile-title>
-          </v-list-tile>
+          <v-list-item v-for="i in sortItems" :key="i" @click="$emit('change:sortType', i)">
+            <v-list-item-title>{{$t(`item.${i}`)}}</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-menu>
-      <v-btn flat :class="sortOrder"
+      <v-btn text :class="sortOrder"
              @click="$emit('change:sortOrder', sortOrder === 'asc' ? 'desc' : 'asc')">
-        <v-icon>keyboard_arrow_down</v-icon>
+        <v-icon v-text="$vuetify.icons.values.custom.down" />
       </v-btn>
     </div>
     <v-btn-toggle :value="viewType" @change="v => $emit('change:viewType', v)" mandatory>
-      <v-btn flat v-for="type in viewTypes" :key="type.type" :value="type.type">
-        <v-icon left>{{ type.icon }}</v-icon>
+      <v-btn text v-for="type in viewTypes" :key="type.type" :value="type.type" :height="32">
+        <v-icon left v-text="$vuetify.icons.values.custom[type.icon]" />
         {{ type.type }}
       </v-btn>
     </v-btn-toggle>

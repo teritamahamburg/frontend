@@ -14,7 +14,7 @@
       </items-view>
       <v-card-actions>
         <v-spacer/>
-        <v-btn outline @click="$emit('change', false)">
+        <v-btn outlined @click="$emit('change', false)">
           {{ $t('general.cancel') }}
         </v-btn>
       </v-card-actions>

@@ -1,8 +1,6 @@
 <template>
   <v-card max-width="350" class="item-card" ref="itemCard">
     <slot name="expand:head"/>
-    <!-- <img :src="item.sealImage || `/seal/${item.internalId}${item.seal}`" width="350" alt="seal"
-         v-if="showSealImg"/> -->
     <v-img :aspect-ratio="showSealImg ? 8/3 : undefined"
            :src="showSealImg ? (item.sealImage || `/seal/${item.code}${item.seal}`)
                              : undefined">
@@ -12,7 +10,7 @@
         <v-card-title class="item-title" :class="{ image: showSealImg, dark: $store.state.dark }">
           <div class="attr">
             <div class="title">{{item.name}}</div>
-            <div class="grey--text code">{{item.code}}</div>
+            <div class="grey--text code subtitle-1">{{item.code}}</div>
           </div>
 
           <v-spacer/>
@@ -22,15 +20,15 @@
           <v-menu offset-y v-if="!hideAction('menu')">
             <template v-slot:activator="{ on }">
               <v-btn icon small style="margin: 0" v-on="on">
-                <v-icon>more_vert</v-icon>
+                <v-icon v-text="$vuetify.icons.values.custom.cardMenu" />
               </v-btn>
             </template>
             <v-list>
               <template v-for="m in menuItems">
-                <v-list-tile :key="m[0]" v-if="!hideAction(m[0])"
+                <v-list-item :key="m[0]" v-if="!hideAction(m[0])"
                              @click="$emit(m[0], item)">
-                  <v-list-tile-title>{{ m[1] }}</v-list-tile-title>
-                </v-list-tile>
+                  <v-list-item-title>{{ m[1] }}</v-list-item-title>
+                </v-list-item>
               </template>
             </v-list>
           </v-menu>
@@ -47,12 +45,12 @@
       </div>
 
       <v-list ref="itemAttrList">
-        <v-list-tile v-for="k in Object.keys(listEntry)" :key="k">
-          <v-list-tile-title :style="{width:firstColumnWidth}">
+        <v-list-item v-for="k in Object.keys(listEntry)" :key="k">
+          <v-list-item-title :style="{width:firstColumnWidth}">
             {{ $t(`item.${k}`) }}
-          </v-list-tile-title>
-          <v-list-tile-sub-title>{{listEntry[k]}}</v-list-tile-sub-title>
-        </v-list-tile>
+          </v-list-item-title>
+          <v-list-item-subtitle>{{listEntry[k]}}</v-list-item-subtitle>
+        </v-list-item>
 
         <slot name="expand:list"/>
       </v-list>
@@ -60,9 +58,9 @@
       <v-card-actions
         v-if="!hideAction('child') && item.children && item.children.length > 0">
         <v-spacer />
-        <v-btn outline small @click="incrementPanel">
+        <v-btn outlined small @click="incrementPanel">
           {{$t('general.children')}}
-          <v-icon>keyboard_arrow_right</v-icon>
+          <v-icon v-text="$vuetify.icons.values.custom.next" />
         </v-btn>
       </v-card-actions>
     </template>
@@ -79,29 +77,29 @@
             <v-menu offset-y v-if="!hideAction('menu')">
               <template v-slot:activator="{ on }">
                 <v-btn icon small style="margin: 0" v-on="on">
-                  <v-icon>more_vert</v-icon>
+                  <v-icon v-text="$vuetify.icons.values.custom.cardMenu" />
                 </v-btn>
               </template>
               <v-list>
-                <v-list-tile v-for="m in menuItems" :key="m[0]" @click="$emit(m[0], child)">
-                  <v-list-tile-title>{{ m[1] }}</v-list-tile-title>
-                </v-list-tile>
+                <v-list-item v-for="m in menuItems" :key="m[0]" @click="$emit(m[0], child)">
+                  <v-list-item-title>{{ m[1] }}</v-list-item-title>
+                </v-list-item>
               </v-list>
             </v-menu>
           </v-card-title>
           <v-list>
-            <v-list-tile v-for="k in ['id', 'room', 'checkedAt']" :key="k">
-              <v-list-tile-title>{{$t(`item.${k}`)}}</v-list-tile-title>
-              <v-list-tile-sub-title>{{child[k]}}</v-list-tile-sub-title>
-            </v-list-tile>
+            <v-list-item v-for="k in ['id', 'room', 'checkedAt']" :key="k">
+              <v-list-item-title>{{$t(`item.${k}`)}}</v-list-item-title>
+              <v-list-item-subtitle>{{child[k]}}</v-list-item-subtitle>
+            </v-list-item>
           </v-list>
         </v-card>
       </v-card-text>
 
       <v-card-actions>
         <v-spacer />
-        <v-btn outline small @click="decrementPanel">
-          <v-icon left>keyboard_arrow_left</v-icon>
+        <v-btn outlined small @click="decrementPanel">
+          <v-icon left v-text="$vuetify.icons.values.custom.back" />
           {{ $t('general.close') }}
         </v-btn>
       </v-card-actions>
@@ -246,6 +244,9 @@ export default {
       }
 
       .attr {
+        .title {
+          line-height: 1;
+        }
         .code {
           line-height: 1.2;
         }

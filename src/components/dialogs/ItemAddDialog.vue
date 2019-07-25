@@ -44,11 +44,11 @@
         </v-form>
       </v-card-text>
       <v-card-actions>
-        <v-btn outline color="success" @click="clickBulkAdd">
+        <v-btn outlined color="success" @click="clickBulkAdd">
           {{ $t('general.bulkAdd') }}
         </v-btn>
         <v-spacer/>
-        <v-btn outline @click="closeDialog">
+        <v-btn outlined @click="closeDialog">
           {{ $t('general.cancel') }}
         </v-btn>
         <v-btn depressed dark color="black" @click="clickAdd">
@@ -58,15 +58,15 @@
     </v-card>
     <v-card v-else>
       <v-card-actions style="flex-wrap: wrap">
-        <v-btn outline @click="clickBack">
-          <v-icon left>keyboard_arrow_left</v-icon>
+        <v-btn outlined @click="clickBack">
+          <v-icon left v-text="$vuetify.icons.values.custom.back" />
           {{ $t('general.back') }}
         </v-btn>
         <v-spacer/>
-        <v-btn outline @click="clickCSVDownload">
+        <v-btn outlined @click="clickCSVDownload">
           {{ $t('general.csvTemplate.download') }}
         </v-btn>
-        <v-btn outline @click="clickCSVImport">
+        <v-btn outlined @click="clickCSVImport">
           {{ $t('general.csvTemplate.import') }}
           <input style="display: none"
             type="file" ref="file"
@@ -74,7 +74,7 @@
             @change="onImportFile">
         </v-btn>
       </v-card-actions>
-      <v-data-table hide-actions :headers="bulkAddTableHeader" :items="bulkAdd">
+      <v-data-table hide-default-footer :headers="bulkAddTableHeader" :items="bulkAdd">
         <template v-slot:items="props">
           <tr>
             <th v-for="(k, i) in bulkAddTableHeader"
@@ -86,7 +86,7 @@
       </v-data-table>
       <v-card-actions>
         <v-spacer/>
-        <v-btn outline @click="closeDialog">
+        <v-btn outlined @click="closeDialog">
           {{ $t('general.cancel') }}
         </v-btn>
         <v-btn depressed dark color="black" @click="clickBulkAdd">

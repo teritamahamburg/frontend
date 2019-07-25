@@ -2,7 +2,7 @@
   <div class="search">
     <v-layout class="empty--no_text" v-if="!text">
       <div class="headline">{{$t('general.searchHere')}}</div>
-      <v-icon class="arrow-icon" :size="36">subdirectory_arrow_right</v-icon>
+      <v-icon class="arrow-icon" :size="36" v-text="$vuetify.icons.values.custom.searchArrow" />
     </v-layout>
     <v-layout class="empty" v-else-if="!items || items.length === 0
                                         || !children || children.length === 0">
@@ -12,8 +12,8 @@
       <div class="control">
         <v-spacer />
         <v-btn-toggle :value="viewType" @change="v => { viewType = v }" mandatory>
-          <v-btn flat v-for="type in viewTypes" :key="type.type" :value="type.type">
-            <v-icon left>{{ type.icon }}</v-icon>
+          <v-btn text v-for="type in viewTypes" :key="type.type" :value="type.type">
+            <v-icon left v-text="$vuetify.icons.values.custom[type.icon]" />
             {{ type.type }}
           </v-btn>
         </v-btn-toggle>

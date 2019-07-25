@@ -12,7 +12,7 @@
       </v-card-title>
       <v-card-actions>
         <v-spacer/>
-        <v-btn outline @click="clickCancel">
+        <v-btn outlined @click="clickCancel">
           {{ $t('general.cancel') }}
         </v-btn>
         <v-btn depressed dark color="black" @click="clickRemoveInDialog">

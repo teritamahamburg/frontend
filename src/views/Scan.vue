@@ -12,7 +12,7 @@
 
         <template v-slot:expand:title>
           <v-btn icon small @click="showAllEntry = !showAllEntry">
-            <v-icon>keyboard_arrow_{{showAllEntry ? 'up' : 'down'}}</v-icon>
+            <v-icon v-text="$vuetify.icons.values.custom[showAllEntry ? 'up' : 'down']" />
           </v-btn>
         </template>
 
@@ -21,10 +21,10 @@
         </template>
 
         <template v-slot:expand:list>
-          <v-list-tile>
+          <v-list-item>
             <v-checkbox color="black" :label="$t('general.enableMutationInScan')"
                         :value="applyChange" @change="v => v ? showDialog() : clearDialog()" />
-          </v-list-tile>
+          </v-list-item>
         </template>
       </item-card>
     </div>
@@ -47,7 +47,7 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn outline @click="closeDialog(false)">
+          <v-btn outlined @click="closeDialog(false)">
             {{ $t('general.cancel') }}
           </v-btn>
           <v-btn depressed dark color="black"

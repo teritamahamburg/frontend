@@ -1,5 +1,5 @@
 <template>
-  <v-app :dark="$store.state.dark" :class="{ printQR }">
+  <v-app :class="{ printQR }">
     <div class="overlay--graphql"
          v-show="$route.meta.overlay !== false &&$store.state.loading !== 0">
       <!-- ignore undefined ↑-->
@@ -13,77 +13,72 @@
     </div>
     <v-snackbar :value="true" :timeout="0" top multi-line class="app-snackbar--offline"
                 v-if="$store.state.online && $store.state.apollo.offlineQueries.length > 0">
-      <v-btn dark outline v-html="$t('general.applyOfflineChanges')"
+      <v-btn dark outlined v-html="$t('general.applyOfflineChanges')"
              @click="$store.state.dialogs.reflect.show = true"/>
     </v-snackbar>
 
-    <v-toolbar app dense class="app-toolbar"
+    <v-app-bar app dense class="app-toolbar"
                :class="{ offline, 'bottom--btn': paddingToolbar }">
       <template v-slot>
-        <v-btn :color="$store.state.dark ? 'white black--text' : 'black white--text'"
-               class="create-button--add" v-if="$route.path === '/home'"
-               @click="$store.state.dialogs.add.show = true" absolute>
-          <v-icon>add</v-icon>
-          {{$t('general.createItem')}}
-        </v-btn>
-
         <v-btn icon @click="clickBack" v-show="showBack">
-          <v-icon>keyboard_arrow_left</v-icon>
+          <v-icon v-text="$vuetify.icons.values.custom.back"/>
         </v-btn>
         <v-spacer/>
-        <v-btn outline to="/scan" v-show="($route.meta.priority || 999) <= 1">
-          <v-icon>scanner</v-icon>
+        <v-btn outlined to="/scan" v-show="($route.meta.priority || 999) <= 1"
+          style="margin-right: 8px">
+          <v-icon v-text="$vuetify.icons.values.custom.scan" />
           {{ $t('general.scan') }}
         </v-btn>
-        <v-btn outline to="/search" v-show="($route.meta.priority || 999) <= 1">
-          <v-icon>search</v-icon>
+        <v-btn outlined to="/search" v-show="($route.meta.priority || 999) <= 1">
+          <v-icon v-text="$vuetify.icons.values.custom.search"/>
           {{ $t('general.search') }}
         </v-btn>
 
         <v-text-field v-if="$route.path === '/search'" v-model="$store.state.searchText"
-                      append-icon="search"/>
+                      hide-details :append-icon="$vuetify.icons.values.custom.search"/>
 
         <v-menu offset-y>
           <template v-slot:activator="{ on }">
             <v-btn icon v-on="on">
-              <v-icon>menu</v-icon>
+              <v-icon v-text="$vuetify.icons.values.custom.menu" />
             </v-btn>
           </template>
 
           <v-list>
-            <v-list-tile @click="$store.commit('setDark', !$store.state.dark)">
-              <v-list-tile-action>
-                <v-icon>brightness_{{$store.state.dark ? 7 : 3}}</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
+            <v-list-item @click="$store.commit('setDark', !$store.state.dark)">
+              <v-list-item-action>
+                <v-icon left
+                  v-text="$vuetify.icons.values.custom.brightness($store.state.dark ? 7 : 3)"/>
+              </v-list-item-action>
+              <v-list-item-content>
                 {{$store.state.dark ? 'Light Mode' : 'Dark Mode'}}
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile v-show="showControl" @click="$store.state.dialogs.csv.show = true">
-              <v-list-tile-action>
-                <v-icon left>cloud_download</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item v-show="showControl" @click="$store.state.dialogs.csv.show = true">
+              <v-list-item-action>
+                <v-icon left v-text="$vuetify.icons.values.custom.download" />
+              </v-list-item-action>
+              <v-list-item-content>
                 {{ $t('general.csv') }}
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile v-show="$route.path === '/home'"
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item v-show="$route.path === '/home'"
                          @click="$store.state.dialogs.restore.show = true">
-              <v-list-tile-action>
-                <v-icon left>restore_page</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
+              <v-list-item-action>
+                <v-icon left v-text="$vuetify.icons.values.custom.restore" />
+              </v-list-item-action>
+              <v-list-item-content>
                 {{ $t('general.restoreItem') }}
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile to="/setting">
-              <v-list-tile-action>
-                <v-icon left>settings</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item to="/setting">
+              <v-list-item-action>
+                <v-icon left v-text="$vuetify.icons.values.custom.settings" />
+              </v-list-item-action>
+              <v-list-item-content>
                 {{ $t('general.settings') }}
-              </v-list-tile-content>
-            </v-list-tile>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-menu>
       </template>
@@ -97,9 +92,16 @@
           :sort-order="$store.state.itemsView.sortOrder"
           @change:sortOrder="v => $store.commit('setSortOrder', v)"/>
       </template>
-    </v-toolbar>
+    </v-app-bar>
 
     <v-content :class="{expand: showControl, paddingToolbar, offline }">
+      <v-btn :color="$store.state.dark ? 'white black--text' : 'black white--text'"
+             v-if="$route.path === '/home'" class="create-button--add"
+             @click="$store.state.dialogs.add.show = true" absolute>
+        <v-icon v-text="$vuetify.icons.values.custom.add"/>
+        {{$t('general.createItem')}}
+      </v-btn>
+
       <keep-alive include="Home">
         <router-view/>
       </keep-alive>
@@ -187,6 +189,10 @@ export default {
     '$i18n.locale': function (val) {
       document.getElementsByTagName('html')[0].lang = val;
     },
+    // eslint-disable-next-line
+    '$store.state.dark': function (val) {
+      this.$vuetify.theme.dark = val;
+    },
   },
   created() {
     window.addEventListener('offline', () => {
@@ -237,7 +243,7 @@ export default {
 </script>
 
 <style lang="scss">
-  .application .overlay--graphql {
+  .v-application .overlay--graphql {
     z-index: 999;
     position: fixed;
     top: 0;
@@ -250,14 +256,16 @@ export default {
     align-items: center;
   }
 
+  $toolbar-button-pad: 16px;
+  $toolbar-height: 48px;
+
   .create-button--add {
     z-index: 5;
-    bottom: -16px;
+    left: 16px;
+    top: -$toolbar-button-pad;
     border-radius: 18px;
     padding: 0 10px;
   }
-
-  $toolbar-button-pad: 16px;
 
   //noinspection CssInvalidFunction, CssOverwrittenProperties
   .app-toolbar {
@@ -273,8 +281,6 @@ export default {
       padding-bottom: $toolbar-button-pad;
     }
   }
-
-  $toolbar-height: 48px;
 
   //noinspection CssInvalidFunction, CssOverwrittenProperties
   .v-content {
