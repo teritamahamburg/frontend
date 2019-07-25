@@ -13,7 +13,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer/>
-        <v-btn outline @click="$emit('change', false)">
+        <v-btn outlined @click="$emit('change', false)">
           {{ $t('general.cancel') }}
         </v-btn>
         <v-btn depressed dark color="black" @click="clickDownloadInDialog">

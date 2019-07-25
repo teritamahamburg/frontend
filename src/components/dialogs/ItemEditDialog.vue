@@ -12,7 +12,7 @@
                         v-model="editItem.seal"/>
             <v-text-field :label="$t('item.room')"
                           type="number" class="room-input" v-model="editItem.room"
-                          append-icon="clear"
+                          :append-icon="$vuetify.icons.values.custom.close"
                           @click:append="editItem.room = undefined"
                           :rules="`${editItem.room||''}`.length === 0 ? [] :
                         [rules.number($t('validation.number')),
@@ -31,10 +31,11 @@
           <v-form ref="childForm" class="input-form">
             <v-text-field :label="$t('item.name')" v-model="editChildItem.name"
                           style="grid-column: 1 / span 2"
-                          prepend-icon="description"/>
+                          :prepend-icon="$vuetify.icons.values.custom.name"/>
             <v-text-field :label="$t('item.room')"
                           type="number" class="room-input" v-model="editChildItem.room"
-                          prepend-icon="room" append-icon="clear"
+                          :prepend-icon="$vuetify.icons.values.custom.room"
+                          :append-icon="this.$vuetify.icons.values.custom.close"
                           @click:append="editChildItem.room = undefined"
                           :rules="`${editChildItem.room||''}`.length === 0 ? [] :
                         [rules.number($t('validation.number')),
@@ -46,11 +47,11 @@
       </template>
 
       <v-card-actions>
-        <v-btn outline color="error" v-show="canRemove" @click="clickRemove">
+        <v-btn outlined color="error" v-show="canRemove" @click="clickRemove">
           {{ $t('general.remove') }}
         </v-btn>
         <v-spacer/>
-        <v-btn outline @click="clickCancel">
+        <v-btn outlined @click="clickCancel">
           {{ $t('general.cancel') }}
         </v-btn>
         <v-btn depressed dark color="black" @click="clickEditInDialog">

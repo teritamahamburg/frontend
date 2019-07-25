@@ -9,7 +9,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer/>
-        <v-btn outline @click="closeDialog">
+        <v-btn outlined @click="closeDialog">
           {{ $t('general.cancel') }}
         </v-btn>
         <v-btn depressed dark color="black" @click="clickReflectInDialog">
