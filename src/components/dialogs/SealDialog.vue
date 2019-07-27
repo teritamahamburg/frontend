@@ -1,6 +1,6 @@
 <template>
   <v-dialog :value="show" @input="v => $emit('change', v)" max-width="600">
-    <v-card v-if="show">
+    <v-card>
       <v-img :src="image" />
     </v-card>
   </v-dialog>

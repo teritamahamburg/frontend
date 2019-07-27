@@ -1,7 +1,7 @@
 <template>
   <div class="check">
     <qrcode-stream @decode="onDecode" class="qrcode-stream"
-                   v-if="!showApplyDialog"/>
+                   v-show="!showApplyDialog"/>
 
     <div class="details-card-wrapper">
       <item-card class="details-card" :item="editItem || {}"
@@ -167,8 +167,9 @@ export default {
     },
     computedItem() {
       if (this.$store.state.online) return this.item;
+      const i = this.id.toString();
       return this.$store.getters.itemsWithOfflineParanoid
-        .find(({ id }) => id.toString() === this.id.toString());
+        .find(({ id }) => id.toString() === i);
     },
   },
   watch: {

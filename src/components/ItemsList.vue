@@ -13,7 +13,7 @@
                         @change="v => $emit('select:item', props.item, v)"/>
           </td>
           <td v-else :key="a.key" class="action--column">
-            <v-btn icon small v-if="a.key !== 'seal' || props.item.seal || props.item.sealImage"
+            <v-btn icon small v-if="a.key !== 'seal' || props.item.seal"
                    @click.capture.stop="$emit(a.key, props.item)">
               <v-icon v-text="$vuetify.icons.values.custom[a.key]"/>
             </v-btn>
@@ -38,7 +38,7 @@
                                 @change="v => $emit('select:item', child, v)"/>
                   </td>
                   <td v-else :key="a.key" class="action--column">
-                    <v-btn icon v-if="a.key !== 'seal' || child.seal || child.sealImage"
+                    <v-btn icon v-if="a.key !== 'seal'"
                            @click="$emit(a.key, child)">
                       <v-icon v-text="$vuetify.icons.values.custom[a.key]"/>
                     </v-btn>

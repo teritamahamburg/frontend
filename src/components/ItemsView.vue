@@ -2,7 +2,7 @@
   <div class="items-view">
     <slot name="empty" v-if="empty">
       <div class="empty">
-        <v-icon :size="emptyIconSize" v-text="$vuetify.icons.values.custom.devices" />
+        <v-icon class="empty--icon" v-text="$vuetify.icons.values.custom.devices" />
         <div class="headline">{{$t('general.emptyAndAdd')}}</div>
       </div>
     </slot>
@@ -11,7 +11,7 @@
         <item-card v-for="item in items" :key="item.id" :item="item"
                    :show-actions="showActions" :entry="showProps.map(p => p.value)"
                    :selected-items="selectedItems"
-                   @select="(val, item) => {selectItem(item, val)}"
+                   @select="(val, it) => {selectItem(it, val)}"
                    @remove="i => $emit('remove', i)"
                    @edit="i => $emit('edit', i)"
                    @editHistory="i => $emit('editHistory', i)"
@@ -79,12 +79,6 @@ export default {
     empty() {
       return !this.items || this.items.length === 0;
     },
-    emptyIconSize() {
-      return Math.min(
-        this.$vuetify.breakpoint.width / 2,
-        this.$vuetify.breakpoint.height / 3,
-      );
-    },
     showActions() {
       return this.attrs
         .filter(({ type }) => type === 'action')
@@ -106,8 +100,7 @@ export default {
       this.$emit('select', val, item, items);
     },
     showSealDialog(item) {
-      this.$store.state.dialogs.seal.image = item.sealImage
-        || `seal/${item.code}${item.seal}`;
+      this.$store.state.dialogs.seal.image = `seal/${item.code}${item.seal}`;
       this.$store.state.dialogs.seal.show = true;
     },
   },
@@ -134,6 +127,14 @@ export const viewTypes = [
       .headline {
         word-break: keep-all;
         text-align: center;
+      }
+
+      .empty--icon {
+        font-size: 60vw;
+
+        @media screen and (min-width: 769px) {
+          font-size: 30vw;
+        }
       }
     }
 

@@ -63,4 +63,9 @@ export default {
       state.selectItems = ids;
     },
   },
+  getters: {
+    hasShowDialog(state) {
+      return Object.entries(state).some(([, v]) => typeof v === 'object' && v.show);
+    },
+  },
 };

@@ -2,11 +2,11 @@
   <v-card max-width="350" class="item-card" ref="itemCard">
     <slot name="expand:head"/>
     <v-img :aspect-ratio="showSealImg ? 8/3 : undefined"
-           :src="showSealImg ? (item.sealImage || `/seal/${item.code}${item.seal}`)
+           :src="showSealImg ? `/seal/${item.code}${item.seal}`
                              : undefined">
       <div class="card-title--wrapper" :class="{ image: showSealImg }" >
         <div style="height: 100%"
-             @click="clickImage(item.sealImage || `/seal/${item.code}${item.seal}`)"></div>
+             @click="clickImage(`/seal/${item.code}${item.seal}`)"></div>
         <v-card-title class="item-title" :class="{ image: showSealImg, dark: $store.state.dark }">
           <div class="attr">
             <div class="title">{{item.name}}</div>
@@ -148,12 +148,13 @@ export default {
   computed: {
     listEntry() {
       let item = {};
+      const thisItem = this.item;
       if (this.entry.length > 0) {
         this.entry.forEach((k) => {
-          item[k] = this.item[k];
+          item[k] = thisItem[k];
         });
       } else {
-        item = { ...this.item };
+        item = { ...thisItem.item };
       }
       delete item.name;
       delete item.code;
@@ -173,7 +174,7 @@ export default {
       ];
     },
     showSealImg() {
-      return (this.item.seal || this.item.sealImage) && this.panel === 0 && !this.hideAction('seal');
+      return this.item.seal && this.panel === 0 && !this.hideAction('seal');
     },
   },
   methods: {
