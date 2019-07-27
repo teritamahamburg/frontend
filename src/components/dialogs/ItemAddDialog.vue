@@ -131,7 +131,7 @@ export default {
       },
       query: usersQuery,
       update({ users }) {
-        return users.map(u => u.name);
+        return (users || []).map(u => u.name);
       },
     },
   },

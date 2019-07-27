@@ -80,13 +80,15 @@ export default {
       },
     },
     attributes() {
+      const a = this.attrs;
       return attributes
-        .filter(k => !this.attrs.some(a => a.key === k))
+        .filter(k => !a.some(b => b.key === k))
         .map(key => ({ type: 'value', key }));
     },
     attributeActions() {
+      const a = this.attrs;
       return attributeActions
-        .filter(k => !this.attrs.some(a => a.key === k))
+        .filter(k => !a.some(b => b.key === k))
         .map(key => ({ type: 'action', key }));
     },
   },

@@ -23,7 +23,7 @@ export default new Router({
     {
       path: '/home',
       name: 'home',
-      component: () => import(/* webpackChunkName: "home" */ '@/views/Home.vue'),
+      component: () => import(/* webpackChunkName: "home", webpackPreload: true */ '@/views/Home.vue'),
       meta: {
         priority: 1,
         itemsControl: true,
@@ -32,7 +32,7 @@ export default new Router({
     {
       path: '/scan',
       name: 'scan',
-      component: () => import(/* webpackChunkName: "scan" */ '@/views/Scan.vue'),
+      component: () => import(/* webpackChunkName: "scan", webpackPreload: true */ '@/views/Scan.vue'),
       meta: {
         priority: 2,
       },
@@ -40,7 +40,7 @@ export default new Router({
     {
       path: '/search',
       name: 'search',
-      component: () => import(/* webpackChunkName: "search" */ '@/views/Search.vue'),
+      component: () => import(/* webpackChunkName: "search", webpackPreload: true */ '@/views/Search.vue'),
       meta: {
         priority: 2,
         overlay: false,
@@ -49,7 +49,7 @@ export default new Router({
     {
       path: '/setting',
       name: 'setting',
-      component: () => import(/* webpackChunkName: "setting" */ '@/views/Setting.vue'),
+      component: () => import(/* webpackChunkName: "setting", webpackPreload: true */ '@/views/Setting.vue'),
       meta: {
         priority: 3,
         overlay: false,

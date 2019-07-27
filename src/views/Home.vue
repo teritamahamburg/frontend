@@ -106,9 +106,10 @@ export default {
         return this.$store.state.apollo.items;
       }
       const items = [...this.$store.getters.itemsWithOffline];
+      const { itemsView } = this.$store.state;
       items.sort((a, b) => {
         let val = 0;
-        const { sortType, sortOrder } = this.$store.state.itemsView;
+        const { sortType, sortOrder } = itemsView;
         switch (sortType) {
           default:
             val = a.id - b.id;

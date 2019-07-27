@@ -20,6 +20,14 @@
     <v-app-bar app dense class="app-toolbar"
                :class="{ offline, 'bottom--btn': paddingToolbar }">
       <template v-slot>
+        <v-btn :color="$store.state.dark ? 'white black--text' : 'black white--text'"
+               v-if="!showControl && $route.path === '/home'"
+               class="create-button--add" :class="{paddingToolbar}"
+               @click="$store.state.dialogs.add.show = true" absolute>
+          <v-icon v-text="$vuetify.icons.values.custom.add"/>
+          {{$t('general.createItem')}}
+        </v-btn>
+
         <v-btn icon @click="clickBack" v-show="showBack">
           <v-icon v-text="$vuetify.icons.values.custom.back"/>
         </v-btn>
@@ -84,6 +92,14 @@
       </template>
 
       <template v-slot:extension v-if="showControl">
+        <v-btn :color="$store.state.dark ? 'white black--text' : 'black white--text'"
+               v-if="$route.path === '/home'"
+               class="create-button--add" :class="{paddingToolbar}"
+               @click="$store.state.dialogs.add.show = true" absolute>
+          <v-icon v-text="$vuetify.icons.values.custom.add"/>
+          {{$t('general.createItem')}}
+        </v-btn>
+        <v-spacer />
         <items-view-controller
           :view-type="$store.state.itemsView.viewType"
           @change:viewType="v => $store.commit('setViewType', v)"
@@ -94,56 +110,14 @@
       </template>
     </v-app-bar>
 
-    <v-content :class="{expand: showControl, paddingToolbar, offline }">
-      <v-btn :color="$store.state.dark ? 'white black--text' : 'black white--text'"
-             v-if="$route.path === '/home'" class="create-button--add"
-             @click="$store.state.dialogs.add.show = true" absolute>
-        <v-icon v-text="$vuetify.icons.values.custom.add"/>
-        {{$t('general.createItem')}}
-      </v-btn>
-
+    <v-content :class="{expand: showControl, paddingToolbar, offline }"
+      v-if="defer(3)">
       <keep-alive include="Home">
         <router-view/>
       </keep-alive>
     </v-content>
 
-    <!-- dialogs -->
-    <template>
-      <item-remove-dialog
-        v-model="$store.state.dialogs.remove.show"
-        :items="$store.state.dialogs.selectItems"
-        @click:cancel="$store.commit('setSelectItems', [])"
-        @removed="$broadcast.$emit('items:removed')"/>
-
-      <item-add-dialog
-        v-model="$store.state.dialogs.add.show"
-        @added="$broadcast.$emit('items:refetch')"/>
-
-      <item-edit-dialog
-        v-model="$store.state.dialogs.edit.show"
-        :items="$store.state.dialogs.selectItems"
-        :can-remove="$store.state.dialogs.edit.canRemove"
-        @click:cancel="$store.commit('setSelectItems', [])"
-        @edited="$broadcast.$emit('items:edited')"/>
-
-      <item-edit-history-dialog
-        v-model="$store.state.dialogs.editHistory.show"
-        :id="$store.state.dialogs.editHistory.id"/>
-
-      <code-dialog
-        v-model="$store.state.dialogs.code.show"
-        :text="$store.state.dialogs.code.text"/>
-
-      <download-csv-dialog v-model="$store.state.dialogs.csv.show"/>
-
-      <item-restore-dialog v-model="$store.state.dialogs.restore.show"
-                           @restored="$broadcast.$emit('items:refetch')"/>
-
-      <apply-offline-dialog v-model="$store.state.dialogs.reflect.show"/>
-
-      <seal-dialog v-model="$store.state.dialogs.seal.show"
-                   :image="$store.state.dialogs.seal.image"/>
-    </template>
+    <dialogs v-if="hasShowDialog" />
 
     <v-snackbar :value="showReloadAlert" color="error" bottom>
       <div>{{ $t('general.updateArrived') }}</div>
@@ -154,27 +128,22 @@
 
 <script>
 import { mapState } from 'vuex';
-
+import Defer from '@/mixins/Defer';
 import ItemsViewController from '@/components/ItemsViewController.vue';
-import SealDialog from '@/components/dialogs/SealDialog.vue';
 
 export default {
   name: 'App',
+  mixins: [
+    Defer(5),
+  ],
   components: {
     ItemsViewController,
-    ApplyOfflineDialog: () => import(/* webpackChunkName: "offline-dialog" */ '@/components/dialogs/ApplyOfflineDialog.vue'),
-    ItemRestoreDialog: () => import(/* webpackChunkName: "restore-dialog" */ '@/components/dialogs/ItemRestoreDialog.vue'),
-    DownloadCsvDialog: () => import(/* webpackChunkName: "csv-dialog" */ '@/components/dialogs/DownloadCSVDialog.vue'),
-    ItemRemoveDialog: () => import(/* webpackChunkName: "remove-dialog" */ '@/components/dialogs/ItemRemoveDialog.vue'),
-    CodeDialog: () => import(/* webpackChunkName: "code-dialog" */ '@/components/dialogs/CodeDialog.vue'),
-    ItemEditHistoryDialog: () => import(/* webpackChunkName: "edit-history-dialog" */ '@/components/dialogs/ItemEditHistoryDialog.vue'),
-    ItemEditDialog: () => import(/* webpackChunkName: "edit-dialog" */ '@/components/dialogs/ItemEditDialog.vue'),
-    ItemAddDialog: () => import(/* webpackChunkName: "add-dialog" */ '@/components/dialogs/ItemAddDialog.vue'),
-    SealDialog,
+    Dialogs: () => import(/* webpackChunkName: "dialogs", webpackPreload: true */ '@/components/dialogs/index.vue'),
   },
   data() {
     return {
       showReloadAlert: false,
+      hasShowDialog: false,
     };
   },
   watch: {
@@ -192,6 +161,12 @@ export default {
     // eslint-disable-next-line
     '$store.state.dark': function (val) {
       this.$vuetify.theme.dark = val;
+    },
+    // eslint-disable-next-line
+    '$store.getters.hasShowDialog': function (val) {
+      if (!this.hasShowDialog) {
+        this.hasShowDialog = val;
+      }
     },
   },
   created() {
@@ -262,9 +237,13 @@ export default {
   .create-button--add {
     z-index: 5;
     left: 16px;
-    top: -$toolbar-button-pad;
+    bottom: -$toolbar-button-pad;
     border-radius: 18px;
     padding: 0 10px;
+
+    &.paddingToolbar {
+      bottom: -2 * $toolbar-button-pad;
+    }
   }
 
   //noinspection CssInvalidFunction, CssOverwrittenProperties

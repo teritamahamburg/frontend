@@ -1,7 +1,6 @@
 <template>
   <div class="error--page">
-    <v-icon :size="iconSize"
-            v-text="$vuetify.icons.values.custom.close" />
+    <v-icon class="error--icon" v-text="$vuetify.icons.values.custom.close" />
 
     <span class="headline">Error</span>
 
@@ -14,22 +13,22 @@
 <script>
 export default {
   name: 'Error',
-  computed: {
-    iconSize() {
-      return Math.min(
-        this.$vuetify.breakpoint.width / 2,
-        this.$vuetify.breakpoint.height / 3,
-      );
-    },
-  },
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .error--page {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  .error--icon {
+    font-size: 60vw;
+
+    @media screen and (min-width: 769px) {
+      font-size: 30vw;
+    }
+  }
 }
 </style>

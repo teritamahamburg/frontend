@@ -51,7 +51,7 @@ Vue.mixin({
 // INFO: https://github.com/Akryum/vue-apollo/issues/631
 const cache = new InMemoryCache({ freezeResults: false });
 
-const { apolloClient, wsClient } = createApolloClient({
+export const { apolloClient, wsClient } = createApolloClient({
   httpEndpoint: `${window.location.protocol}//${window.location.host}/graphql`,
   cache,
 });
