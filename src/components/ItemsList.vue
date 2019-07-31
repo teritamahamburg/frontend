@@ -8,7 +8,7 @@
             {{ props.item[a.key] }}
           </td>
           <td v-else-if="a.key === 'select'" :key="a.key" style="padding: 0 0 0 16px">
-            <v-checkbox hide-details color="error" @click.capture.stop
+            <v-checkbox hide-details color="black" @click.capture.stop class="item-row-checkbox"
                         :input-value="selectedItems.find(({ id }) => id === props.item.id)"
                         @change="v => $emit('select:item', props.item, v)"/>
           </td>
@@ -33,7 +33,7 @@
                     {{ child[a.key] }}
                   </td>
                   <td v-else-if="a.key === 'select'" :key="a.key" style="padding: 0 0 0 16px">
-                    <v-checkbox hide-details color="error"
+                    <v-checkbox hide-details color="black" class="item-row-checkbox"
                                 :input-value="selectedItems.find(({ id }) => id === child.id)"
                                 @change="v => $emit('select:item', child, v)"/>
                   </td>
@@ -117,5 +117,9 @@ export default {
 
   [class$="--column"] {
     white-space: nowrap;
+  }
+
+  .item-row-checkbox {
+    margin: 0;
   }
 </style>
