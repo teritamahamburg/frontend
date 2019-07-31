@@ -99,7 +99,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .remove-dialog {
+  .remove--dialog {
     .headline {
       word-break: keep-all;
     }
