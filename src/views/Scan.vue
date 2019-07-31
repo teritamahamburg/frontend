@@ -11,7 +11,8 @@
         v-on="$store.getters.itemsViewMenuVOn">
 
         <template v-slot:expand:title>
-          <v-btn icon small @click="showAllEntry = !showAllEntry">
+          <v-btn icon small @click="showAllEntry = !showAllEntry"
+                 :aria-label="showAllEntry ? 'collapse' : 'expand'">
             <v-icon v-text="$vuetify.icons.values.custom[showAllEntry ? 'up' : 'down']" />
           </v-btn>
         </template>

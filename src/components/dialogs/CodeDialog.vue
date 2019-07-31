@@ -95,13 +95,10 @@ export default {
         const canvas = this.$refs.transferCanvas;
         const ctx = canvas.getContext('2d');
 
-        const a = Date.now();
         let i = 0;
         let b = 0;
         const render = () => {
           if (bin.length === i) {
-            const c = Date.now();
-            console.log(c - a);
             this.transferring = false;
             return;
           }

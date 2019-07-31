@@ -10,14 +10,14 @@
     <v-btn fab fixed right bottom
            color="green" dark class="no--print"
            v-show="$store.state.dialogs.selectItems.length > 0"
-           @click="$store.commit('showEditDialog')">
+           @click="$store.commit('showEditDialog')" aria-label="Edit">
       <v-icon v-text="$vuetify.icons.values.custom.edit" />
     </v-btn>
     <v-btn fab fixed right bottom @click="$broadcast.$emit('items:refetch')"
            v-show="$store.state.dialogs.selectItems.length === 0"
            v-if="$store.state.online"
            :color="$store.state.dark ? 'white black--text' : 'black white--text'"
-           class="no--print">
+           class="no--print" aria-label="Refresh">
       <v-icon v-text="$vuetify.icons.values.custom.refresh" />
     </v-btn>
   </div>

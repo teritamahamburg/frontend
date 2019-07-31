@@ -28,7 +28,7 @@
           {{$t('general.createItem')}}
         </v-btn>
 
-        <v-btn icon @click="clickBack" v-show="showBack">
+        <v-btn icon @click="clickBack" v-show="showBack" aria-label="Back">
           <v-icon v-text="$vuetify.icons.values.custom.back"/>
         </v-btn>
         <v-spacer/>
@@ -47,7 +47,7 @@
 
         <v-menu offset-y>
           <template v-slot:activator="{ on }">
-            <v-btn icon v-on="on">
+            <v-btn icon v-on="on" aria-label="Menu">
               <v-icon v-text="$vuetify.icons.values.custom.menu" />
             </v-btn>
           </template>
@@ -119,9 +119,9 @@
 
     <dialogs v-if="hasShowDialog" />
 
-    <v-snackbar :value="showReloadAlert" color="error" bottom>
+    <v-snackbar :value="showReloadAlert" :timeout="0" color="error" bottom class="reload--alert">
       <div>{{ $t('general.updateArrived') }}</div>
-      <v-btn color="primary" @click="locationReload(true)">Reload</v-btn>
+      <v-btn color="primary" @click="clickReload">Reload</v-btn>
     </v-snackbar>
   </v-app>
 </template>
@@ -144,6 +144,7 @@ export default {
     return {
       showReloadAlert: false,
       hasShowDialog: false,
+      acceptCallback: undefined,
     };
   },
   watch: {
@@ -185,14 +186,17 @@ export default {
       this.$toast.error(message, 'Error');
     };
     if (window.isUpdateAvailable) { // PWA用の更新処理
-      window.isUpdateAvailable.then((available) => {
-        this.showReloadAlert = available;
+      window.isUpdateAvailable.then((cb) => {
+        this.showReloadAlert = true;
+        this.acceptCallback = cb;
       });
     }
     this.$store.commit('setDark', this.$store.state.dark);
   },
   methods: {
-    locationReload: val => window.location.reload(val),
+    clickReload() {
+      this.acceptCallback();
+    },
     clickBack() {
       this.$store.state.searchText = '';
       this.$router.back();
@@ -362,6 +366,10 @@ export default {
   .v-dialog--fullscreen {
     padding-top: constant(safe-area-inset-top) !important;
     padding-top: env(safe-area-inset-top) !important;
+  }
+
+  .reload--alert {
+    z-index: 999999;
   }
 </style>
 
