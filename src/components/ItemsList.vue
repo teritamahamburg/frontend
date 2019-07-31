@@ -14,7 +14,7 @@
           </td>
           <td v-else :key="a.key" class="action--column">
             <v-btn icon small v-if="a.key !== 'seal' || props.item.seal"
-                   @click.capture.stop="$emit(a.key, props.item)">
+                   @click.capture.stop="$emit(a.key, props.item)" :aria-label="a.key">
               <v-icon v-text="$vuetify.icons.values.custom[a.key]"/>
             </v-btn>
           </td>
@@ -39,7 +39,7 @@
                   </td>
                   <td v-else :key="a.key" class="action--column">
                     <v-btn icon v-if="a.key !== 'seal'"
-                           @click="$emit(a.key, child)">
+                           @click="$emit(a.key, child)" :aria-label="a.key">
                       <v-icon v-text="$vuetify.icons.values.custom[a.key]"/>
                     </v-btn>
                   </td>

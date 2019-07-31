@@ -19,7 +19,7 @@
                       @change="v => $emit('select', v, item)" v-if="!hideAction('select')"/>
           <v-menu offset-y v-if="!hideAction('menu')">
             <template v-slot:activator="{ on }">
-              <v-btn icon small style="margin: 0" v-on="on">
+              <v-btn icon small style="margin: 0" v-on="on" aria-label="CardMenu">
                 <v-icon v-text="$vuetify.icons.values.custom.cardMenu" />
               </v-btn>
             </template>
@@ -76,7 +76,7 @@
                         @change="v => $emit('select', v, child)" v-if="!hideAction('select')"/>
             <v-menu offset-y v-if="!hideAction('menu')">
               <template v-slot:activator="{ on }">
-                <v-btn icon small style="margin: 0" v-on="on">
+                <v-btn icon small style="margin: 0" v-on="on" aria-label="CardMenu">
                   <v-icon v-text="$vuetify.icons.values.custom.cardMenu" />
                 </v-btn>
               </template>
