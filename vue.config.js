@@ -26,6 +26,11 @@ module.exports = {
       msTileImage: 'img/icons/x144.png',
       maskIcon: 'img/icons/safari-pinned-tab.svg',
     },
+    workboxPluginMode: 'InjectManifest',
+    workboxOptions: {
+      swSrc: 'src/service-worker.js',
+      swDest: 'service-worker.js',
+    },
   },
   pluginOptions: {
     i18n: {

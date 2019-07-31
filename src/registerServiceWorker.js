@@ -1,41 +1,24 @@
-/* eslint-disable no-console */
+import { Workbox } from 'workbox-window';
 
-import { register } from 'register-service-worker';
-
-if (process.env.NODE_ENV === 'production') {
+if ('serviceWorker' in navigator) {
   const isUpdateAvailable = Symbol('isUpdateAvailable');
   window.isUpdateAvailable = new Promise((resolve) => {
-    window[isUpdateAvailable] = (reg) => {
-      reg.update();
-      resolve(true);
+    window[isUpdateAvailable] = (onAccept) => {
+      resolve(onAccept);
     };
   });
-  register(`${process.env.BASE_URL}service-worker.js`, {
-    ready() {
-      console.log(
-        'App is being served from cache by a service worker.\n'
-        + 'For more details, visit https://goo.gl/AFskqB',
-      );
-    },
-    registered() {
-      console.log('Service worker has been registered.');
-    },
-    cached() {
-      console.log('Content has been cached for offline use.');
-    },
-    updatefound() {
-      console.log('New content is downloading.');
-    },
-    async updated(reg) {
-      await reg.skipWaiting();
-      window[isUpdateAvailable](reg);
-      console.log('New content is available; please refresh.');
-    },
-    offline() {
-      console.log('No internet connection found. App is running in offline mode.');
-    },
-    error(error) {
-      console.error('Error during service worker registration:', error);
-    },
+
+  const wb = new Workbox(`${process.env.BASE_URL}service-worker.js`);
+
+  wb.addEventListener('waiting', () => {
+    window[isUpdateAvailable](() => {
+      wb.addEventListener('controlling', () => {
+        window.location.reload();
+      });
+
+      wb.messageSW({ type: 'SKIP_WAITING' });
+    });
   });
+
+  wb.register();
 }
