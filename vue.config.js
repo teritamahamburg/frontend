@@ -35,4 +35,16 @@ module.exports = {
       enableInSFC: false,
     },
   },
+  configureWebpack: {
+    resolveLoader: {
+      modules: ['lib'],
+    },
+  },
+  chainWebpack: (config) => {
+    config.module
+      .rule('css')
+      .oneOf('normal')
+      .use('css-font-display-loader')
+      .loader('css-font-display-loader');
+  },
 };
