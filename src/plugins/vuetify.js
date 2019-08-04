@@ -16,7 +16,7 @@ export default new Vuetify({
         scan: 'mdi-scanner',
         search: 'mdi-magnify',
         menu: 'mdi-menu',
-        brightness: n => `mdi-brightness-${n}`,
+        brightness: n => `mdi-brightness-${n}`, /* 7 or 3 */
         download: 'mdi-cloud-download',
         restore: 'mdi-file-restore',
         settings: 'mdi-settings',
@@ -28,7 +28,7 @@ export default new Vuetify({
         edit: 'mdi-pencil',
         refresh: 'mdi-refresh',
         searchArrow: 'mdi-subdirectory-arrow-right',
-        qrCode: 'mdi-qrcode',
+        qrCode: 'mdi-barcode',
         editHistory: 'mdi-history',
         remove: 'mdi-delete',
         seal: 'mdi-image',

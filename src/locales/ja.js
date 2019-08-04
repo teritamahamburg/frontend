@@ -42,7 +42,7 @@ module.exports = {
     close: '閉じる',
     searchHere: 'ここから検索',
     noSearchResult: '見つかりませんでした',
-    qrCode: 'QRコード',
+    qrCode: 'バーコード',
     enableMutationInScan: '値を更新する',
     apply: '許可',
     change: '変更する',

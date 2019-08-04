@@ -1,7 +1,7 @@
 <template>
   <div class="check">
-    <qrcode-stream @decode="onDecode" class="qrcode-stream"
-                   v-show="!showApplyDialog"/>
+    <v-quagga v-show="!showApplyDialog" :renderTypes="['code_39_reader']"
+      class="code-stream" :on-detected="onDecode"/>
 
     <div class="details-card-wrapper">
       <item-card class="details-card" :item="editItem || {}"
@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { QrcodeStream } from 'vue-qrcode-reader';
+import VQuagga from 'vue-quaggajs/src/Scanner.vue';
 
 import ItemCard from '@/components/ItemCard.vue';
 import DatePicker from '@/components/DatePicker.vue';
@@ -71,7 +71,7 @@ import childQuery from '@/apollo/queries/child.gql';
 
 export default {
   name: 'Scan',
-  components: { DatePicker, ItemCard, QrcodeStream },
+  components: { DatePicker, ItemCard, VQuagga },
   apollo: {
     item: {
       skip() {
@@ -179,10 +179,11 @@ export default {
     },
   },
   methods: {
-    onDecode(content) {
-      this.id = content;
+    onDecode({ codeResult: { code } }) {
+      if (this.id === code) return;
+      this.id = code;
       this.changed = false;
-      this.mutateEditItem();
+      // this.mutateEditItem();
     },
     mutateEditItem() {
       if (!this.applyChange) return;
@@ -240,7 +241,7 @@ export default {
   width: 100%;
   height: 100%;
 
-  .qrcode-stream {
+  .code-stream {
     width: 100%;
   }
 
