@@ -1,19 +1,38 @@
 <template>
   <div class="home">
-    <items-view
-        :items="items" :view-type="$store.state.itemsView.viewType"
+    <template v-if="!searchText">
+      <items-view
+        :items="items"
+        :view-type="$store.state.itemsView.viewType"
         :attrs="$store.state.attrs"
         v-on="$store.getters.itemsViewMenuVOn"
         :selected-items="$store.state.dialogs.selectItems"
         @select="(v, i, l) => $store.commit('setSelectItems', l)"/>
+    </template>
 
-    <v-btn fab fixed right bottom
+    <template v-else>
+      <items-view :items="searchItems"
+                  class="items-view"
+                  :viewType="$store.state.itemsView.viewType"
+                  :attrs="$store.state.attrs.filter(({ key }) => key !== 'select')"
+                  v-on="$store.getters.itemsViewMenuVOn"/>
+      <items-view :items="searchChildren"
+                  class="items-view"
+                  :viewType="$store.state.itemsView.viewType"
+                  :attrs="childAttr"
+                  v-on="$store.getters.itemsViewMenuVOn"/>
+    </template>
+
+    <v-btn fab fixed right
+           style="bottom: 64px"
            color="green" dark class="no--print"
            v-show="$store.state.dialogs.selectItems.length > 0"
            @click="$store.commit('showEditDialog')" aria-label="Edit">
       <v-icon v-text="$vuetify.icons.values.custom.edit" />
     </v-btn>
-    <v-btn fab fixed right bottom @click="$broadcast.$emit('items:refetch')"
+    <v-btn fab fixed right
+           style="bottom: 64px"
+           @click="$broadcast.$emit('items:refetch')"
            v-show="$store.state.dialogs.selectItems.length === 0"
            v-if="$store.state.online"
            :color="$store.state.dark ? 'white black--text' : 'black white--text'"
@@ -24,9 +43,15 @@
 </template>
 
 <script>
-import itemsQuery from '@/apollo/queries/items.gql';
+import { mapState } from 'vuex';
+import { throttle } from 'lodash-es';
 
 import ItemsView, { viewTypes } from '@/components/ItemsView.vue';
+
+import itemsQuery from '@/apollo/queries/items.gql';
+import searchItemsQuery from '@/apollo/queries/searchItems.gql';
+
+const searchThrottle = 800;
 
 export default {
   name: 'Home',
@@ -36,7 +61,7 @@ export default {
   apollo: {
     items: {
       skip() {
-        return !this.$store.state.online;
+        return !this.$store.state.online || this.searchText;
       },
       query: itemsQuery,
       variables() {
@@ -69,6 +94,46 @@ export default {
         if (!loading) this.$store.commit('setApolloItems', update(data));
       },
     },
+    search: {
+      skip() {
+        return !this.$store.state.online || !this.searchText;
+      },
+      throttle: searchThrottle,
+      query: searchItemsQuery,
+      variables() {
+        return {
+          text: this.searchText,
+          sort: [
+            [this.$store.state.itemsView.sortType, this.$store.state.itemsView.sortOrder],
+          ],
+        };
+      },
+      update({ searchItems: items, searchChildren: children }) {
+        return {
+          /* eslint-disable no-param-reassign */
+          items: items.map((item) => ({
+            ...item,
+            admin: item.admin.name,
+            course: item.course.name,
+            room: item.room.number,
+          })),
+          children: children.map((child) => ({
+            ...child,
+            room: child.room ? child.room.number : null,
+            name: child.name ? child.name : child.item.name,
+          })),
+        };
+      },
+    },
+  },
+  data() {
+    return {
+      search: {
+        items: [],
+        children: [],
+        offlineItems: [],
+      },
+    };
   },
   created() {
     this.$broadcast.$on('items:refetch', () => {
@@ -99,8 +164,12 @@ export default {
     '$store.state.itemsView.viewType': function (val) {
       window.location.hash = `#${val}`;
     },
+    searchText(val) {
+      if (!this.$store.state.online) this.computeSearchOfflineItems();
+    },
   },
   computed: {
+    ...mapState(['searchText']),
     items() {
       if (this.$store.state.online) {
         return this.$store.state.apollo.items;
@@ -133,15 +202,38 @@ export default {
       });
       return items;
     },
+    searchItems() {
+      if (this.$store.state.online) return this.search.items;
+      return this.search.offlineItems;
+    },
+    searchChildren() {
+      if (this.$store.state.online) return this.search.children;
+      return [];
+    },
+    childAttr() {
+      return this.$store.state.attrs.filter(({ type, key }) => {
+        if (type === 'action' && key !== 'select') return true;
+        return ['id', 'name', 'room', 'checkedAt'].includes(key);
+      });
+    },
+  },
+  methods: {
+    computeSearchOfflineItems: throttle(function () {
+      const text = this.text.toLowerCase();
+      this.search.offlineItems = this.$store.getters.itemsWithOfflineParanoid
+        .filter(item => ['name', 'code', 'admin', 'course', 'room']
+          .some((k) => {
+            if (!item[k]) return false;
+            return item[k].toString().toLowerCase().includes(text);
+          }));
+    }, searchThrottle),
   },
 };
 </script>
 
 <style scoped lang="scss">
-  //noinspection CssInvalidFunction, CssOverwrittenProperties
   .home {
     width: 100%;
     height: 100%;
-    padding: 16px 0;
   }
 </style>

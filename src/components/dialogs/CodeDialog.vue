@@ -2,14 +2,16 @@
   <v-dialog :value="value" @input="v => $emit('change', v)" max-width="300">
     <v-card>
       <template v-if="type === 'QR'">
-        <qrcode v-if="text" :value="text" :options="{width:300}"/>
+        <div style="display: flex; justify-content: center">
+          <barcode v-if="text" :value="text" />
+        </div>
         <v-card-actions class="no--print">
           <v-spacer/>
           <span style="margin-right: 8px">Print in: </span>
           <v-btn outlined small @click="clickPrintBrowser">
             Browser
           </v-btn>
-          <v-btn outlined small @click="clickPrintMachine">
+          <v-btn outlined small @click="clickPrintMachine" style="margin-left: 8px">
             Machine
           </v-btn>
         </v-card-actions>
@@ -34,12 +36,12 @@
 </template>
 
 <script>
-import VueQrCode from '@chenfengyuan/vue-qrcode';
+import Barcode from '@/components/Barcode.vue';
 
 export default {
   name: 'CodeDialog',
   components: {
-    qrcode: VueQrCode,
+    Barcode,
   },
   model: {
     prop: 'value',

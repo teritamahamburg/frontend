@@ -18,31 +18,11 @@
     </v-snackbar>
 
     <v-app-bar app dense class="app-toolbar"
-               :class="{ offline, 'bottom--btn': paddingToolbar }">
+               :class="{ offline }">
       <template v-slot>
-        <v-btn :color="$store.state.dark ? 'white black--text' : 'black white--text'"
-               v-if="!showControl && $route.path === '/home'"
-               class="create-button--add" :class="{paddingToolbar}"
-               @click="$store.state.dialogs.add.show = true" absolute>
-          <v-icon v-text="$vuetify.icons.values.custom.add"/>
-          {{$t('general.createItem')}}
-        </v-btn>
-
-        <v-btn icon @click="clickBack" v-show="showBack" aria-label="Back">
-          <v-icon v-text="$vuetify.icons.values.custom.back"/>
-        </v-btn>
         <v-spacer/>
-        <v-btn outlined to="/scan" v-show="($route.meta.priority || 999) <= 1"
-          style="margin-right: 8px">
-          <v-icon v-text="$vuetify.icons.values.custom.scan" />
-          {{ $t('general.scan') }}
-        </v-btn>
-        <v-btn outlined to="/search" v-show="($route.meta.priority || 999) <= 1">
-          <v-icon v-text="$vuetify.icons.values.custom.search"/>
-          {{ $t('general.search') }}
-        </v-btn>
 
-        <v-text-field v-if="$route.path === '/search'" v-model="$store.state.searchText"
+        <v-text-field v-model="$store.state.searchText"
                       hide-details :append-icon="$vuetify.icons.values.custom.search"/>
 
         <v-menu offset-y>
@@ -92,13 +72,6 @@
       </template>
 
       <template v-slot:extension v-if="showControl">
-        <v-btn :color="$store.state.dark ? 'white black--text' : 'black white--text'"
-               v-if="$route.path === '/home'"
-               class="create-button--add" :class="{paddingToolbar}"
-               @click="$store.state.dialogs.add.show = true" absolute>
-          <v-icon v-text="$vuetify.icons.values.custom.add"/>
-          {{$t('general.createItem')}}
-        </v-btn>
         <v-spacer />
         <items-view-controller
           :view-type="$store.state.itemsView.viewType"
@@ -110,12 +83,44 @@
       </template>
     </v-app-bar>
 
-    <v-content :class="{expand: showControl, paddingToolbar, offline }"
+    <v-content :class="{expand: showControl, offline }"
       v-if="defer(3)">
       <keep-alive include="Home">
         <router-view/>
       </keep-alive>
     </v-content>
+
+    <v-bottom-navigation
+      app
+      :value="$route.path"
+      @change="(v) => $router.push(v)"
+    >
+      <v-btn value="/scan">
+        <span>{{ $t('general.scan') }}</span>
+        <v-icon v-text="$vuetify.icons.values.custom.scan" />
+      </v-btn>
+
+      <div v-show="$route.path === '/home'" style="width: 80px"></div>
+      <v-btn v-show="$route.path !== '/home'" value="/home">
+        <span>{{ $t('general.home') }}</span>
+        <v-icon v-text="$vuetify.icons.values.custom.home" />
+      </v-btn>
+
+      <v-btn value="/setting">
+        <span>{{ $t('general.settings') }}</span>
+        <v-icon v-text="$vuetify.icons.values.custom.settings" />
+      </v-btn>
+    </v-bottom-navigation>
+
+    <v-btn
+      fab
+      class="app--bottom-nav-fab"
+      :color="$store.state.dark ? 'white black--text' : 'black white--text'"
+      v-if="$route.path === '/home'"
+      @click="$store.state.dialogs.add.show = true"
+    >
+      <v-icon v-text="$vuetify.icons.values.custom.add"/>
+    </v-btn>
 
     <dialogs v-if="hasShowDialog" />
 
@@ -209,13 +214,10 @@ export default {
         && this.$route.meta.priority > 1; // 1 is '/home' priority
     },
     showControl() {
-      return this.$route.meta.itemsControl && this.$store.getters.itemsWithOffline.length > 0;
+      return this.$route.path === '/home' && this.$store.getters.itemsWithOffline.length > 0;
     },
     offline() {
       return !this.$store.state.online;
-    },
-    paddingToolbar() {
-      return this.$route.path === '/home' && this.$vuetify.breakpoint.width <= 470;
     },
   },
 };
@@ -238,81 +240,44 @@ export default {
   $toolbar-button-pad: 16px;
   $toolbar-height: 48px;
 
-  .create-button--add {
-    z-index: 5;
-    left: 16px;
-    bottom: -$toolbar-button-pad;
-    border-radius: 18px;
-    padding: 0 10px;
-
-    &.paddingToolbar {
-      bottom: -2 * $toolbar-button-pad;
-    }
-  }
-
-  //noinspection CssInvalidFunction, CssOverwrittenProperties
+  //noinspection CssInvalidFunction
   .app-toolbar {
     height: auto;
-    padding-top: constant(safe-area-inset-top);
     padding-top: env(safe-area-inset-top);
 
     &.offline {
       margin-top: 24px !important;
     }
-
-    &.bottom--btn {
-      padding-bottom: $toolbar-button-pad;
-    }
   }
 
-  //noinspection CssInvalidFunction, CssOverwrittenProperties
+  //noinspection CssInvalidFunction
   .v-content {
-    padding: calc(#{$toolbar-height} + constant(safe-area-inset-top))
-      0 constant(safe-area-inset-bottom) 0 !important;
-    padding: calc(#{$toolbar-height} + env(safe-area-inset-top))
-      0 env(safe-area-inset-bottom) 0 !important;
+    padding: calc(#{$toolbar-height} + env(safe-area-inset-top)) 0
+      calc(env(safe-area-inset-bottom) + 56px) 0 !important;
 
     &.expand {
-      padding: calc(#{$toolbar-height * 2} + constant(safe-area-inset-top)) 0 0 !important;
-      padding: calc(#{$toolbar-height * 2} + env(safe-area-inset-top)) 0 0 !important;
-    }
-
-    &.paddingToolbar {
-      padding: calc(#{$toolbar-height} + #{$toolbar-button-pad}
-      + constant(safe-area-inset-top)) 0 0 !important;
-      padding: calc(#{$toolbar-height} + #{$toolbar-button-pad}
-      + env(safe-area-inset-top)) 0 0 !important;
-
-      &.expand {
-        padding: calc(#{$toolbar-height * 2} + #{$toolbar-button-pad}
-        + constant(safe-area-inset-top)) 0 0 !important;
-        padding: calc(#{$toolbar-height * 2} + #{$toolbar-button-pad}
-        + env(safe-area-inset-top)) 0 0 !important;
-      }
+      padding: calc(#{$toolbar-height * 2} + env(safe-area-inset-top)) 0 56px 0 !important;
     }
 
     &.offline {
-      padding: calc(#{$toolbar-height * 1.5} + constant(safe-area-inset-top)) 0 0 !important;
       padding: calc(#{$toolbar-height * 1.5} + env(safe-area-inset-top)) 0 0 !important;
 
       &.expand {
-        padding: calc(#{$toolbar-height * 2.5} + constant(safe-area-inset-top)) 0 0 !important;
         padding: calc(#{$toolbar-height * 2.5} + env(safe-area-inset-top)) 0 0 !important;
-
-        &.paddingToolbar {
-          padding: calc(#{$toolbar-height * 2.5} + #{$toolbar-button-pad}
-          + constant(safe-area-inset-top)) 0 0 !important;
-          padding: calc(#{$toolbar-height * 2.5} + #{$toolbar-button-pad}
-          + env(safe-area-inset-top)) 0 0 !important;
-        }
       }
     }
+  }
+
+  .app--bottom-nav-fab {
+    z-index: 5;
+    position: fixed;
+    right: calc((100% - 56px) / 2);
+    bottom: 24px;
   }
 
   //noinspection CssInvalidFunction, CssOverwrittenProperties
   .app-toolbar--overlay { /* ios bar */
     z-index: 10;
-    height: constant(safe-area-inset-top);
     height: env(safe-area-inset-top);
     width: 100%;
     position: fixed;
@@ -328,7 +293,6 @@ export default {
     top: 0;
     width: 100%;
     height: #{$toolbar-height / 2};
-    height: calc(constant(safe-area-inset-top) + #{$toolbar-height / 2});
     height: calc(env(safe-area-inset-top) + #{$toolbar-height / 2});
     display: flex;
     justify-content: center;
@@ -347,7 +311,6 @@ export default {
       margin: 0;
       background-color: $offline-color;
       padding-top: 35px;
-      padding-top: calc(constant(safe-area-inset-top) + 35px);
       padding-top: calc(env(safe-area-inset-top) + 35px);
 
       .v-snack__content {
@@ -364,7 +327,6 @@ export default {
 
   //noinspection CssInvalidFunction, CssOverwrittenProperties
   .v-dialog--fullscreen {
-    padding-top: constant(safe-area-inset-top) !important;
     padding-top: env(safe-area-inset-top) !important;
   }
 
@@ -415,23 +377,3 @@ export default {
     }
   }
 </style>
-
-<!--<style>
-  .slide-left-enter-active, .slide-left-leave-active {
-    transform: translate(0px, 0px);
-    transition: transform 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
-  }
-
-  .slide-left-enter, .slide-left-leave-to {
-    transform: translateX(-100vw) translateX(0px);
-  }
-
-  .slide-right-enter-active, .slide-right-leave-active {
-    transform: translate(0px, 0px);
-    transition: transform 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
-  }
-
-  .slide-right-enter, .slide-right-leave-to {
-    transform: translateX(100vw) translateX(0px);
-  }
-</style>-->

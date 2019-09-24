@@ -78,11 +78,11 @@ type ItemResult {
 
 type Mutation {
     addItem(data: ItemInput!): ItemResult!
-    addItems(data: [ItemInput!]!): Result!
+    addItems(data: [ItemInput!]!): [ItemResult!]!
     editChild(childId: ID!, data: EditChildItemInput!): Result!
-    editChildren(childIds: [ID!]!, data: EditChildItemInput!): Result!
+    editChildren(childIds: [ID!]!, data: EditChildItemInput!): [Result!]!
     editItem(data: EditItemInput!, id: ID!): Result!
-    editItems(data: EditItemInput!, ids: [ID!]!): Result!
+    editItems(data: EditItemInput!, ids: [ID!]!): [Result!]!
     removeChildren(childIds: [ID!]!): Result!
     removeItems(ids: [ID!]!): Result!
     restoreChild(childId: ID!): Result!
@@ -91,7 +91,7 @@ type Mutation {
 
 type Query {
     child(childId: ID!): ChildItem
-    children(childEnum: ChildEnum = NORMAL, search: String): [ChildItem!]!
+    children(childEnum: ChildEnum = NORMAL, search: String, sort: [[String!]!] = [["id", "asc"]]): [ChildItem!]!
     csv(paranoid: Boolean = false): CSV!
     item(id: ID!): Item
     items(itemEnum: ItemEnum = NORMAL, search: String, sort: [[String!]!] = [["id", "asc"]]): [Item!]!
@@ -111,11 +111,6 @@ type Room {
 type User {
     id: ID!
     name: String!
-}
-
-enum CacheControlScope {
-    PRIVATE
-    PUBLIC
 }
 
 enum ChildEnum {
@@ -166,7 +161,6 @@ scalar Date
 "A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar."
 scalar DateTime
 
-"The `Upload` scalar type represents a file upload."
 scalar Upload
 
 "A time string at UTC, such as 10:15:30Z, compliant with the `full-time` format outlined in section 5.6 of the RFC 3339profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar."
