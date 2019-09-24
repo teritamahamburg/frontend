@@ -1,5 +1,5 @@
-query ($text: String!) {
-    searchItems: items(search: $text) {
+query ($text: String $sort: [[String!]!]!) {
+    searchItems: items(search: $text sort: $sort) {
         id
         name
         code

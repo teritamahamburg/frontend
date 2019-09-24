@@ -35,6 +35,7 @@ export default new Vuetify({
         inputDate: 'mdi-calendar-text',
         name: 'mdi-file-document-box',
         room: 'mdi-map-marker',
+        home: 'mdi-home',
       },
     },
   },

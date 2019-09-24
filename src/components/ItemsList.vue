@@ -1,5 +1,7 @@
 <template>
-  <v-data-table fixed-header hide-default-footer class="items-view--list"
+  <v-data-table fixed-header hide-default-footer :items-per-page="-1"
+                class="items-view--list"
+                :height="listHeight" ref="list"
                 :headers="tableHeaderWithCheck" :items="items">
     <template v-slot:item="props">
       <tr @click="() => {$emit('click:row', props.item); props.expand(!props.isExpanded)}">
@@ -70,6 +72,11 @@ export default {
       default: () => [],
     },
   },
+  data() {
+    return {
+      listHeight: '100%',
+    };
+  },
   computed: {
     listAttrs() {
       return this.attrs.filter(({ type, key }) => !(type === 'action' && key === 'child'));
@@ -92,6 +99,23 @@ export default {
         value: key,
         sortable: type === 'value',
       }));
+    },
+  },
+  watch: {
+    // eslint-disable-next-line
+    '$vuetify.breakpoint.height': function (val) {
+      this.calcListHeight(val);
+    },
+  },
+  mounted() {
+    this.calcListHeight(this.$vuetify.breakpoint.height);
+  },
+  methods: {
+    calcListHeight(val) {
+      if (this.$refs.list.$el.getBoundingClientRect) {
+        const { top } = this.$refs.list.$el.getBoundingClientRect();
+        this.listHeight = val - (top > 50 ? top : top * 2) - 16;
+      }
     },
   },
 };

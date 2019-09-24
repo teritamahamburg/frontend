@@ -27,6 +27,7 @@ module.exports = {
     sameAsAbove: '同上',
     scan: '読み取り',
     search: '検索',
+    home: 'ホーム',
     disposed: '廃棄済',
     depreciated: '減価償却済',
     createItem: '資産の追加',
