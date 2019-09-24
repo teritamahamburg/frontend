@@ -23,7 +23,7 @@ query ($text: String $sort: [[String!]!]!) {
         createdAt
         deletedAt
     }
-    searchChildren: children(search: $text) {
+    searchChildren: children(search: $text sort: $sort) {
         id
         name
         room {
