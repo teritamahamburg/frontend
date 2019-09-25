@@ -31,6 +31,7 @@
           v-model="$store.state.searchText"
           hide-details
           :append-icon="$vuetify.icons.values.custom.search"
+          style="max-width: 300px"
         />
 
         <v-menu offset-y>
@@ -109,7 +110,7 @@
         <v-icon v-text="$vuetify.icons.values.custom.scan" />
       </v-btn>
 
-      <div v-show="$route.path === '/home'" style="width: 80px"></div>
+      <div v-show="$route.path === '/home'" class="v-btn--dummy"></div>
       <v-btn v-show="$route.path !== '/home'" value="/home">
         <span>{{ $t('general.home') }}</span>
         <v-icon v-text="$vuetify.icons.values.custom.home" />
@@ -284,7 +285,8 @@ export default {
   .app--bottom-nav {
     height: calc(56px + env(safe-area-inset-bottom)) !important;
 
-    .v-btn {
+    .v-btn, .v-btn--dummy {
+      width: 88px;
       height: 56px !important;
       margin-bottom: env(safe-area-inset-bottom);
     }

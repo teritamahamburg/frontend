@@ -1,8 +1,14 @@
 <template>
-  <v-data-table fixed-header hide-default-footer :items-per-page="-1"
-                class="items-view--list"
-                :height="listHeight" ref="list"
-                :headers="tableHeaderWithCheck" :items="items">
+  <v-data-table
+    fixed-header
+    hide-default-footer
+    :items-per-page="-1"
+    class="items-view--list"
+    :height="listHeight"
+    ref="list"
+    :headers="tableHeaderWithCheck"
+    :items="items"
+    :mobile-breakpoint="-1">
     <template v-slot:item="props">
       <tr @click="() => {$emit('click:row', props.item); props.expand(!props.isExpanded)}">
         <template v-for="(a) in listAttrs">
