@@ -17,13 +17,21 @@
              @click="$store.state.dialogs.reflect.show = true"/>
     </v-snackbar>
 
-    <v-app-bar app dense class="app-toolbar"
-               :class="{ offline }">
+    <v-app-bar
+      app
+      dense
+      class="app-toolbar"
+      :class="{ offline }"
+    >
       <template v-slot>
         <v-spacer/>
 
-        <v-text-field v-model="$store.state.searchText"
-                      hide-details :append-icon="$vuetify.icons.values.custom.search"/>
+        <v-text-field
+          v-show="showControl"
+          v-model="$store.state.searchText"
+          hide-details
+          :append-icon="$vuetify.icons.values.custom.search"
+        />
 
         <v-menu offset-y>
           <template v-slot:activator="{ on }">
@@ -91,6 +99,7 @@
     </v-content>
 
     <v-bottom-navigation
+      class="app--bottom-nav"
       app
       :value="$route.path"
       @change="(v) => $router.push(v)"
@@ -114,7 +123,7 @@
 
     <v-btn
       fab
-      class="app--bottom-nav-fab"
+      class="app--bottom-nav fab"
       :color="$store.state.dark ? 'white black--text' : 'black white--text'"
       v-if="$route.path === '/home'"
       @click="$store.state.dialogs.add.show = true"
@@ -252,27 +261,41 @@ export default {
 
   //noinspection CssInvalidFunction
   .v-content {
-    padding: calc(#{$toolbar-height} + env(safe-area-inset-top)) 0
-      calc(env(safe-area-inset-bottom) + 56px) 0 !important;
+    padding:
+      calc(#{$toolbar-height} + env(safe-area-inset-top))
+      0
+      calc(env(safe-area-inset-bottom) + 56px)
+      0 !important;
 
     &.expand {
-      padding: calc(#{$toolbar-height * 2} + env(safe-area-inset-top)) 0 56px 0 !important;
+      padding-top: calc(#{$toolbar-height * 2} + env(safe-area-inset-top)) !important;
     }
 
     &.offline {
-      padding: calc(#{$toolbar-height * 1.5} + env(safe-area-inset-top)) 0 0 !important;
+      padding-top: calc(#{$toolbar-height * 1.5} + env(safe-area-inset-top)) !important;
 
       &.expand {
-        padding: calc(#{$toolbar-height * 2.5} + env(safe-area-inset-top)) 0 0 !important;
+        padding-top: calc(#{$toolbar-height * 2.5} + env(safe-area-inset-top)) !important;
       }
     }
   }
 
-  .app--bottom-nav-fab {
-    z-index: 5;
-    position: fixed;
-    right: calc((100% - 56px) / 2);
-    bottom: 24px;
+  //noinspection CssInvalidFunction
+  .app--bottom-nav {
+    height: calc(56px + env(safe-area-inset-bottom)) !important;
+
+    .v-btn {
+      height: 56px !important;
+      margin-bottom: env(safe-area-inset-bottom);
+    }
+
+    &.fab {
+      height: 56px !important;
+      z-index: 5;
+      position: fixed;
+      right: calc((100% - 56px) / 2);
+      bottom: calc(24px + env(safe-area-inset-bottom));
+    }
   }
 
   //noinspection CssInvalidFunction, CssOverwrittenProperties

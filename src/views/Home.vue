@@ -24,19 +24,20 @@
     </template>
 
     <v-btn fab fixed right
-           style="bottom: 64px"
-           color="green" dark class="no--print"
+           class="no--print bottom"
+           color="green"
+           dark
            v-show="$store.state.dialogs.selectItems.length > 0"
            @click="$store.commit('showEditDialog')" aria-label="Edit">
       <v-icon v-text="$vuetify.icons.values.custom.edit" />
     </v-btn>
     <v-btn fab fixed right
-           style="bottom: 64px"
+           class="no--print bottom"
            @click="$broadcast.$emit('items:refetch')"
            v-show="$store.state.dialogs.selectItems.length === 0"
            v-if="$store.state.online"
            :color="$store.state.dark ? 'white black--text' : 'black white--text'"
-           class="no--print" aria-label="Refresh">
+           aria-label="Refresh">
       <v-icon v-text="$vuetify.icons.values.custom.refresh" />
     </v-btn>
   </div>
@@ -44,14 +45,14 @@
 
 <script>
 import { mapState } from 'vuex';
-import { throttle } from 'lodash-es';
+import { debounce } from 'lodash-es';
 
 import ItemsView, { viewTypes } from '@/components/ItemsView.vue';
 
 import itemsQuery from '@/apollo/queries/items.gql';
 import searchItemsQuery from '@/apollo/queries/searchItems.gql';
 
-const searchThrottle = 800;
+const searchDebounce = 1000;
 
 export default {
   name: 'Home',
@@ -98,7 +99,7 @@ export default {
       skip() {
         return !this.$store.state.online || !this.searchText;
       },
-      throttle: searchThrottle,
+      debounce: searchDebounce,
       query: searchItemsQuery,
       variables() {
         return {
@@ -110,14 +111,13 @@ export default {
       },
       update({ searchItems: items, searchChildren: children }) {
         return {
-          /* eslint-disable no-param-reassign */
-          items: items.map((item) => ({
+          items: items.map(item => ({
             ...item,
             admin: item.admin.name,
             course: item.course.name,
             room: item.room.number,
           })),
-          children: children.map((child) => ({
+          children: children.map(child => ({
             ...child,
             room: child.room ? child.room.number : null,
             name: child.name ? child.name : child.item.name,
@@ -164,7 +164,7 @@ export default {
     '$store.state.itemsView.viewType': function (val) {
       window.location.hash = `#${val}`;
     },
-    searchText(val) {
+    searchText() {
       if (!this.$store.state.online) this.computeSearchOfflineItems();
     },
   },
@@ -218,7 +218,7 @@ export default {
     },
   },
   methods: {
-    computeSearchOfflineItems: throttle(function () {
+    computeSearchOfflineItems: debounce(() => {
       const text = this.text.toLowerCase();
       this.search.offlineItems = this.$store.getters.itemsWithOfflineParanoid
         .filter(item => ['name', 'code', 'admin', 'course', 'room']
@@ -226,7 +226,7 @@ export default {
             if (!item[k]) return false;
             return item[k].toString().toLowerCase().includes(text);
           }));
-    }, searchThrottle),
+    }, searchDebounce),
   },
 };
 </script>
@@ -235,5 +235,10 @@ export default {
   .home {
     width: 100%;
     height: 100%;
+  }
+
+  //noinspection CssInvalidFunction
+  .v-btn.v-btn--fab.bottom {
+    bottom: calc(64px + env(safe-area-inset-bottom));
   }
 </style>
