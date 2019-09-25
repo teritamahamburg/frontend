@@ -15,12 +15,25 @@
                   class="items-view"
                   :viewType="$store.state.itemsView.viewType"
                   :attrs="$store.state.attrs.filter(({ key }) => key !== 'select')"
-                  v-on="$store.getters.itemsViewMenuVOn"/>
+                  v-on="$store.getters.itemsViewMenuVOn">
+        <template v-slot:empty>
+          <div
+            style="text-align: center;margin-top: 20%"
+            class="headline"
+            v-if="searchChildren.length === 0"
+          >
+            {{$t('general.noSearchResult')}}
+          </div>
+          <div v-else></div>
+        </template>
+      </items-view>
       <items-view :items="searchChildren"
                   class="items-view"
                   :viewType="$store.state.itemsView.viewType"
                   :attrs="childAttr"
-                  v-on="$store.getters.itemsViewMenuVOn"/>
+                  v-on="$store.getters.itemsViewMenuVOn">
+        <template v-slot:empty><div></div></template>
+      </items-view>
     </template>
 
     <v-btn fab fixed right
