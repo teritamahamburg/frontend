@@ -68,14 +68,6 @@
                 {{ $t('general.restoreItem') }}
               </v-list-item-content>
             </v-list-item>
-            <v-list-item to="/setting">
-              <v-list-item-action>
-                <v-icon left v-text="$vuetify.icons.values.custom.settings" />
-              </v-list-item-action>
-              <v-list-item-content>
-                {{ $t('general.settings') }}
-              </v-list-item-content>
-            </v-list-item>
           </v-list>
         </v-menu>
       </template>
