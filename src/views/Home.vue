@@ -4,7 +4,7 @@
       <items-view
         :items="items"
         :view-type="$store.state.itemsView.viewType"
-        :attrs="$store.state.attrs"
+        :attrs="$store.state.attrs.filter(({ show }) => !(show === false))"
         v-on="$store.getters.itemsViewMenuVOn"
         :selected-items="$store.state.dialogs.selectItems"
         @select="(v, i, l) => $store.commit('setSelectItems', l)"/>
@@ -14,7 +14,8 @@
       <items-view :items="searchItems"
                   class="items-view"
                   :viewType="$store.state.itemsView.viewType"
-                  :attrs="$store.state.attrs.filter(({ key }) => key !== 'select')"
+                  :attrs="$store.state.attrs
+                    .filter(({ key }) => key !== 'select' && !(show === false))"
                   v-on="$store.getters.itemsViewMenuVOn">
         <template v-slot:empty>
           <div
@@ -224,7 +225,8 @@ export default {
       return [];
     },
     childAttr() {
-      return this.$store.state.attrs.filter(({ type, key }) => {
+      return this.$store.state.attrs.filter(({ type, key, show }) => {
+        if (show === false) return false; /* undefined is false */
         if (type === 'action' && key !== 'select') return true;
         return ['id', 'name', 'room', 'checkedAt'].includes(key);
       });

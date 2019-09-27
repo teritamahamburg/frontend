@@ -1,19 +1,23 @@
 <template>
   <div class="check">
-    <v-quagga v-show="!showApplyDialog" :renderTypes="['code_39_reader']"
-      class="code-stream" :on-detected="onDecode"/>
+    <v-quagga
+      class="code-stream"
+      v-show="!showApplyDialog"
+      :renderTypes="['code_39_reader']"
+      :on-detected="onDecode"
+    />
 
     <div class="details-card-wrapper">
       <item-card class="details-card" :item="editItem || {}"
-        :entry="showEntries" first-column-width="170px"
-        :class="{ bound }" @animationend.native="bound = false"
-        :show-actions="['qrCode', 'edit', 'editHistory', 'remove', 'seal']"
-        v-on="$store.getters.itemsViewMenuVOn">
+                 :entry="showEntries" first-column-width="170px"
+                 :class="{ bound }" @animationend.native="bound = false"
+                 :show-actions="['qrCode', 'edit', 'editHistory', 'remove', 'seal']"
+                 v-on="$store.getters.itemsViewMenuVOn">
 
         <template v-slot:expand:title>
           <v-btn icon small @click="showAllEntry = !showAllEntry"
                  :aria-label="showAllEntry ? 'collapse' : 'expand'">
-            <v-icon v-text="$vuetify.icons.values.custom[showAllEntry ? 'up' : 'down']" />
+            <v-icon v-text="$vuetify.icons.values.custom[showAllEntry ? 'up' : 'down']"/>
           </v-btn>
         </template>
 
@@ -24,7 +28,7 @@
         <template v-slot:expand:list>
           <v-list-item>
             <v-checkbox color="black" :label="$t('general.enableMutationInScan')"
-                        :value="applyChange" @change="v => v ? showDialog() : clearDialog()" />
+                        :value="applyChange" @change="v => v ? showDialog() : clearDialog()"/>
           </v-list-item>
         </template>
       </item-card>
@@ -42,12 +46,12 @@
             <v-checkbox :label="$t('general.change')" color="black"
                         v-model="applyDialog.editCheckedAt"/>
             <date-picker :label="$t('item.checkedAt')" v-model="applyDialog.checkedAt"
-              :append-icon="null" :disabled="!applyDialog.editCheckedAt"/>
+                         :append-icon="null" :disabled="!applyDialog.editCheckedAt"/>
           </v-layout>
         </v-card-text>
 
         <v-card-actions>
-          <v-spacer />
+          <v-spacer/>
           <v-btn outlined @click="closeDialog(false)">
             {{ $t('general.cancel') }}
           </v-btn>
@@ -161,7 +165,7 @@ export default {
     showEntries() {
       if (this.showAllEntry && this.computedItem) {
         return this.$store.state.attrs
-          .filter(({ type }) => type === 'value')
+          .filter(({ type, show }) => type === 'value' && !(show === false))
           .map(({ key }) => key);
       }
       return ['room', 'checkedAt'];
@@ -192,7 +196,7 @@ export default {
         data.room = Number(this.applyDialog.room);
       }
       if (this.applyDialog.editCheckedAt
-            && this.computedItem.checkedAt !== this.applyDialog.checkedAt) {
+        && this.computedItem.checkedAt !== this.applyDialog.checkedAt) {
         data.checkedAt = this.applyDialog.checkedAt;
       }
       if (Object.keys(data).length <= 1) return;
@@ -236,36 +240,57 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
-.check {
-  width: 100%;
-  height: 100%;
+<style lang="scss">
+  .code-stream.viewport {
+    & > video {
+      position: inherit;
+    }
 
-  .code-stream {
-    width: 100%;
-  }
-
-  .details-card-wrapper {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-
-    .details-card {
-      width: 100%;
+    & > canvas {
+      top: auto;
+      left: auto;
     }
   }
-}
+</style>
 
-.bound {
-  animation: bound 200ms ease-in;
-}
+<style scoped lang="scss">
+  .check {
+    width: 100%;
+    height: 100%;
 
-@keyframes bound {
-    0% { transform: translateY(0px) }
-   50% { transform: translateY(-20px) }
-  100% { transform: translateY(0px) }
-}
+    .code-stream {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .details-card-wrapper {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+
+      .details-card {
+        width: 100%;
+      }
+    }
+  }
+
+  .bound {
+    animation: bound 200ms ease-in;
+  }
+
+  @keyframes bound {
+    0% {
+      transform: translateY(0px)
+    }
+    50% {
+      transform: translateY(-20px)
+    }
+    100% {
+      transform: translateY(0px)
+    }
+  }
 </style>

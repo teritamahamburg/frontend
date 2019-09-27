@@ -45,7 +45,7 @@
       </v-card-text>
       <v-card-actions>
         <v-btn outlined color="success" @click="clickBulkAdd">
-          {{ $t('general.bulkAdd') }}
+          {{ $t('general.bulkAddFromCSV') }}
         </v-btn>
         <v-spacer/>
         <v-btn outlined @click="closeDialog">

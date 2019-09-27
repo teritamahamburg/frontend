@@ -19,6 +19,7 @@
       <template v-else>
         <div class="print--card">
           <canvas width="250" height="250" ref="transferCanvas"></canvas>
+          <v-text-field v-model="time" type="number" :disabled="transferring" />
         </div>
 
         <v-card-actions>
@@ -66,6 +67,7 @@ export default {
     return {
       type: 'QR',
       transferring: false,
+      time: '35',
     };
   },
   methods: {
@@ -88,9 +90,13 @@ export default {
       this.type = 'QR';
     },
     clickTransfer() {
-      requestAnimationFrame(() => {
+      const time = Number(this.time);
+      requestAnimationFrame((startTime) => {
+        let start = startTime;
         const bin = `32${this.text
-          .split('').map(c => c.charCodeAt(0).toString(2)).join('')
+          .split('')
+          .map(c => Number(c).toString(2).padStart(4, '0'))
+          .join('')
           .split('')
           .join('2')
         }23`;
@@ -99,17 +105,20 @@ export default {
 
         let i = 0;
         let b = 0;
-        const render = () => {
-          if (bin.length === i) {
-            this.transferring = false;
-            return;
+        const render = (timestamp) => {
+          if (timestamp - start >= time) {
+            start = timestamp;
+            if (bin.length === i) {
+              this.transferring = false;
+              return;
+            }
+            if (b % 5 === 0) {
+              ctx.fillStyle = ['#00F', '#0F0', '#000', '#F00'][bin[i]];
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              i += 1;
+            }
+            b += 1;
           }
-          if (b % 5 === 0) {
-            ctx.fillStyle = ['#00F', '#0F0', '#000', '#F00'][bin[i]];
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            i += 1;
-          }
-          b += 1;
           requestAnimationFrame(render);
         };
         this.transferring = true;
