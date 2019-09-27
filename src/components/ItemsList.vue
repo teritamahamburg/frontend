@@ -8,7 +8,8 @@
     ref="list"
     :headers="tableHeaderWithCheck"
     :items="items"
-    :mobile-breakpoint="-1">
+    :mobile-breakpoint="-1"
+  >
     <template v-slot:item="props">
       <tr @click="() => {$emit('click:row', props.item); props.expand(!props.isExpanded)}">
         <template v-for="(a) in listAttrs">
@@ -32,8 +33,13 @@
     <template v-slot:expanded-item="props">
       <td v-if="props.item.children.length > 0" :colspan="props.headers.length">
         <v-card class="elevation-1">
-          <v-data-table hide-default-footer class="child-table" :fixed-header="false"
-                        :items="props.item.children" :headers="childTableHeaderWithCheck">
+          <v-data-table
+            :mobile-breakpoint="-1"
+            class="child-table"
+            :fixed-header="false"
+            :items="props.item.children"
+            :headers="childTableHeaderWithCheck"
+          >
             <template v-slot:item="{ item: child }">
               <tr @click="() => {$emit('click:row', child);}">
                 <template v-for="(a) in childListAttrs">

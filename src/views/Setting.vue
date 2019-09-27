@@ -1,41 +1,28 @@
 <template>
   <div class="setting">
-    <div class="setting--attr-list">
-      <div>
-        <span>{{ $t('general.attributeList') }}</span>
-        <v-list>
-          <draggable :value="attributes" group="attrs">
-            <v-list-item v-for="a in attributes" :key="a.key">
-              <v-list-item-title>{{ $t(`item.${a.key}`) }}</v-list-item-title>
-            </v-list-item>
-          </draggable>
-        </v-list>
-      </div>
-      <div>
-        <span>{{ $t('general.actionAttributeList') }}</span>
-        <v-list>
-          <draggable :value="attributeActions" group="attrs">
-            <v-list-item v-for="a in attributeActions" :key="a.key">
-              <v-list-item-title>[ {{ $t(`general.${a.key}`) }} ]</v-list-item-title>
-            </v-list-item>
-          </draggable>
-        </v-list>
-      </div>
-      <div>
-        <span>{{ $t('general.showAttributeList') }}</span>
-        <v-list>
-          <draggable v-model="attrs" group="attrs">
-            <v-list-item v-for="(a, i) in attrs" :key="i">
-              <v-list-item-title>
-                {{a.type === 'action' ? '[' : ''}}
-                {{ $t(`${a.type === 'value' ? 'item' : 'general'}.${a.key}`) }}
-                {{a.type === 'action' ? ']' : ''}}
-              </v-list-item-title>
-            </v-list-item>
-          </draggable>
-        </v-list>
-      </div>
-    </div>
+    <v-card :width="300">
+      <v-card-title>Attribute Set</v-card-title>
+      <v-list>
+        <draggable :value="attrs" handle=".drag--handle">
+          <v-list-item
+            v-for="(a, i) in attrs" :key="a.key"
+            :class="{ 'grey lighten-3': a.show === false}"
+          >
+            <v-list-item-content>
+              {{a.type === 'action' ? '[' : ''}}
+              {{ $t(`${a.type === 'value' ? 'item' : 'general'}.${a.key}`) }}
+              {{a.type === 'action' ? ']' : ''}}
+            </v-list-item-content>
+            <v-btn icon small @click="toggleShown(i)">
+              <v-icon>
+                {{a.show === false /* undefined is true */ ? 'mdi-eye-off' : 'mdi-eye'}}
+              </v-icon>
+            </v-btn>
+            <v-icon class="drag--handle">mdi-menu</v-icon>
+          </v-list-item>
+        </draggable>
+      </v-list>
+    </v-card>
   </div>
 </template>
 
@@ -73,23 +60,44 @@ export default {
   computed: {
     attrs: {
       get() {
-        return this.$store.state.attrs;
+        const attrs = [...this.$store.state.attrs];
+        attributes.forEach((k) => {
+          if (!attrs.some(a => a.type === 'value' && a.key === k)) {
+            attrs.push({
+              type: 'value',
+              key: k,
+              show: false,
+            });
+          }
+        });
+        attributeActions.forEach((k) => {
+          if (!attrs.some(a => a.type === 'action' && a.key === k)) {
+            attrs.push({
+              type: 'action',
+              key: k,
+              show: false,
+            });
+          }
+        });
+        return attrs;
       },
       set(val) {
         this.$store.commit('setAttrs', val);
       },
     },
-    attributes() {
-      const a = this.attrs;
-      return attributes
-        .filter(k => !a.some(b => b.key === k))
-        .map(key => ({ type: 'value', key }));
-    },
-    attributeActions() {
-      const a = this.attrs;
-      return attributeActions
-        .filter(k => !a.some(b => b.key === k))
-        .map(key => ({ type: 'action', key }));
+  },
+  beforeMount() {
+    const filtered = this.$store.state.attrs
+      .filter(({ key, type }) => (type === 'value' ? attributes : attributeActions).includes(key));
+    if (this.$store.state.attrs.length !== filtered.length) {
+      this.attrs = filtered;
+    }
+  },
+  methods: {
+    toggleShown(i) {
+      const attr = this.attrs;
+      attr[i].show = attr[i].show === false;
+      this.attrs = attr;
     },
   },
 };
@@ -98,15 +106,10 @@ export default {
 <style scoped lang="scss">
   .setting {
     padding: 10px;
+    width: 100%;
     height: 100%;
-
-    .setting--attr-list {
-      display: flex;
-
-      .v-list {
-        min-width: 150px;
-        margin: 0 5px;
-      }
-    }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 </style>

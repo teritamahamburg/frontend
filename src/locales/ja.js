@@ -22,6 +22,7 @@ module.exports = {
     emptyAndAdd: '資産がありません。 追加してください。',
     addItem: '資産の追加',
     add: '追加',
+    bulkAddFromCSV: 'CSVから一括追加',
     bulkAdd: '一括追加',
     cancel: 'キャンセル',
     sameAsAbove: '同上',
