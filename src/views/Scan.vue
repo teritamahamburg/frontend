@@ -121,7 +121,7 @@ export default {
   },
   data() {
     return {
-      id: undefined,
+      id: '1',
       applyChange: false,
       showApplyDialog: false,
       applyDialog: {
@@ -254,6 +254,8 @@ export default {
 </style>
 
 <style scoped lang="scss">
+  $bottom-bar-height: 56px;
+
   .check {
     width: 100%;
     height: 100%;
@@ -266,7 +268,7 @@ export default {
 
     .details-card-wrapper {
       position: fixed;
-      bottom: 0;
+      bottom: $bottom-bar-height;
       width: 100%;
       display: flex;
       align-items: center;

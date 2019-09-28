@@ -3,7 +3,7 @@
     <v-card :width="300">
       <v-card-title>Attribute Set</v-card-title>
       <v-list>
-        <draggable :value="attrs" handle=".drag--handle">
+        <draggable v-model="attrs" handle=".drag--handle">
           <v-list-item
             v-for="(a, i) in attrs" :key="a.key"
             :class="{ 'grey lighten-3': a.show === false}"
