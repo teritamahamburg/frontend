@@ -1,6 +1,6 @@
 <template>
   <v-dialog :value="value" persistent max-width="600"
-    :fullscreen="$vuetify.breakpoint.xsOnly">
+            :fullscreen="$vuetify.breakpoint.xsOnly">
     <v-card>
       <v-card-title>
         <span class="headline">{{ $t('general.editHistory') }}</span>
@@ -9,9 +9,11 @@
           {{ $t('general.close') }}
         </v-btn>
       </v-card-title>
-      <v-data-table hide-default-footer
-                    :headers="headers"
-                    :items="id && id.includes(',') ? childHistories : histories">
+      <v-data-table
+        hide-default-footer
+        :mobile-breakpoint="-1"
+        :headers="headers"
+        :items="id && id.includes(',') ? childHistories : histories">
         <template v-slot:items="props">
           <tr :key="props.index">
             <td v-for="k in Object.keys(props.item)" :key="`${props.index}-${k}`">
